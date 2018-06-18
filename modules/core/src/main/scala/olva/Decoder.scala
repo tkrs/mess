@@ -40,6 +40,14 @@ object Decoder extends LowPriorityDecoder {
 
   @inline def apply[A](implicit A: Decoder[A]): Decoder[A] = A
 
+  def lift[A](a: A): Decoder[A] = new Decoder[A] {
+    def apply(_m: MsgPack): Either[Throwable, A] = Right(a)
+  }
+
+  def liftF[A](a: Either[Throwable, A]): Decoder[A] = new Decoder[A] {
+    def apply(_m: MsgPack): Either[Throwable, A] = a
+  }
+
   implicit val decodeBoolean: Decoder[Boolean] = new Decoder[Boolean] {
     def apply(m: MsgPack): Either[Throwable, Boolean] = m match {
       case MsgPack.MBool(a) => Right(a)

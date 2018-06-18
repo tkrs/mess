@@ -1,5 +1,6 @@
 package olva
 
+import olva.ast.MsgPack
 import org.scalatest.FunSuite
 import olva.derived.derivedCodecs._
 
@@ -183,5 +184,10 @@ class EncoderSpec extends FunSuite with MsgpackHelper {
          x"8f a1 64 81 a6 64 6f 75 62 6c 65 cb 40 08 00 00 00 00 00 00 a1 6f 81 a6 64 6f 75 62 6c 65 cb 40 2c 00 00 00 00 00 00 a1 6b 81 a6 64 6f 75 62 6c 65 cb 40 24 00 00 00 00 00 00 a1 68 81 a6 64 6f 75 62 6c 65 cb 40 1c 00 00 00 00 00 00 a1 63 81 a6 64 6f 75 62 6c 65 cb 40 00 00 00 00 00 00 00 a1 6c 81 a6 64 6f 75 62 6c 65 cb 40 26 00 00 00 00 00 00 a1 67 81 a6 64 6f 75 62 6c 65 cb 40 18 00 00 00 00 00 00 a1 62 81 a6 64 6f 75 62 6c 65 cb 3f f0 00 00 00 00 00 00 a1 69 81 a6 64 6f 75 62 6c 65 cb 40 20 00 00 00 00 00 00 a1 6d 81 a6 64 6f 75 62 6c 65 cb 40 28 00 00 00 00 00 00 a1 61 81 a6 64 6f 75 62 6c 65 cb 00 00 00 00 00 00 00 00 a1 66 81 a6 64 6f 75 62 6c 65 cb 40 14 00 00 00 00 00 00 a1 6a 81 a6 64 6f 75 62 6c 65 cb 40 22 00 00 00 00 00 00 a1 6e 81 a6 64 6f 75 62 6c 65 cb 40 2a 00 00 00 00 00 00 a1 65 81 a6 64 6f 75 62 6c 65 cb 40 10 00 00 00 00 00 00")
       )
     }
+  }
+
+  test("contramac") {
+    val encode = Encoder[Int].contramap[String](_.toInt)
+    assert(encode("10") == MsgPack.MInt(10))
   }
 }
