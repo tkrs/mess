@@ -3,7 +3,7 @@ package olva.ast
 import java.{util => ju}
 
 sealed trait MsgPack { self =>
-  def add(k: MsgPack, v: MsgPack): MsgPack = self
+  def add(_k: MsgPack, _v: MsgPack): MsgPack = self
 }
 object MsgPack {
   final case object MEmpty extends MsgPack

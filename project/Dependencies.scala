@@ -18,12 +18,9 @@ object Dependencies {
     lazy val shapeless      = "com.chuusai"                %% "shapeless"      % Ver.shapeless
     lazy val exportHook     = "org.typelevel"              %% "export-hook"    % Ver.exportHook
     lazy val scalatest      = "org.scalatest"              %% "scalatest"      % Ver.scalatest
-    lazy val scalaReflect   = "org.scala-lang"             % "scala-reflect"   % Keys.scalaVersion.value % "provided"
     lazy val scalacheck     = "org.scalacheck"             %% "scalacheck"     % Ver.scalacheck
     lazy val msgpackJava    = "org.msgpack"                % "msgpack-core"    % Ver.msgpackJava
     lazy val kindProjector  = "org.spire-math"             %% "kind-projector" % Ver.kindProjector
-
-    lazy val macroParadise  = compilerPlugin("org.scalamacros" % "paradise" % Ver.macroParadise cross CrossVersion.patch)
 
     lazy val forTest = Seq(scalatest, scalacheck).map(_ % "test")
   }
