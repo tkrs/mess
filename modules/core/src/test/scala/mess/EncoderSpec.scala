@@ -1,8 +1,8 @@
-package olva
+package mess
 
-import olva.ast.MsgPack
+import mess.ast.MsgPack
 import org.scalatest.FunSuite
-import olva.derived.derivedCodecs._
+import mess.derived.derivedCodecs._
 
 class EncoderSpec extends FunSuite with MsgpackHelper {
   import MsgpackHelper._

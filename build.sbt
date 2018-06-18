@@ -9,7 +9,7 @@ lazy val root = (project in file("."))
 lazy val allSettings = buildSettings ++ baseSettings ++ publishSettings
 
 lazy val buildSettings = Seq(
-  name := "olva",
+  name := "mess",
   organization := "com.github.tkrs",
   scalaVersion := Ver.`scala2.12`,
   crossScalaVersions := Seq(
@@ -36,7 +36,7 @@ lazy val baseSettings = Seq(
 lazy val publishSettings = Seq(
   releaseCrossBuild := true,
   releasePublishArtifactsAction := PgpKeys.publishSigned.value,
-  homepage := Some(url("https://github.com/tkrs/olva")),
+  homepage := Some(url("https://github.com/tkrs/mess")),
   licenses := Seq("MIT License" -> url("http://www.opensource.org/licenses/mit-license.php")),
   publishMavenStyle := true,
   publishArtifact in Test := false,
@@ -50,8 +50,8 @@ lazy val publishSettings = Seq(
   },
   scmInfo := Some(
     ScmInfo(
-      url("https://github.com/tkrs/olva"),
-      "scm:git:git@github.com:tkrs/olva.git",
+      url("https://github.com/tkrs/mess"),
+      "scm:git:git@github.com:tkrs/mess.git",
     )
   ),
   pomExtra :=
@@ -75,8 +75,8 @@ lazy val noPublishSettings = Seq(
 lazy val core = project.in(file("modules/core"))
   .settings(allSettings)
   .settings(
-    description := "olva core",
-    moduleName := "olva-core",
+    description := "mess core",
+    moduleName := "mess-core",
     name := "core"
   )
   .settings(
@@ -93,8 +93,8 @@ lazy val benchmark = (project in file("modules/benchmark"))
   .settings(allSettings)
   .settings(noPublishSettings)
   .settings(
-    description := "olva benchmark",
-    moduleName := "olva-benchmark",
+    description := "mess benchmark",
+    moduleName := "mess-benchmark",
     name := "benchmark"
   )
   .settings(

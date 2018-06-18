@@ -1,9 +1,9 @@
-package olva.bench
+package mess.bench
 
 import java.nio.ByteBuffer
 
-import olva.{Codec, Decoder}
-import olva.derived.derivedCodecs._
+import mess.{Codec, Decoder}
+import mess.derived.derivedCodecs._
 import org.msgpack.core.MessagePack
 import org.openjdk.jmh.annotations._
 

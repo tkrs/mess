@@ -1,6 +1,6 @@
-package olva
+package mess
 
-import olva.derived.derivedCodecs._
+import mess.derived.derivedCodecs._
 import org.msgpack.core.MessagePack
 import org.scalacheck.{Arbitrary, Gen, Prop, Shrink}
 import org.scalatest.prop.Checkers

@@ -1,4 +1,4 @@
-package olva
+package mess
 
 import org.scalacheck.Gen
 

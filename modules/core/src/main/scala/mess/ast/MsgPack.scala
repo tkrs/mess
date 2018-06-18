@@ -1,4 +1,4 @@
-package olva.ast
+package mess.ast
 
 import java.{util => ju}
 
@@ -28,7 +28,7 @@ object MsgPack {
   }
 }
 
-private[olva] final class MutMap { self =>
+private[mess] final class MutMap { self =>
   import scala.collection.JavaConverters._
 
   private[this] val _map = new ju.HashMap[MsgPack, MsgPack]

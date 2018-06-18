@@ -1,4 +1,4 @@
-package olva
+package mess
 
 import org.msgpack.core.{MessageBufferPacker, MessagePack}
 import org.scalatest._

@@ -1,8 +1,8 @@
-package olva.bench
+package mess.bench
 
 import java.nio.ByteBuffer
 
-import olva.bench.models._
+import mess.bench.models._
 import org.msgpack.core.{MessageBufferPacker, MessagePack}
 import org.openjdk.jmh.annotations.{Scope, Setup, State, TearDown}
 

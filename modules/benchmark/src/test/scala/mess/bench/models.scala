@@ -1,10 +1,10 @@
-package olva.bench
+package mess.bench
 
 import java.nio.ByteBuffer
 
-import olva.{Codec, Encoder}
-import olva.ast.MsgPack
-import olva.derived.derivedCodecs._
+import mess.{Codec, Encoder}
+import mess.ast.MsgPack
+import mess.derived.derivedCodecs._
 import org.msgpack.core.MessagePack
 
 import scala.util.Random
