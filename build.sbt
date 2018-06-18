@@ -84,8 +84,8 @@ lazy val core = project.in(file("modules/core"))
       Pkg.msgpackJava,
       Pkg.shapeless,
       Pkg.exportHook,
-      Pkg.scalaReflect,
-      Pkg.macroParadise
+      "org.scala-lang" % "scala-reflect" % scalaVersion.value % "provided",
+      compilerPlugin("org.scalamacros" % "paradise" % Ver.macroParadise cross CrossVersion.patch)
     )
   )
 
