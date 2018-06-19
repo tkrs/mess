@@ -197,7 +197,7 @@ class EncoderSpec extends FunSuite with MsgpackHelper {
     }
   }
 
-  test("contramac") {
+  test("contramap") {
     val encode = Encoder[Int].contramap[String](_.toInt)
     assert(encode("10") == MsgPack.MInt(10))
   }

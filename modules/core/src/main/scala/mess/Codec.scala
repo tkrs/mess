@@ -89,8 +89,6 @@ object Codec {
       acc.packLong(a)
     case MsgPack.MBigInt(a) =>
       acc.packBigInteger(a.bigInteger)
-    case MsgPack.MBigDecimal(a) =>
-      acc.packBigInteger(a.bigDecimal.toBigInteger)
     case MsgPack.MFloat(a) =>
       acc.packFloat(a)
     case MsgPack.MDouble(a) =>

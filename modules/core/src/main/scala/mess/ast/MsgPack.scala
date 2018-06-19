@@ -16,7 +16,6 @@ object MsgPack {
   final case class MInt(a: Int)                                     extends MsgPack
   final case class MLong(a: Long)                                   extends MsgPack
   final case class MBigInt(a: BigInt)                               extends MsgPack
-  final case class MBigDecimal(a: BigDecimal)                       extends MsgPack
   final case class MDouble(a: Double)                               extends MsgPack
   final case class MFloat(a: Float)                                 extends MsgPack
   final case class MArray(a: Vector[MsgPack])                       extends MsgPack
