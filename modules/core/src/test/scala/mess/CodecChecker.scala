@@ -111,7 +111,7 @@ class CodecChecker extends FunSuite with Checkers with MsgpackHelper {
 
   implicit val decodeEventTime: Decoder[Instant] = new Decoder[Instant] {
     def apply(a: MsgPack): Either[Throwable, Instant] = a match {
-      case MsgPack.MExtension(_, _, arr0) =>
+      case MsgPack.MExtension(Code.EXT8, _, arr0) =>
         val arr     = arr0.map(a => (a & 0xff).toLong)
         val seconds = (arr(0) << 24) | (arr(1) << 16) | (arr(2) << 8) | arr(3)
         val nanos   = (arr(4) << 24) | (arr(5) << 16) | (arr(6) << 8) | arr(7)
