@@ -20,7 +20,7 @@ class CodecChecker extends FunSuite with Checkers with MsgpackHelper {
 
     val genFix: Gen[User[List]] = for {
       depth <- Gen.chooseNum(1, 100)
-      i <- Gen.size
+      i     <- Gen.size
     } yield fix(depth, i, User[List](i, Nil))
 
     implicit val arbFix: Arbitrary[User[List]] = Arbitrary(genFix)

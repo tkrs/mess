@@ -11,11 +11,15 @@ class DecoderSpec extends FunSuite with MsgpackHelper {
   case class Bar(double: Double)
   case class Foo(int: Int, str: String, bar: Bar)
 
-  def check[A](tc: Seq[(A, Array[Byte])])(implicit A: Decoder[A]): Unit = {
+  case class Qux(byte: Option[Int])
+
+  def decode[A](arr: Array[Byte])(implicit A: Decoder[A]): Either[Throwable, A] = {
+    A(Codec.deserialize(MessagePack.DEFAULT_UNPACKER_CONFIG.newUnpacker(arr)))
+  }
+
+  def check[A: Decoder](tc: Seq[(A, Array[Byte])]): Unit = {
     for ((expected, p) <- tc) {
-      val ast =
-        Codec.deserialize(MessagePack.DEFAULT_UNPACKER_CONFIG.newUnpacker(p))
-      val v = A(ast).right.get
+      val v = decode(p).right.get
       assert(v === expected)
     }
   }
@@ -188,8 +192,37 @@ class DecoderSpec extends FunSuite with MsgpackHelper {
     }
   }
 
+  test("Decoder[Qux]") {
+    check {
+      Seq(
+        (Qux(None), x"81 a4 62 79 74 65 c0"),
+        (Qux(Some(1)), x"81 a4 62 79 74 65 01")
+      )
+    }
+  }
+
+  test("Decoder[Qux] should return IllegalArgumentException when its type conversion is failed") {
+    decode[Qux](x"a1 20") match {
+      case Left(e) if e.isInstanceOf[IllegalArgumentException] => succeed
+      case _                                                   => fail()
+    }
+  }
+
+  test(
+    "Decoder[Qux] should return IllegalArgumentException when its field type conversion is failed") {
+    decode[Qux](x"81 a4 62 79 74 65 a1 01") match {
+      case Left(e) if e.isInstanceOf[IllegalArgumentException] => succeed
+      case _                                                   => fail()
+    }
+  }
+
   test("map") {
     val decode = Decoder[String].map(_.toInt)
+    assert(decode(MsgPack.MString("30")).right.get === 30)
+  }
+
+  test("mapF") {
+    val decode = Decoder[String].mapF(a => Right(a.toInt))
     assert(decode(MsgPack.MString("30")).right.get === 30)
   }
 

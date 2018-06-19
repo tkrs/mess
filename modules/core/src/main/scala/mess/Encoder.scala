@@ -68,8 +68,7 @@ object Encoder extends LowPriorityEncoder {
     def apply(a: K): MsgPack = MsgPack.MString(a.name)
   }
 
-  implicit final def encodeOption[A](
-      implicit A: Encoder[A]): Encoder[Option[A]] =
+  implicit final def encodeOption[A](implicit A: Encoder[A]): Encoder[Option[A]] =
     new Encoder[Option[A]] {
       def apply(a: Option[A]): MsgPack = a match {
         case Some(v) => A(v)
@@ -86,8 +85,7 @@ object Encoder extends LowPriorityEncoder {
 
   @tailrec private[this] def iterLoop[A](
       rem: Iterator[A],
-      acc: mutable.Builder[MsgPack, Vector[MsgPack]])(
-      implicit A: Encoder[A]): Vector[MsgPack] =
+      acc: mutable.Builder[MsgPack, Vector[MsgPack]])(implicit A: Encoder[A]): Vector[MsgPack] =
     if (!rem.hasNext) acc.result()
     else iterLoop(rem, acc += A(rem.next()))
 
@@ -130,10 +128,9 @@ object Encoder extends LowPriorityEncoder {
     }
   }
 
-  implicit final def encodeMapLike[M[k, +v] <: Map[K, V], K, V](
-      implicit
-      K: Encoder[K],
-      V: Encoder[V]): Encoder[M[K, V]] =
+  implicit final def encodeMapLike[M[k, +v] <: Map[K, V], K, V](implicit
+                                                                K: Encoder[K],
+                                                                V: Encoder[V]): Encoder[M[K, V]] =
     new Encoder[M[K, V]] {
       def apply(a: M[K, V]): MsgPack =
         MsgPack.MMap(mapLoop(a.iterator, MutMap.empty))

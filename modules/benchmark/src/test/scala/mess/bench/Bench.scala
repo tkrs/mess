@@ -12,5 +12,5 @@ import org.openjdk.jmh.annotations._
 @Fork(2)
 abstract class Bench
 
-class PackBench extends Bench with PackerBench
+class PackBench   extends Bench with PackerBench
 class UnpackBench extends Bench with UnpackerBench
