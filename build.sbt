@@ -25,11 +25,24 @@ lazy val baseSettings = Seq(
     Resolver.sonatypeRepo("snapshots")
   ),
   libraryDependencies ++= Pkg.forTest,
-  scalacOptions ++= compilerOptions ++ Seq("-Ywarn-unused"),
-  scalacOptions in (Compile, console) ~= (_ filterNot (_ == "-Ywarn-unused")),
-  scalacOptions in (Compile, console) ++= Seq(
-    "-Yrepl-class-based"
-  ),
+  scalacOptions ++= compilerOptions ++ {
+    CrossVersion.partialVersion(scalaVersion.value) match {
+      case Some((2, p)) if p >= 12 =>
+        Seq(
+          "-Ywarn-extra-implicit",
+          "-Ywarn-unused:implicits",
+          "-Ywarn-unused:imports",
+          "-Ywarn-unused:locals",
+          // "-Ywarn-unused:params",
+          "-Ywarn-unused:patvars",
+          "-Ywarn-unused:privates"
+        )
+      case _ =>
+        Seq.empty
+    }
+  },
+  scalacOptions in (Compile, console) ~= (_.filterNot(_.startsWith("-Ywarn-unused"))),
+  scalacOptions in (Compile, console) ++= Seq("-Yrepl-class-based"),
   fork in Test := true
 )
 

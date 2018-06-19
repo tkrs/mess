@@ -11,16 +11,16 @@ object Dependencies {
     val scalatest     = "3.0.5"
     val msgpackJava   = "0.8.16"
     val kindProjector = "0.9.7"
-    val macroParadise = "2.1.0"
+    val macroParadise = "2.1.1"
   }
 
   val Pkg = new {
-    lazy val shapeless      = "com.chuusai"                %% "shapeless"      % Ver.shapeless
-    lazy val exportHook     = "org.typelevel"              %% "export-hook"    % Ver.exportHook
-    lazy val scalatest      = "org.scalatest"              %% "scalatest"      % Ver.scalatest
-    lazy val scalacheck     = "org.scalacheck"             %% "scalacheck"     % Ver.scalacheck
-    lazy val msgpackJava    = "org.msgpack"                % "msgpack-core"    % Ver.msgpackJava
-    lazy val kindProjector  = "org.spire-math"             %% "kind-projector" % Ver.kindProjector
+    lazy val shapeless      = "com.chuusai"    %% "shapeless"      % Ver.shapeless
+    lazy val exportHook     = "org.typelevel"  %% "export-hook"    % Ver.exportHook
+    lazy val scalatest      = "org.scalatest"  %% "scalatest"      % Ver.scalatest
+    lazy val scalacheck     = "org.scalacheck" %% "scalacheck"     % Ver.scalacheck
+    lazy val msgpackJava    = "org.msgpack"    % "msgpack-core"    % Ver.msgpackJava
+    lazy val kindProjector  = "org.spire-math" %% "kind-projector" % Ver.kindProjector
 
     lazy val forTest = Seq(scalatest, scalacheck).map(_ % "test")
   }

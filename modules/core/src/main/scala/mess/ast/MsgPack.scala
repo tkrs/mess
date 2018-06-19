@@ -3,24 +3,23 @@ package mess.ast
 import java.{util => ju}
 
 sealed trait MsgPack { self =>
-  def add(_k: MsgPack, _v: MsgPack): MsgPack = self
+  def add(k: MsgPack, v: MsgPack): MsgPack = self
 }
 object MsgPack {
-  final case object MEmpty extends MsgPack
-  final case object MNil extends MsgPack
-  final case class MBool(a: Boolean) extends MsgPack
-  final case class MString(a: String) extends MsgPack
-  final case class MByte(a: Byte) extends MsgPack
-  final case class MExtension(typ: Byte, size: Int, a: Array[Byte])
-      extends MsgPack
-  final case class MShort(a: Short) extends MsgPack
-  final case class MInt(a: Int) extends MsgPack
-  final case class MLong(a: Long) extends MsgPack
-  final case class MBigInt(a: BigInt) extends MsgPack
-  final case class MBigDecimal(a: BigDecimal) extends MsgPack
-  final case class MDouble(a: Double) extends MsgPack
-  final case class MFloat(a: Float) extends MsgPack
-  final case class MArray(a: Vector[MsgPack]) extends MsgPack
+  final case object MEmpty                                          extends MsgPack
+  final case object MNil                                            extends MsgPack
+  final case class MBool(a: Boolean)                                extends MsgPack
+  final case class MString(a: String)                               extends MsgPack
+  final case class MByte(a: Byte)                                   extends MsgPack
+  final case class MExtension(typ: Byte, size: Int, a: Array[Byte]) extends MsgPack
+  final case class MShort(a: Short)                                 extends MsgPack
+  final case class MInt(a: Int)                                     extends MsgPack
+  final case class MLong(a: Long)                                   extends MsgPack
+  final case class MBigInt(a: BigInt)                               extends MsgPack
+  final case class MBigDecimal(a: BigDecimal)                       extends MsgPack
+  final case class MDouble(a: Double)                               extends MsgPack
+  final case class MFloat(a: Float)                                 extends MsgPack
+  final case class MArray(a: Vector[MsgPack])                       extends MsgPack
   final case class MMap(a: MutMap) extends MsgPack {
     override def add(k: MsgPack, v: MsgPack): MsgPack = {
       this.copy(a.add(k, v))
@@ -31,7 +30,7 @@ object MsgPack {
 private[mess] final class MutMap { self =>
   import scala.collection.JavaConverters._
 
-  private[this] val _map = new ju.HashMap[MsgPack, MsgPack]
+  private[this] val _map  = new ju.HashMap[MsgPack, MsgPack]
   private[this] val _keys = Vector.newBuilder[MsgPack]
 
   def add(k: MsgPack, v: MsgPack): MutMap = {
@@ -47,7 +46,7 @@ private[mess] final class MutMap { self =>
 
   def size: Int = _map.size
 
-  def get(key: MsgPack): Option[MsgPack] = Option(_map.get(key))
+  def get(key: MsgPack): MsgPack = _map.get(key)
 
   def iterator: Iterator[(MsgPack, MsgPack)] =
     new Iterator[(MsgPack, MsgPack)] {

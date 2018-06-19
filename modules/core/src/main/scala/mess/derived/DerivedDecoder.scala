@@ -26,21 +26,16 @@ trait LowPriorityDerivedDecoder {
     new DerivedDecoder[FieldType[K, H] :: T] {
       def apply(m: MsgPack): Either[Throwable, FieldType[K, H] :: T] = m match {
         case MsgPack.MMap(a) =>
-          a.get(MsgPack.MString(K.value.name)) match {
-            case Some(v) =>
-              T(m) match {
-                case Right(t) =>
-                  H(v) match {
-                    case Right(h) =>
-                      Right(field[K](h) :: t)
-                    case Left(e) =>
-                      Left(e)
-                  }
+          T(m) match {
+            case Right(t) =>
+              H(a.get(MsgPack.MString(K.value.name))) match {
+                case Right(h) =>
+                  Right(field[K](h) :: t)
                 case Left(e) =>
                   Left(e)
               }
-            case None =>
-              Left(new IllegalArgumentException)
+            case Left(e) =>
+              Left(e)
           }
         case _ => Left(new IllegalArgumentException("Uncaught ..."))
       }
