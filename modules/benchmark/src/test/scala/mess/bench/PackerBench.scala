@@ -14,12 +14,9 @@ trait PackerBench {
     r
   }
 
-  private[this] val decodeLong10CC: Encoder[models.Long10] =
-    Encoder[models.Long10]
-  private[this] val decodeLong30CC: Encoder[models.Long30] =
-    Encoder[models.Long30]
-  private[this] val decodeLong60CC: Encoder[models.Long60] =
-    Encoder[models.Long60]
+  private[this] val decodeLong10CC: Encoder[models.Long10] = Encoder[models.Long10]
+  private[this] val decodeLong30CC: Encoder[models.Long30] = Encoder[models.Long30]
+  private[this] val decodeLong60CC: Encoder[models.Long60] = Encoder[models.Long60]
 
   @Benchmark
   def encodeUInt32(data: States.PackData): Array[Byte] = {

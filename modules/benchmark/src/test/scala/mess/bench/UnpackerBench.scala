@@ -17,12 +17,30 @@ trait UnpackerBench {
     r
   }
 
-  private[this] val decodeLong10CC: Decoder[models.Long10] =
-    Decoder[models.Long10]
-  private[this] val decodeLong30CC: Decoder[models.Long30] =
-    Decoder[models.Long30]
-  private[this] val decodeLong60CC: Decoder[models.Long60] =
-    Decoder[models.Long60]
+  private[this] val decodeLong10CC: Decoder[models.Long10] = Decoder[models.Long10]
+  private[this] val decodeLong30CC: Decoder[models.Long30] = Decoder[models.Long30]
+  private[this] val decodeLong60CC: Decoder[models.Long60] = Decoder[models.Long60]
+
+  @Benchmark
+  def decodeUInt32(data: States.UnpackData): Long = {
+    decode[Long](data.uInt32)
+  }
+
+  @Benchmark
+  def decodeUInt64(data: States.UnpackData): BigInt = {
+    decode[BigInt](data.uInt64)
+  }
+
+  @Benchmark
+  def decodeStr16(data: States.UnpackData): String = {
+    decode[String](data.str16V)
+  }
+
+  @Benchmark
+  def decodeStr32(data: States.UnpackData): String = {
+    decode[String](data.str32V)
+  }
+
   @Benchmark
   def decodeLong10(data: States.UnpackData): models.Long10 = {
     decode[models.Long10](data.long10CC)(decodeLong10CC)
