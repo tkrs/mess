@@ -1,7 +1,11 @@
 package mess
 
+import java.time.Instant
+
+import mess.ast.MsgPack
 import mess.derived.derivedCodecs._
 import org.msgpack.core.MessagePack
+import org.msgpack.core.MessagePack.Code
 import org.scalacheck.{Arbitrary, Gen, Prop, Shrink}
 import org.scalatest.prop.Checkers
 import org.scalatest.{Assertion, FunSuite}
@@ -81,4 +85,41 @@ class CodecChecker extends FunSuite with Checkers with MsgpackHelper {
   test("Set[BigInt]")(roundTrip[Set[BigInt]])
   test("Set[String]")(roundTrip[Set[String]])
   test("User[List]")(roundTrip[User[List]])
+
+  implicit val arbInstant: Arbitrary[Instant] = Arbitrary(for {
+    seconds <- Gen.choose(0L, System.currentTimeMillis() / 1000)
+    nanos   <- Gen.choose(0L, 999000000L)
+  } yield Instant.ofEpochSecond(seconds, nanos))
+
+  implicit val encodeEventTime: Encoder[Instant] = new Encoder[Instant] {
+    def apply(a: Instant): MsgPack = {
+      val seconds = a.getEpochSecond
+      val nanos   = a.getNano.toLong
+      val arr = Array(
+        (seconds >>> 24).toByte,
+        (seconds >>> 16).toByte,
+        (seconds >>> 8).toByte,
+        (seconds >>> 0).toByte,
+        (nanos >>> 24).toByte,
+        (nanos >>> 16).toByte,
+        (nanos >>> 8).toByte,
+        (nanos >>> 0).toByte
+      )
+      MsgPack.MExtension(Code.EXT8, 8, arr)
+    }
+  }
+
+  implicit val decodeEventTime: Decoder[Instant] = new Decoder[Instant] {
+    def apply(a: MsgPack): Either[Throwable, Instant] = a match {
+      case MsgPack.MExtension(_, _, arr0) =>
+        val arr     = arr0.map(a => (a & 0xff).toLong)
+        val seconds = (arr(0) << 24) | (arr(1) << 16) | (arr(2) << 8) | arr(3)
+        val nanos   = (arr(4) << 24) | (arr(5) << 16) | (arr(6) << 8) | arr(7)
+        Right(Instant.ofEpochSecond(seconds, nanos))
+      case _ =>
+        Left(new IllegalArgumentException(s"$a"))
+    }
+  }
+
+  test("Instant(Extension)")(roundTrip[Instant])
 }
