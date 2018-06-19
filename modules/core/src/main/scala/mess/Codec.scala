@@ -29,12 +29,9 @@ object Codec {
   }
 
   def deserialize(buffer: MessageUnpacker): MsgPack = {
-    if (!buffer.hasNext)
-      MsgPack.MEmpty
-    else {
-      val mf = buffer.getNextFormat
-      mf.getValueType
-      mf match {
+    if (!buffer.hasNext) MsgPack.MEmpty
+    else
+      buffer.getNextFormat match {
         case MF.NIL =>
           buffer.unpackNil()
           MsgPack.MNil
@@ -66,35 +63,23 @@ object Codec {
         case MF.NEVER_USED =>
           throw new IllegalStateException("NEVER USED")
       }
-    }
   }
 
   def serialize(m: MsgPack, acc: MessagePacker): Unit = m match {
-    case MsgPack.MEmpty =>
-      ()
-    case MsgPack.MNil =>
-      acc.packNil()
-    case MsgPack.MBool(a) =>
-      acc.packBoolean(a)
-    case MsgPack.MByte(a) =>
-      acc.packByte(a)
+    case MsgPack.MEmpty     => ()
+    case MsgPack.MNil       => acc.packNil()
+    case MsgPack.MBool(a)   => acc.packBoolean(a)
+    case MsgPack.MByte(a)   => acc.packByte(a)
+    case MsgPack.MShort(a)  => acc.packShort(a)
+    case MsgPack.MInt(a)    => acc.packInt(a)
+    case MsgPack.MLong(a)   => acc.packLong(a)
+    case MsgPack.MBigInt(a) => acc.packBigInteger(a.bigInteger)
+    case MsgPack.MFloat(a)  => acc.packFloat(a)
+    case MsgPack.MDouble(a) => acc.packDouble(a)
+    case MsgPack.MString(a) => acc.packString(a)
     case MsgPack.MExtension(t, s, a) =>
       acc.packExtensionTypeHeader(t, s)
       acc.writePayload(a)
-    case MsgPack.MShort(a) =>
-      acc.packShort(a)
-    case MsgPack.MInt(a) =>
-      acc.packInt(a)
-    case MsgPack.MLong(a) =>
-      acc.packLong(a)
-    case MsgPack.MBigInt(a) =>
-      acc.packBigInteger(a.bigInteger)
-    case MsgPack.MFloat(a) =>
-      acc.packFloat(a)
-    case MsgPack.MDouble(a) =>
-      acc.packDouble(a)
-    case MsgPack.MString(a) =>
-      acc.packString(a)
     case MsgPack.MArray(a) =>
       acc.packArrayHeader(a.size)
       a.foreach(serialize(_, acc))
