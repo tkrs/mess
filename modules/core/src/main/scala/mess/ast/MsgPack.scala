@@ -62,7 +62,7 @@ private[mess] final class MutMap { self =>
     }
 
   override def toString: String =
-    s"CMap(${keys.zip(_map.values().asScala.mkString("[", ", ", "]"))})"
+    s"CMap(${keys.zip(_map.values().asScala).mkString("[", ", ", "]")})"
 }
 
 object MutMap {

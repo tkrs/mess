@@ -10,9 +10,9 @@ import org.openjdk.jmh.annotations._
 trait UnpackerBench {
 
   @inline private def decode[A: Decoder](src: ByteBuffer): A = {
-    val p = MessagePack.DEFAULT_UNPACKER_CONFIG.newUnpacker(src)
+    val p   = MessagePack.DEFAULT_UNPACKER_CONFIG.newUnpacker(src)
     val dst = Codec.deserialize(p)
-    val r = Decoder[A].apply(dst).right.get
+    val r   = Decoder[A].apply(dst).right.get
     p.close()
     r
   }

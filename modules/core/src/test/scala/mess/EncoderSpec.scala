@@ -10,6 +10,8 @@ class EncoderSpec extends FunSuite with MsgpackHelper {
   case class Bar(double: Double)
   case class Foo(int: Int, str: String, bar: Bar)
 
+  case class Qux(byte: Option[Int])
+
   def check[A](tc: Seq[(A, Array[Byte])])(implicit A: Encoder[A]): Unit = {
     for ((p, expected) <- tc) {
       packer.clear()
@@ -182,6 +184,15 @@ class EncoderSpec extends FunSuite with MsgpackHelper {
       Seq(
         (('a' to 'z').zip((0 to 14).map(a => Bar(a.toDouble))).toMap,
          x"8f a1 64 81 a6 64 6f 75 62 6c 65 cb 40 08 00 00 00 00 00 00 a1 6f 81 a6 64 6f 75 62 6c 65 cb 40 2c 00 00 00 00 00 00 a1 6b 81 a6 64 6f 75 62 6c 65 cb 40 24 00 00 00 00 00 00 a1 68 81 a6 64 6f 75 62 6c 65 cb 40 1c 00 00 00 00 00 00 a1 63 81 a6 64 6f 75 62 6c 65 cb 40 00 00 00 00 00 00 00 a1 6c 81 a6 64 6f 75 62 6c 65 cb 40 26 00 00 00 00 00 00 a1 67 81 a6 64 6f 75 62 6c 65 cb 40 18 00 00 00 00 00 00 a1 62 81 a6 64 6f 75 62 6c 65 cb 3f f0 00 00 00 00 00 00 a1 69 81 a6 64 6f 75 62 6c 65 cb 40 20 00 00 00 00 00 00 a1 6d 81 a6 64 6f 75 62 6c 65 cb 40 28 00 00 00 00 00 00 a1 61 81 a6 64 6f 75 62 6c 65 cb 00 00 00 00 00 00 00 00 a1 66 81 a6 64 6f 75 62 6c 65 cb 40 14 00 00 00 00 00 00 a1 6a 81 a6 64 6f 75 62 6c 65 cb 40 22 00 00 00 00 00 00 a1 6e 81 a6 64 6f 75 62 6c 65 cb 40 2a 00 00 00 00 00 00 a1 65 81 a6 64 6f 75 62 6c 65 cb 40 10 00 00 00 00 00 00")
+      )
+    }
+  }
+
+  test("Encoder[Qux]") {
+    check {
+      Seq(
+        (Qux(None), x"81 a4 62 79 74 65 c0"),
+        (Qux(Some(1)), x"81 a4 62 79 74 65 01")
       )
     }
   }

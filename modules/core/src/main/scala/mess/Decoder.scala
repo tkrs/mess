@@ -165,22 +165,17 @@ object Decoder extends LowPriorityDecoder {
       }
     }
 
-  @inline private[this] def decodeContainer[C[_], A](
-      implicit A: Decoder[A],
-      cbf: CanBuildFrom[Nothing, A, C[A]]): Decoder[C[A]] =
+  @inline private[this] def decodeContainer[C[_], A](implicit A: Decoder[A],
+                                                     cbf: CanBuildFrom[Nothing, A, C[A]]): Decoder[C[A]] =
     new Decoder[C[A]] {
       def apply(m: MsgPack): Either[Throwable, C[A]] = {
-        @tailrec def loop(
-            it: Iterator[MsgPack],
-            b: mutable.Builder[A, C[A]]): Either[Throwable, C[A]] = {
+        @tailrec def loop(it: Iterator[MsgPack], b: mutable.Builder[A, C[A]]): Either[Throwable, C[A]] = {
           if (!it.hasNext) Right(b.result())
           else {
             val a = it.next()
             A.apply(a) match {
-              case Right(aa) =>
-                loop(it, b += aa)
-              case Left(e) =>
-                Left(e)
+              case Right(aa) => loop(it, b += aa)
+              case Left(e)   => Left(e)
             }
           }
         }
@@ -214,22 +209,18 @@ object Decoder extends LowPriorityDecoder {
       cbf: CanBuildFrom[Nothing, (K, V), M[K, V]]): Decoder[M[K, V]] =
     new Decoder[M[K, V]] {
       def apply(m: MsgPack): Either[Throwable, M[K, V]] = {
-        @tailrec def loop(
-            it: Iterator[(MsgPack, MsgPack)],
-            b: mutable.Builder[(K, V), M[K, V]]): Either[Throwable, M[K, V]] = {
+        @tailrec def loop(it: Iterator[(MsgPack, MsgPack)],
+                          b: mutable.Builder[(K, V), M[K, V]]): Either[Throwable, M[K, V]] = {
           if (!it.hasNext) Right(b.result())
           else {
             val (k, v) = it.next()
             K.apply(k) match {
               case Right(kk) =>
                 V.apply(v) match {
-                  case Right(vv) =>
-                    loop(it, b += kk -> vv)
-                  case Left(e) =>
-                    Left(e)
+                  case Right(vv) => loop(it, b += kk -> vv)
+                  case Left(e)   => Left(e)
                 }
-              case Left(e) =>
-                Left(e)
+              case Left(e) => Left(e)
             }
           }
         }

@@ -29,22 +29,18 @@ trait LowPriorityDerivedDecoder {
           T(m) match {
             case Right(t) =>
               H(a.get(MsgPack.MString(K.value.name))) match {
-                case Right(h) =>
-                  Right(field[K](h) :: t)
-                case Left(e) =>
-                  Left(e)
+                case Right(h) => Right(field[K](h) :: t)
+                case Left(e)  => Left(e)
               }
-            case Left(e) =>
-              Left(e)
+            case Left(e) => Left(e)
           }
-        case _ => Left(new IllegalArgumentException("Uncaught ..."))
+        case _ => Left(new IllegalArgumentException(s"$m"))
       }
     }
 
-  implicit final def decodeGen[A, R](
-      implicit
-      gen: LabelledGeneric.Aux[A, R],
-      R: Lazy[DerivedDecoder[R]]): DerivedDecoder[A] =
+  implicit final def decodeGen[A, R](implicit
+                                     gen: LabelledGeneric.Aux[A, R],
+                                     R: Lazy[DerivedDecoder[R]]): DerivedDecoder[A] =
     new DerivedDecoder[A] {
       def apply(a: MsgPack): Either[Throwable, A] = R.value(a) match {
         case Right(v) => Right(gen.from(v))

@@ -29,10 +29,9 @@ trait LowPriorityDerivedEncoder {
         T(a.tail).add(S(K.value), H(a.head))
     }
 
-  implicit final def encodeGen[A, R](
-      implicit
-      gen: LabelledGeneric.Aux[A, R],
-      R: Lazy[DerivedEncoder[R]]): DerivedEncoder[A] =
+  implicit final def encodeGen[A, R](implicit
+                                     gen: LabelledGeneric.Aux[A, R],
+                                     R: Lazy[DerivedEncoder[R]]): DerivedEncoder[A] =
     new DerivedEncoder[A] {
       def apply(a: A): MsgPack = R.value(gen.to(a))
     }

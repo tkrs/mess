@@ -31,7 +31,7 @@ object models {
 
   object IntT {
     def uInt64: BigInt = (BigInt(1) << 64) - 1
-    def uInt32: Long = (1L << 32) - 1
+    def uInt32: Long   = (1L << 32) - 1
 
     def uInt64Bytes: ByteBuffer =
       ByteBuffer.wrap(packer(MsgPack.MBigInt(uInt64)))
