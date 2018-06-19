@@ -44,6 +44,7 @@ class CodecChecker extends FunSuite with Checkers with MsgpackHelper {
       a === b.right.get
     }))
 
+  // format: off
   test("Boolean")(roundTrip[Boolean])
   test("Byte")(roundTrip[Byte])
   test("Short")(roundTrip[Short])
@@ -85,6 +86,29 @@ class CodecChecker extends FunSuite with Checkers with MsgpackHelper {
   test("Set[BigInt]")(roundTrip[Set[BigInt]])
   test("Set[String]")(roundTrip[Set[String]])
   test("User[List]")(roundTrip[User[List]])
+  test("Tuple1")(roundTrip[Tuple1[Int]])
+  test("Tuple2")(roundTrip[Tuple2[Int, Int]])
+  test("Tuple3")(roundTrip[Tuple3[Int, Int, Long]])
+  test("Tuple4")(roundTrip[Tuple4[Int, Int, Long, String]])
+  test("Tuple5")(roundTrip[Tuple5[Int, Int, Long, String, BigInt]])
+  test("Tuple6")(roundTrip[Tuple6[Int, Int, Long, String, BigInt, Double]])
+  test("Tuple7")(roundTrip[Tuple7[Int, Int, Long, String, BigInt, Double, Float]])
+  test("Tuple8")(roundTrip[Tuple8[Int, Int, Long, String, BigInt, Double, Float, Long]])
+  test("Tuple9")(roundTrip[Tuple9[Int, Int, Long, String, BigInt, Double, Float, Long, Int]])
+  test("Tuple10")(roundTrip[Tuple10[Int, Int, Long, String, BigInt, Double, Float, Long, Int, Byte]])
+  test("Tuple11")(roundTrip[Tuple11[Int, Int, Long, String, BigInt, Double, Float, Long, Int, Byte, Short]])
+  test("Tuple12")(roundTrip[Tuple12[Int, Int, Long, String, BigInt, Double, Float, Long, Int, Byte, Short, Boolean]])
+  test("Tuple13")(roundTrip[Tuple13[Int, Int, Long, String, BigInt, Double, Float, Long, Int, Byte, Short, Boolean, Int]])
+  test("Tuple14")(roundTrip[Tuple14[Int, Int, Long, String, BigInt, Double, Float, Long, Int, Byte, Short, Boolean, Int, String]])
+  test("Tuple15")(roundTrip[Tuple15[Int, Int, Long, String, BigInt, Double, Float, Long, Int, Byte, Short, Boolean, Int, String, Int]])
+  test("Tuple16")(roundTrip[Tuple16[Int, Int, Long, String, BigInt, Double, Float, Long, Int, Byte, Short, Boolean, Int, String, Int, Int]])
+  test("Tuple17")(roundTrip[Tuple17[Int, Int, Long, String, BigInt, Double, Float, Long, Int, Byte, Short, Boolean, Int, String, Int, Int, Int]])
+  test("Tuple18")(roundTrip[Tuple18[Int, Int, Long, String, BigInt, Double, Float, Long, Int, Byte, Short, Boolean, Int, String, Int, Int, Int, Int]])
+  test("Tuple19")(roundTrip[Tuple19[Int, Int, Long, String, BigInt, Double, Float, Long, Int, Byte, Short, Boolean, Int, String, Int, Int, Int, Int, Int]])
+  test("Tuple20")(roundTrip[Tuple20[Int, Int, Long, String, BigInt, Double, Float, Long, Int, Byte, Short, Boolean, Int, String, Int, Int, Int, Int, Int, Int]])
+  test("Tuple21")(roundTrip[Tuple21[Int, Int, Long, String, BigInt, Double, Float, Long, Int, Byte, Short, Boolean, Int, String, Int, Int, Int, Int, Int, Int, Int]])
+  test("Tuple22")(roundTrip[Tuple22[Int, Int, Long, String, BigInt, Double, Float, Long, Int, Byte, Short, Boolean, Int, String, List[String], Int, Int, Int, Int, Int, Int, Int]])
+  // format: on
 
   implicit val arbInstant: Arbitrary[Instant] = Arbitrary(for {
     seconds <- Gen.choose(0L, System.currentTimeMillis() / 1000)

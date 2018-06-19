@@ -93,6 +93,9 @@ lazy val core = project.in(file("modules/core"))
     name := "core"
   )
   .settings(
+    sourceGenerators in Compile += (sourceManaged in Compile).map(Boilerplate.gen).taskValue
+  )
+  .settings(
     libraryDependencies ++= Seq(
       Pkg.msgpackJava,
       Pkg.shapeless,
