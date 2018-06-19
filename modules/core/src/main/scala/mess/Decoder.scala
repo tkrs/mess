@@ -36,7 +36,7 @@ trait Decoder[A] extends Serializable { self =>
   }
 }
 
-object Decoder extends LowPriorityDecoder {
+object Decoder extends LowPriorityDecoder with TupleDecoder {
 
   @inline def apply[A](implicit A: Decoder[A]): Decoder[A] = A
 
@@ -120,8 +120,9 @@ object Decoder extends LowPriorityDecoder {
 
   implicit val decodeFloat: Decoder[Float] = new Decoder[Float] {
     def apply(m: MsgPack): Either[Throwable, Float] = m match {
-      case MsgPack.MFloat(a) => Right(a)
-      case _                 => Left(new IllegalArgumentException(s"$m"))
+      case MsgPack.MFloat(a)  => Right(a)
+      case MsgPack.MDouble(a) => Right(a.toFloat)
+      case _                  => Left(new IllegalArgumentException(s"$m"))
     }
   }
 
@@ -171,36 +172,24 @@ object Decoder extends LowPriorityDecoder {
       def apply(m: MsgPack): Either[Throwable, C[A]] = {
         @tailrec def loop(it: Iterator[MsgPack], b: mutable.Builder[A, C[A]]): Either[Throwable, C[A]] = {
           if (!it.hasNext) Right(b.result())
-          else {
-            val a = it.next()
-            A.apply(a) match {
+          else
+            A.apply(it.next()) match {
               case Right(aa) => loop(it, b += aa)
               case Left(e)   => Left(e)
             }
-          }
         }
 
         m match {
-          case MsgPack.MArray(a) =>
-            val it = a.iterator
-            loop(it, cbf.apply)
-          case _ =>
-            Left(new IllegalArgumentException(s"$m"))
+          case MsgPack.MArray(a) => loop(a.iterator, cbf.apply)
+          case _                 => Left(new IllegalArgumentException(s"$m"))
         }
       }
     }
 
-  implicit def decodeSeq[A](implicit A: Decoder[A]): Decoder[Seq[A]] =
-    decodeContainer[Seq, A]
-
-  implicit def decodeSet[A](implicit A: Decoder[A]): Decoder[Set[A]] =
-    decodeContainer[Set, A]
-
-  implicit def decodeList[A](implicit A: Decoder[A]): Decoder[List[A]] =
-    decodeContainer[List, A]
-
-  implicit def decodeVector[A](implicit A: Decoder[A]): Decoder[Vector[A]] =
-    decodeContainer[Vector, A]
+  implicit def decodeSeq[A](implicit A: Decoder[A]): Decoder[Seq[A]]       = decodeContainer[Seq, A]
+  implicit def decodeSet[A](implicit A: Decoder[A]): Decoder[Set[A]]       = decodeContainer[Set, A]
+  implicit def decodeList[A](implicit A: Decoder[A]): Decoder[List[A]]     = decodeContainer[List, A]
+  implicit def decodeVector[A](implicit A: Decoder[A]): Decoder[Vector[A]] = decodeContainer[Vector, A]
 
   implicit def decodeMapLike[M[_, _] <: Map[K, V], K, V](
       implicit
@@ -226,11 +215,8 @@ object Decoder extends LowPriorityDecoder {
         }
 
         m match {
-          case MsgPack.MMap(a) =>
-            val b = cbf.apply
-            loop(a.iterator, b)
-          case _ =>
-            Left(new IllegalArgumentException(s"$m"))
+          case MsgPack.MMap(a) => loop(a.iterator, cbf.apply)
+          case _               => Left(new IllegalArgumentException(s"$m"))
         }
       }
     }

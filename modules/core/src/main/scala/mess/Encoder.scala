@@ -15,7 +15,7 @@ trait Encoder[A] extends Serializable { self =>
   }
 }
 
-object Encoder extends LowPriorityEncoder {
+object Encoder extends LowPriorityEncoder with TupleEncoder {
 
   @inline def apply[A](implicit A: Encoder[A]): Encoder[A] = A
 
