@@ -55,6 +55,7 @@ class CodecChecker extends FunSuite with Checkers with MsgpackHelper {
   test("Map[String, Double]")(roundTrip[Map[String, Double]])
   test("Map[String, BigInt]")(roundTrip[Map[String, BigInt]])
   test("Map[String, String]")(roundTrip[Map[String, String]])
+  test("Map[Int, String]")(roundTrip[Map[Int, String]])
   test("Vector[Int]")(roundTrip[Vector[Int]])
   test("Vector[Long]")(roundTrip[Vector[Long]])
   test("Vector[Float]")(roundTrip[Vector[Float]])

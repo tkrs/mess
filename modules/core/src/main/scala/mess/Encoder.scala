@@ -83,9 +83,8 @@ object Encoder extends LowPriorityEncoder {
     def apply(a: None.type): MsgPack = MsgPack.MNil
   }
 
-  @tailrec private[this] def iterLoop[A](
-      rem: Iterator[A],
-      acc: mutable.Builder[MsgPack, Vector[MsgPack]])(implicit A: Encoder[A]): Vector[MsgPack] =
+  @tailrec private[this] def iterLoop[A](rem: Iterator[A], acc: mutable.Builder[MsgPack, Vector[MsgPack]])(
+      implicit A: Encoder[A]): Vector[MsgPack] =
     if (!rem.hasNext) acc.result()
     else iterLoop(rem, acc += A(rem.next()))
 
@@ -117,10 +116,9 @@ object Encoder extends LowPriorityEncoder {
       }
     }
 
-  @tailrec private[this] def mapLoop[K, V](it: Iterator[(K, V)], acc: MutMap)(
-      implicit
-      K: Encoder[K],
-      V: Encoder[V]): MutMap = {
+  @tailrec private[this] def mapLoop[K, V](it: Iterator[(K, V)], acc: MutMap)(implicit
+                                                                              K: Encoder[K],
+                                                                              V: Encoder[V]): MutMap = {
     if (!it.hasNext) acc
     else {
       val (k, v) = it.next()

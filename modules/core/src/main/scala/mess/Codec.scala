@@ -19,9 +19,7 @@ object Codec {
     }
   }
 
-  @tailrec private[this] def deserializeMap(size: Int,
-                                            acc: MutMap,
-                                            buffer: MessageUnpacker): MutMap = {
+  @tailrec private[this] def deserializeMap(size: Int, acc: MutMap, buffer: MessageUnpacker): MutMap = {
     if (size == 0) acc
     else {
       val k = deserialize(buffer)
@@ -60,8 +58,7 @@ object Codec {
         case MF.FIXMAP | MF.MAP16 | MF.MAP32 =>
           val size = buffer.unpackMapHeader()
           MsgPack.MMap(deserializeMap(size, MutMap.empty, buffer))
-        case MF.EXT8 | MF.EXT16 | MF.EXT32 | MF.FIXEXT1 | MF.FIXEXT2 | MF.FIXEXT4 | MF.FIXEXT8 |
-            MF.FIXEXT16 =>
+        case MF.EXT8 | MF.EXT16 | MF.EXT32 | MF.FIXEXT1 | MF.FIXEXT2 | MF.FIXEXT4 | MF.FIXEXT8 | MF.FIXEXT16 =>
           val ext   = buffer.unpackExtensionTypeHeader()
           val bytes = Array.ofDim[Byte](ext.getLength)
           buffer.readPayload(bytes)

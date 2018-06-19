@@ -208,8 +208,7 @@ class DecoderSpec extends FunSuite with MsgpackHelper {
     }
   }
 
-  test(
-    "Decoder[Qux] should return IllegalArgumentException when its field type conversion is failed") {
+  test("Decoder[Qux] should return IllegalArgumentException when its field type conversion is failed") {
     decode[Qux](x"81 a4 62 79 74 65 a1 01") match {
       case Left(e) if e.isInstanceOf[IllegalArgumentException] => succeed
       case _                                                   => fail()

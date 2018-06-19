@@ -7,8 +7,7 @@ import org.openjdk.jmh.annotations._
 
 trait PackerBench {
 
-  @inline private def encode[A](a: A, p: MessageBufferPacker)(
-      implicit A: Encoder[A]): Array[Byte] = {
+  @inline private def encode[A](a: A, p: MessageBufferPacker)(implicit A: Encoder[A]): Array[Byte] = {
     Codec.serialize(A(a), p)
     val r = p.toByteArray
     p.clear()
