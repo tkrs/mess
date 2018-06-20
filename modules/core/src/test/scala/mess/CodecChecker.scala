@@ -115,30 +115,27 @@ class CodecChecker extends FunSuite with Checkers with MsgpackHelper {
     nanos   <- Gen.choose(0L, 999000000L)
   } yield Instant.ofEpochSecond(seconds, nanos))
 
-  implicit val encodeEventTime: Encoder[Instant] = new Encoder[Instant] {
+  implicit val encodeInstantAsFluentdEventTime: Encoder[Instant] = new Encoder[Instant] {
     def apply(a: Instant): MsgPack = {
-      val seconds = a.getEpochSecond
-      val nanos   = a.getNano.toLong
-      val arr = Array(
-        (seconds >>> 24).toByte,
-        (seconds >>> 16).toByte,
-        (seconds >>> 8).toByte,
-        (seconds >>> 0).toByte,
-        (nanos >>> 24).toByte,
-        (nanos >>> 16).toByte,
-        (nanos >>> 8).toByte,
-        (nanos >>> 0).toByte
-      )
+      val s = a.getEpochSecond
+      val n = a.getNano.toLong
+
+      val f: (Long, Long) => Byte = (v, m) => (v >>> m).toByte
+      val fs: Long => Byte        = f(s, _)
+      val fn: Long => Byte        = f(n, _)
+
+      val arr = Array(fs(24L), fs(16L), fs(8L), fs(0L), fn(24L), fn(16L), fn(8L), fn(0L))
       MsgPack.MExtension(Code.EXT8, 8, arr)
     }
   }
 
-  implicit val decodeEventTime: Decoder[Instant] = new Decoder[Instant] {
+  implicit val decodeInstantAsFluentdEventTime: Decoder[Instant] = new Decoder[Instant] {
     def apply(a: MsgPack): Either[Throwable, Instant] = a match {
-      case MsgPack.MExtension(Code.EXT8, _, arr0) =>
-        val arr     = arr0.map(a => (a & 0xff).toLong)
-        val seconds = (arr(0) << 24) | (arr(1) << 16) | (arr(2) << 8) | arr(3)
-        val nanos   = (arr(4) << 24) | (arr(5) << 16) | (arr(6) << 8) | arr(7)
+      case MsgPack.MExtension(Code.EXT8, _, arr) =>
+        val f: (Int, Long) => Long = (i, j) => (arr(i) & 0xff).toLong << j
+
+        val seconds = f(0, 24L) | f(1, 16L) | f(2, 8L) | f(3, 0L)
+        val nanos   = f(4, 24L) | f(5, 16L) | f(6, 8L) | f(7, 0L)
         Right(Instant.ofEpochSecond(seconds, nanos))
       case _ =>
         Left(new IllegalArgumentException(s"$a"))
