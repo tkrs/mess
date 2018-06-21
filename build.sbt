@@ -3,8 +3,8 @@ import Dependencies._
 lazy val root = (project in file("."))
   .settings(allSettings)
   .settings(noPublishSettings)
-  .aggregate(core, benchmark)
-  .dependsOn(core, benchmark)
+  .aggregate(core, benchmark, examples)
+  .dependsOn(core, benchmark, examples)
 
 lazy val allSettings = buildSettings ++ baseSettings ++ publishSettings
 
@@ -104,6 +104,19 @@ lazy val core = project.in(file("modules/core"))
       compilerPlugin("org.scalamacros" % "paradise" % Ver.macroParadise cross CrossVersion.patch)
     )
   )
+
+lazy val examples = (project in file("modules/examples"))
+  .settings(allSettings)
+  .settings(noPublishSettings)
+  .settings(
+    description := "mess examples",
+    moduleName := "mess-examples",
+    name := "examples"
+  )
+  .settings(
+    coverageEnabled := false
+  )
+  .dependsOn(core)
 
 lazy val benchmark = (project in file("modules/benchmark"))
   .settings(allSettings)
