@@ -3,7 +3,7 @@ package mess.bench
 import java.nio.ByteBuffer
 
 import mess.{Codec, Decoder}
-import mess.derived.derivedCodecs._
+import mess.derived.codecs._
 import org.msgpack.core.MessagePack
 import org.openjdk.jmh.annotations._
 

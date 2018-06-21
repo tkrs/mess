@@ -1,7 +1,7 @@
 package mess.examples
 
 import mess._
-import mess.derived.derivedCodecs._
+import mess.derived.codecs._
 import org.msgpack.core.MessagePack._
 
 final case class Foo(age: Int, name: String)

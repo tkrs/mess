@@ -2,7 +2,7 @@ package mess
 
 import mess.ast.MsgPack
 import org.scalatest.FunSuite
-import mess.derived.derivedCodecs._
+import mess.derived.codecs._
 
 class EncoderSpec extends FunSuite with MsgpackHelper {
   import MsgpackHelper._

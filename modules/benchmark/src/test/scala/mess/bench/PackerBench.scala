@@ -1,7 +1,7 @@
 package mess.bench
 
 import mess.{Codec, Encoder}
-import mess.derived.derivedCodecs._
+import mess.derived.codecs._
 import org.msgpack.core.MessageBufferPacker
 import org.openjdk.jmh.annotations._
 
