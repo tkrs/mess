@@ -3,7 +3,7 @@ package mess
 import java.time.Instant
 
 import mess.ast.MsgPack
-import mess.derived.derivedCodecs._
+import mess.derived.codecs._
 import org.msgpack.core.MessagePack
 import org.msgpack.core.MessagePack.Code
 import org.scalacheck.{Arbitrary, Gen, Prop, Shrink}

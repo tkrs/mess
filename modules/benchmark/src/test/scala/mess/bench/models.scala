@@ -4,7 +4,7 @@ import java.nio.ByteBuffer
 
 import mess.{Codec, Encoder}
 import mess.ast.MsgPack
-import mess.derived.derivedCodecs._
+import mess.derived.codecs._
 import org.msgpack.core.MessagePack
 
 import scala.util.Random
