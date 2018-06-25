@@ -1,6 +1,8 @@
 package mess.bench
 
-import mess.{Codec, Encoder}
+import mess.Encoder
+import mess.codec.Codec
+import mess.codec.generic._
 import org.msgpack.core.MessageBufferPacker
 import org.openjdk.jmh.annotations._
 
@@ -13,9 +15,9 @@ trait PackerBench {
     r
   }
 
-  private[this] val decodeLong10CC: Encoder[models.Long10] = Codec.derivedEncoder[models.Long10]
-  private[this] val decodeLong30CC: Encoder[models.Long30] = Codec.derivedEncoder[models.Long30]
-  private[this] val decodeLong60CC: Encoder[models.Long60] = Codec.derivedEncoder[models.Long60]
+  private[this] val decodeLong10CC: Encoder[models.Long10] = derivedEncoder[models.Long10]
+  private[this] val decodeLong30CC: Encoder[models.Long30] = derivedEncoder[models.Long30]
+  private[this] val decodeLong60CC: Encoder[models.Long60] = derivedEncoder[models.Long60]
 
   @Benchmark
   def encodeUInt32(data: States.PackData): Array[Byte] = {

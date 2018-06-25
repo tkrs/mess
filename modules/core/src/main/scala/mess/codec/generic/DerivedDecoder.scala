@@ -1,4 +1,4 @@
-package mess.derived
+package mess.codec.generic
 
 import export._
 import mess.Decoder

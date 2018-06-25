@@ -1,6 +1,6 @@
-package mess.derived
+package mess.codec.generic
 
 import export._
 
 @reexports[DerivedEncoder, DerivedDecoder]
-object codecs
+object derived

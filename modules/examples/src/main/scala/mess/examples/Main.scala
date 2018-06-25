@@ -1,18 +1,20 @@
 package mess.examples
 
 import mess._
+import mess.codec.Codec
+import mess.codec.generic._
 import org.msgpack.core.MessagePack._
 
 final case class Foo(age: Int, name: String)
 object Foo {
-  implicit val encodeFoo: Encoder[Foo] = Codec.derivedEncoder[Foo]
-  implicit val decodeFoo: Decoder[Foo] = Codec.derivedDecoder[Foo]
+  implicit val encodeFoo: Encoder[Foo] = derivedEncoder[Foo]
+  implicit val decodeFoo: Decoder[Foo] = derivedDecoder[Foo]
 }
 
 final case class Bar(foos: List[Foo])
 object Bar {
-  implicit val encodeBar: Encoder[Bar] = Codec.derivedEncoder[Bar]
-  implicit val decodeBar: Decoder[Bar] = Codec.derivedDecoder[Bar]
+  implicit val encodeBar: Encoder[Bar] = derivedEncoder[Bar]
+  implicit val decodeBar: Decoder[Bar] = derivedDecoder[Bar]
 }
 
 object Main extends App {

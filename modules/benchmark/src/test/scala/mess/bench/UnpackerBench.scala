@@ -2,7 +2,9 @@ package mess.bench
 
 import java.nio.ByteBuffer
 
-import mess.{Codec, Decoder}
+import mess.Decoder
+import mess.codec.Codec
+import mess.codec.generic._
 import org.msgpack.core.MessagePack
 import org.openjdk.jmh.annotations._
 
@@ -16,9 +18,9 @@ trait UnpackerBench {
     r
   }
 
-  private[this] implicit val decodeLong10CC: Decoder[models.Long10] = Codec.derivedDecoder[models.Long10]
-  private[this] implicit val decodeLong30CC: Decoder[models.Long30] = Codec.derivedDecoder[models.Long30]
-  private[this] implicit val decodeLong60CC: Decoder[models.Long60] = Codec.derivedDecoder[models.Long60]
+  private[this] implicit val decodeLong10CC: Decoder[models.Long10] = derivedDecoder[models.Long10]
+  private[this] implicit val decodeLong30CC: Decoder[models.Long30] = derivedDecoder[models.Long30]
+  private[this] implicit val decodeLong60CC: Decoder[models.Long60] = derivedDecoder[models.Long60]
 
   @Benchmark
   def decodeUInt32(data: States.UnpackData): Long = {

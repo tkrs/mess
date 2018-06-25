@@ -1,9 +1,10 @@
 package mess
 
 import mess.ast.MsgPack
+import mess.codec.Codec
 import org.msgpack.core.MessagePack
 import org.scalatest.FunSuite
-import mess.derived.codecs._
+import mess.codec.generic.derived._
 
 class DecoderSpec extends FunSuite with MsgpackHelper {
   import MsgpackHelper._

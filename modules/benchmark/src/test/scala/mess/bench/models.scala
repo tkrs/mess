@@ -2,9 +2,10 @@ package mess.bench
 
 import java.nio.ByteBuffer
 
-import mess.{Codec, Encoder}
+import mess.Encoder
 import mess.ast.MsgPack
-import mess.derived.codecs._
+import mess.codec.Codec
+import mess.codec.generic.derived._
 import org.msgpack.core.MessagePack
 
 import scala.util.Random
