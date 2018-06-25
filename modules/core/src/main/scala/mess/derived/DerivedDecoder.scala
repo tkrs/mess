@@ -28,7 +28,8 @@ trait LowPriorityDerivedDecoder {
         case MsgPack.MMap(a) =>
           T(m) match {
             case Right(t) =>
-              H(a.get(MsgPack.MString(K.value.name))) match {
+              val v = a.get(MsgPack.MString(K.value.name))
+              H(if (v == null) MsgPack.MNil else v) match {
                 case Right(h) => Right(field[K](h) :: t)
                 case Left(e)  => Left(e)
               }
