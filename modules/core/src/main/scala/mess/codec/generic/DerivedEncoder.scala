@@ -29,6 +29,33 @@ trait LowPriorityDerivedEncoder {
         T(a.tail).add(S(K.value), H(a.head))
     }
 
+  implicit final val encodeCNil: DerivedEncoder[CNil] =
+    new DerivedEncoder[CNil] {
+      def apply(a: CNil): MsgPack = sys.error("Cannot encode CNil")
+    }
+
+  implicit final def encodeLabelledCoproductCons[K <: Symbol, L, R <: Coproduct](
+      implicit
+      K: Witness.Aux[K],
+      L: Encoder[L],
+      R: DerivedEncoder[R]): DerivedEncoder[FieldType[K, L] :+: R] =
+    new DerivedEncoder[FieldType[K, L] :+: R] {
+      def apply(a: FieldType[K, L] :+: R): MsgPack = a match {
+        case Inl(h) => MsgPack.MMap(MutMap.empty.add(MsgPack.MString(K.value.name), L(h)))
+        case Inr(t) => R(t)
+      }
+    }
+
+  implicit final def encodeCoproductCons[L, R <: Coproduct](implicit
+                                                            L: Encoder[L],
+                                                            R: DerivedEncoder[R]): DerivedEncoder[L :+: R] =
+    new DerivedEncoder[L :+: R] {
+      def apply(a: L :+: R): MsgPack = a match {
+        case Inl(h) => L(h)
+        case Inr(t) => R(t)
+      }
+    }
+
   implicit final def encodeGen[A, R](implicit
                                      gen: LabelledGeneric.Aux[A, R],
                                      R: Lazy[DerivedEncoder[R]]): DerivedEncoder[A] =

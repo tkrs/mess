@@ -34,13 +34,12 @@ class CodecChecker extends FunSuite with Checkers with MsgpackHelper {
 
   def roundTrip[A: Arbitrary: Shrink](implicit encode: Encoder[A], decode: Decoder[A]): Assertion =
     check(Prop.forAll({ a: A =>
-      val ast = encode(a)
-      Codec.serialize(ast, packer)
-      val unpacker =
-        MessagePack.DEFAULT_UNPACKER_CONFIG.newUnpacker(packer.toByteArray)
-      val b = decode(Codec.deserialize(unpacker))
+      val ast      = encode(a); Codec.serialize(ast, packer)
+      val bytes    = packer.toByteArray
+      val unpacker = MessagePack.DEFAULT_UNPACKER_CONFIG.newUnpacker(bytes)
+      val b        = decode(Codec.deserialize(unpacker)).right.get
       packer.clear()
-      a === b.right.get
+      a === b
     }))
 
   // format: off
@@ -151,4 +150,16 @@ class CodecChecker extends FunSuite with Checkers with MsgpackHelper {
     val value    = Decoder[Hoge].apply(Codec.deserialize(unpacker)).right.get
     assert(value === Hoge(None))
   }
+
+  sealed trait Z
+  case class Y(int: Int, long: Long) extends Z
+  case class X(string: String)       extends Z
+
+  implicit val arbZ: Arbitrary[Z] = Arbitrary(
+    Gen.oneOf(
+      Arbitrary.arbitrary[String].map(X.apply),
+      Arbitrary.arbitrary[(Int, Long)].map((Y.apply _).tupled)
+    ))
+
+  test("ADT")(roundTrip[Z])
 }
