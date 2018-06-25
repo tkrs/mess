@@ -1,18 +1,12 @@
-package mess
+package mess.codec
 
 import mess.ast.{MsgPack, MutMap}
-import mess.derived.{DerivedDecoder, DerivedEncoder}
-import org.msgpack.core.{MessageFormat => MF}
-import org.msgpack.core.{MessagePacker, MessageUnpacker}
-import shapeless.Lazy
+import org.msgpack.core.{MessagePacker, MessageUnpacker, MessageFormat => MF}
 
 import scala.annotation.tailrec
 import scala.collection.mutable
 
 object Codec {
-
-  def derivedEncoder[A](implicit A: Lazy[DerivedEncoder[A]]): DerivedEncoder[A] = A.value
-  def derivedDecoder[A](implicit A: Lazy[DerivedDecoder[A]]): DerivedDecoder[A] = A.value
 
   @tailrec private[this] def deserializeArr(size: Int,
                                             acc: mutable.Builder[MsgPack, Vector[MsgPack]],
