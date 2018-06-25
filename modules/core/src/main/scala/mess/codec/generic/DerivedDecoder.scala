@@ -39,6 +39,47 @@ trait LowPriorityDerivedDecoder {
       }
     }
 
+  implicit final val decodeCNil: DerivedDecoder[CNil] =
+    new DerivedDecoder[CNil] {
+      override def apply(m: MsgPack): Either[Throwable, CNil] =
+        Left(new IllegalStateException(s"$m cannot decoding to CNil"))
+    }
+
+  implicit final def decodeCoproductCons[L, R <: Coproduct](implicit
+                                                            L: Decoder[L],
+                                                            R: DerivedDecoder[R]): DerivedDecoder[L :+: R] = {
+    new DerivedDecoder[L :+: R] {
+      override def apply(m: MsgPack): Either[Throwable, L :+: R] = {
+        val l: Decoder[L :+: R] = L.map(Inl(_))
+        l.apply(m) match {
+          case r @ Right(_) => r
+          case Left(_) =>
+            val r: Decoder[L :+: R] = R.map(Inr(_))
+            r.apply(m)
+        }
+      }
+    }
+  }
+
+  implicit final def decodeLabelledCoproductCons[K <: Symbol, L, R <: Coproduct](
+      implicit
+      K: Witness.Aux[K],
+      L: Decoder[L],
+      R: DerivedDecoder[R]): DerivedDecoder[FieldType[K, L] :+: R] = {
+    new DerivedDecoder[FieldType[K, L] :+: R] {
+      override def apply(m: MsgPack): Either[Throwable, FieldType[K, L] :+: R] = m match {
+        case MsgPack.MMap(a) =>
+          val v  = a.get(MsgPack.MString(K.value.name))
+          val vv = if (v == null) MsgPack.MNil else v
+          L.map(v => Inl(field[K](v))).apply(vv) match {
+            case r @ Right(_) => r
+            case Left(_)      => R.map(vv => Inr(vv)).apply(m)
+          }
+        case _ => Left(new IllegalArgumentException(s"$m"))
+      }
+    }
+  }
+
   implicit final def decodeGen[A, R](implicit
                                      gen: LabelledGeneric.Aux[A, R],
                                      R: Lazy[DerivedDecoder[R]]): DerivedDecoder[A] =
