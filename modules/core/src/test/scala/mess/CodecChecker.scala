@@ -32,11 +32,8 @@ class CodecChecker extends FunSuite with Checkers with MsgpackHelper {
     implicit val arbFix: Arbitrary[User[List]] = Arbitrary(genFix)
   }
 
-  def roundTrip[A: Encoder: Decoder: Arbitrary: Shrink]: Assertion =
+  def roundTrip[A: Arbitrary: Shrink](implicit encode: Encoder[A], decode: Decoder[A]): Assertion =
     check(Prop.forAll({ a: A =>
-      val encode = Encoder[A]
-      val decode = Decoder[A]
-
       val ast = encode(a)
       Codec.serialize(ast, packer)
       val unpacker =
@@ -148,7 +145,7 @@ class CodecChecker extends FunSuite with Checkers with MsgpackHelper {
 
   case class Hoge(a: Option[Int])
 
-  test("null") {
+  test("null should be converted to None") {
     val in       = x"80"
     val unpacker = MessagePack.DEFAULT_UNPACKER_CONFIG.newUnpacker(in)
     val value    = Decoder[Hoge].apply(Codec.deserialize(unpacker)).right.get
