@@ -11,6 +11,7 @@ import org.scalatest.prop.Checkers
 import org.scalatest.{Assertion, FunSuite}
 
 class CodecChecker extends FunSuite with Checkers with MsgpackHelper {
+  import MsgpackHelper._
 
   implicit val arbBigInt: Arbitrary[BigInt] = Arbitrary(gen.genBigInt)
 
@@ -143,4 +144,13 @@ class CodecChecker extends FunSuite with Checkers with MsgpackHelper {
   }
 
   test("Instant(Extension)")(roundTrip[Instant])
+
+  case class Hoge(a: Option[Int])
+
+  test("null") {
+    val in       = x"80"
+    val unpacker = MessagePack.DEFAULT_UNPACKER_CONFIG.newUnpacker(in)
+    val value    = Decoder[Hoge].apply(Codec.deserialize(unpacker)).right.get
+    assert(value === Hoge(None))
+  }
 }
