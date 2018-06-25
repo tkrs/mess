@@ -50,12 +50,9 @@ trait LowPriorityDerivedDecoder {
                                                             R: DerivedDecoder[R]): DerivedDecoder[L :+: R] = {
     new DerivedDecoder[L :+: R] {
       override def apply(m: MsgPack): Either[Throwable, L :+: R] = {
-        val l: Decoder[L :+: R] = L.map(Inl(_))
-        l.apply(m) match {
+        L.map(Inl(_)).apply(m) match {
           case r @ Right(_) => r
-          case Left(_) =>
-            val r: Decoder[L :+: R] = R.map(Inr(_))
-            r.apply(m)
+          case Left(_)      => R.map(Inr(_)).apply(m)
         }
       }
     }
