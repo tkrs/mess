@@ -19,6 +19,7 @@ object MsgPack {
   final case class MDouble(a: Double)                               extends MsgPack
   final case class MFloat(a: Float)                                 extends MsgPack
   final case class MArray(a: Vector[MsgPack])                       extends MsgPack
+  final case class MVal(k: String, a: MsgPack)                      extends MsgPack
   final case class MMap(a: MutMap) extends MsgPack {
     override def add(k: MsgPack, v: MsgPack): MsgPack = {
       this.copy(a.add(k, v))

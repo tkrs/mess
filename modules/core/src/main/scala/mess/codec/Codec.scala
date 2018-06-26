@@ -76,6 +76,7 @@ object Codec {
     case MsgPack.MFloat(a)  => acc.packFloat(a)
     case MsgPack.MDouble(a) => acc.packDouble(a)
     case MsgPack.MString(a) => acc.packString(a)
+    case MsgPack.MVal(_, a) => serialize(a, acc)
     case MsgPack.MExtension(t, s, a) =>
       acc.packExtensionTypeHeader(t, s)
       acc.writePayload(a)

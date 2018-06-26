@@ -198,6 +198,19 @@ class EncoderSpec extends FunSuite with MsgpackHelper {
     }
   }
 
+  sealed trait Z
+  case class X(int: Int)    extends Z
+  case class Y(str: String) extends Z
+
+  test("Encoder[Z](ADT)") {
+    check[Z] {
+      Seq(
+        (X(10), x"81 A3 69 6E 74 0A"),
+        (Y("a"), x"81 A3 73 74 72 a1 61")
+      )
+    }
+  }
+
   test("contramap") {
     val encode = Encoder[Int].contramap[String](_.toInt)
     assert(encode("10") == MsgPack.MInt(10))
