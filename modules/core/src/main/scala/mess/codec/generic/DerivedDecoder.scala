@@ -60,19 +60,20 @@ trait LowPriorityDerivedDecoder {
 
   implicit final def decodeLabelledCoproductCons[K <: Symbol, L, R <: Coproduct](
       implicit
-      K: Witness.Aux[K],
       L: Decoder[L],
       R: DerivedDecoder[R]): DerivedDecoder[FieldType[K, L] :+: R] = {
     new DerivedDecoder[FieldType[K, L] :+: R] {
-      override def apply(m: MsgPack): Either[Throwable, FieldType[K, L] :+: R] = m match {
-        case MsgPack.MMap(a) =>
-          val v  = a.get(MsgPack.MString(K.value.name))
-          val vv = if (v == null) MsgPack.MNil else v
-          L.map(v => Inl(field[K](v))).apply(vv) match {
+      override def apply(m: MsgPack): Either[Throwable, FieldType[K, L] :+: R] = {
+        def go(m: MsgPack) =
+          L.map(v => Inl(field[K](v))).apply(m) match {
             case r @ Right(_) => r
             case Left(_)      => R.map(vv => Inr(vv)).apply(m)
           }
-        case _ => Left(new IllegalArgumentException(s"$m"))
+
+        m match {
+          case MsgPack.MVal(_, a) => go(a)
+          case _                  => go(m)
+        }
       }
     }
   }

@@ -41,7 +41,7 @@ trait LowPriorityDerivedEncoder {
       R: DerivedEncoder[R]): DerivedEncoder[FieldType[K, L] :+: R] =
     new DerivedEncoder[FieldType[K, L] :+: R] {
       def apply(a: FieldType[K, L] :+: R): MsgPack = a match {
-        case Inl(h) => MsgPack.MMap(MutMap.empty.add(MsgPack.MString(K.value.name), L(h)))
+        case Inl(h) => MsgPack.MVal(K.value.name, L(h))
         case Inr(t) => R(t)
       }
     }
