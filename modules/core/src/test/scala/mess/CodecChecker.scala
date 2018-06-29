@@ -147,13 +147,19 @@ class CodecChecker extends FunSuite with Checkers with MsgpackHelper {
   test("null should be converted to the empty value of the corresponding data types") {
 
     locally {
-      val in       = x"80"
+      val in       = x"81 a1 61 c0"
       val unpacker = MessagePack.DEFAULT_UNPACKER_CONFIG.newUnpacker(in)
       val value    = Decoder[Hoge].apply(Codec.deserialize(unpacker)).right.get
       assert(value === Hoge(None))
     }
 
-    val in = Array.emptyByteArray
+    val in = x"c0"
+
+    locally {
+      val unpacker = MessagePack.DEFAULT_UNPACKER_CONFIG.newUnpacker(in)
+      val value    = Decoder[Option[Map[String, String]]].apply(Codec.deserialize(unpacker)).right.get
+      assert(value === None)
+    }
 
     locally {
       val unpacker = MessagePack.DEFAULT_UNPACKER_CONFIG.newUnpacker(in)
