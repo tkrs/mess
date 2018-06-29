@@ -187,10 +187,10 @@ object Decoder extends LowPriorityDecoder with TupleDecoder {
       }
     }
 
-  implicit def decodeSeq[A](implicit A: Decoder[A]): Decoder[Seq[A]]       = decodeContainer[Seq, A]
-  implicit def decodeSet[A](implicit A: Decoder[A]): Decoder[Set[A]]       = decodeContainer[Set, A]
-  implicit def decodeList[A](implicit A: Decoder[A]): Decoder[List[A]]     = decodeContainer[List, A]
-  implicit def decodeVector[A](implicit A: Decoder[A]): Decoder[Vector[A]] = decodeContainer[Vector, A]
+  implicit def decodeSeq[A: Decoder]: Decoder[Seq[A]]       = decodeContainer[Seq, A]
+  implicit def decodeSet[A: Decoder]: Decoder[Set[A]]       = decodeContainer[Set, A]
+  implicit def decodeList[A: Decoder]: Decoder[List[A]]     = decodeContainer[List, A]
+  implicit def decodeVector[A: Decoder]: Decoder[Vector[A]] = decodeContainer[Vector, A]
 
   implicit def decodeMapLike[M[_, _] <: Map[K, V], K, V](
       implicit
