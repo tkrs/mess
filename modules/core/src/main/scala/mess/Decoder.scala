@@ -157,7 +157,7 @@ object Decoder extends LowPriorityDecoder with TupleDecoder {
   implicit def decodeOption[A](implicit A: Decoder[A]): Decoder[Option[A]] =
     new Decoder[Option[A]] {
       def apply(m: MsgPack): Either[Throwable, Option[A]] = m match {
-        case MsgPack.MNil => Right(None)
+        case MsgPack.MNil | MsgPack.MEmpty => Right(None)
         case _ =>
           A(m) match {
             case Right(v) => Right(Option(v))
@@ -180,8 +180,9 @@ object Decoder extends LowPriorityDecoder with TupleDecoder {
         }
 
         m match {
-          case MsgPack.MArray(a) => loop(a.iterator, cbf.apply)
-          case _                 => Left(new IllegalArgumentException(s"$m"))
+          case MsgPack.MNil | MsgPack.MEmpty => Right(cbf.apply.result())
+          case MsgPack.MArray(a)             => loop(a.iterator, cbf.apply)
+          case _                             => Left(new IllegalArgumentException(s"$m"))
         }
       }
     }
@@ -215,8 +216,9 @@ object Decoder extends LowPriorityDecoder with TupleDecoder {
         }
 
         m match {
-          case MsgPack.MMap(a) => loop(a.iterator, cbf.apply)
-          case _               => Left(new IllegalArgumentException(s"$m"))
+          case MsgPack.MNil | MsgPack.MEmpty => Right(cbf.apply.result())
+          case MsgPack.MMap(a)               => loop(a.iterator, cbf.apply)
+          case _                             => Left(new IllegalArgumentException(s"$m"))
         }
       }
     }

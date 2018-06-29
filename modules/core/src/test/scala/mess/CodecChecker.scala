@@ -144,11 +144,56 @@ class CodecChecker extends FunSuite with Checkers with MsgpackHelper {
 
   case class Hoge(a: Option[Int])
 
-  test("null should be converted to None") {
-    val in       = x"80"
-    val unpacker = MessagePack.DEFAULT_UNPACKER_CONFIG.newUnpacker(in)
-    val value    = Decoder[Hoge].apply(Codec.deserialize(unpacker)).right.get
-    assert(value === Hoge(None))
+  test("null should be converted to the empty value of the corresponding data types") {
+
+    locally {
+      val in       = x"81 a1 61 c0"
+      val unpacker = MessagePack.DEFAULT_UNPACKER_CONFIG.newUnpacker(in)
+      val value    = Decoder[Hoge].apply(Codec.deserialize(unpacker)).right.get
+      assert(value === Hoge(None))
+    }
+
+    val in = x"c0"
+
+    locally {
+      val unpacker = MessagePack.DEFAULT_UNPACKER_CONFIG.newUnpacker(in)
+      val value    = Decoder[Option[Map[String, String]]].apply(Codec.deserialize(unpacker)).right.get
+      assert(value === None)
+    }
+
+    locally {
+      val unpacker = MessagePack.DEFAULT_UNPACKER_CONFIG.newUnpacker(in)
+      val value    = Decoder[Map[String, String]].apply(Codec.deserialize(unpacker)).right.get
+      assert(value === Map.empty)
+    }
+
+    locally {
+      val unpacker = MessagePack.DEFAULT_UNPACKER_CONFIG.newUnpacker(in)
+      val value    = Decoder[Vector[String]].apply(Codec.deserialize(unpacker)).right.get
+      assert(value === Vector.empty)
+    }
+  }
+
+  test("An empty array should be converted to the empty value of the corresponding data types") {
+    val in = Array.emptyByteArray
+
+    locally {
+      val unpacker = MessagePack.DEFAULT_UNPACKER_CONFIG.newUnpacker(in)
+      val value    = Decoder[Vector[String]].apply(Codec.deserialize(unpacker)).right.get
+      assert(value === Vector.empty)
+    }
+
+    locally {
+      val unpacker = MessagePack.DEFAULT_UNPACKER_CONFIG.newUnpacker(in)
+      val value    = Decoder[Map[String, String]].apply(Codec.deserialize(unpacker)).right.get
+      assert(value === Map.empty)
+    }
+
+    locally {
+      val unpacker = MessagePack.DEFAULT_UNPACKER_CONFIG.newUnpacker(in)
+      val value    = Decoder[Option[Hoge]].apply(Codec.deserialize(unpacker)).right.get
+      assert(value === None)
+    }
   }
 
   sealed trait Z
