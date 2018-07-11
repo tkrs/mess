@@ -11,7 +11,7 @@ trait DerivedDecoder[A] extends Decoder[A]
 @exports
 object DerivedDecoder extends LowPriorityDerivedDecoder
 
-trait LowPriorityDerivedDecoder {
+private[mess] trait LowPriorityDerivedDecoder {
 
   implicit final val decodeHNil: DerivedDecoder[HNil] =
     new DerivedDecoder[HNil] {
@@ -45,9 +45,9 @@ trait LowPriorityDerivedDecoder {
         Left(new IllegalStateException(s"$m cannot decoding to CNil"))
     }
 
-  implicit final def decodeCoproductCons[L, R <: Coproduct](implicit
-                                                            L: Decoder[L],
-                                                            R: DerivedDecoder[R]): DerivedDecoder[L :+: R] = {
+  implicit final def decodeCCons[L, R <: Coproduct](implicit
+                                                    L: Decoder[L],
+                                                    R: DerivedDecoder[R]): DerivedDecoder[L :+: R] = {
     new DerivedDecoder[L :+: R] {
       override def apply(m: MsgPack): Either[Throwable, L :+: R] = {
         L.map(Inl(_)).apply(m) match {
@@ -58,7 +58,7 @@ trait LowPriorityDerivedDecoder {
     }
   }
 
-  implicit final def decodeLabelledCoproductCons[K <: Symbol, L, R <: Coproduct](
+  implicit final def decodeLabelledCCons[K <: Symbol, L, R <: Coproduct](
       implicit
       K: Witness.Aux[K],
       L: Decoder[L],

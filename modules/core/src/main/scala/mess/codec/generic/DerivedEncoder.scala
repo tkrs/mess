@@ -11,7 +11,7 @@ trait DerivedEncoder[A] extends Encoder[A]
 @exports
 object DerivedEncoder extends LowPriorityDerivedEncoder
 
-trait LowPriorityDerivedEncoder {
+private[mess] trait LowPriorityDerivedEncoder {
 
   implicit final val encodeHNil: DerivedEncoder[HNil] =
     new DerivedEncoder[HNil] {
@@ -34,7 +34,7 @@ trait LowPriorityDerivedEncoder {
       def apply(a: CNil): MsgPack = sys.error("Cannot encode CNil")
     }
 
-  implicit final def encodeLabelledCoproductCons[K <: Symbol, L, R <: Coproduct](
+  implicit final def encodeLabelledCCons[K <: Symbol, L, R <: Coproduct](
       implicit
       K: Witness.Aux[K],
       L: Encoder[L],
@@ -46,9 +46,9 @@ trait LowPriorityDerivedEncoder {
       }
     }
 
-  implicit final def encodeCoproductCons[L, R <: Coproduct](implicit
-                                                            L: Encoder[L],
-                                                            R: DerivedEncoder[R]): DerivedEncoder[L :+: R] =
+  implicit final def encodeCCons[L, R <: Coproduct](implicit
+                                                    L: Encoder[L],
+                                                    R: DerivedEncoder[R]): DerivedEncoder[L :+: R] =
     new DerivedEncoder[L :+: R] {
       def apply(a: L :+: R): MsgPack = a match {
         case Inl(h) => L(h)
