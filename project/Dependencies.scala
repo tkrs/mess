@@ -15,12 +15,15 @@ object Dependencies {
   }
 
   val Pkg = new {
-    lazy val shapeless      = "com.chuusai"    %% "shapeless"      % Ver.shapeless
-    lazy val exportHook     = "org.typelevel"  %% "export-hook"    % Ver.exportHook
-    lazy val scalatest      = "org.scalatest"  %% "scalatest"      % Ver.scalatest
-    lazy val scalacheck     = "org.scalacheck" %% "scalacheck"     % Ver.scalacheck
-    lazy val msgpackJava    = "org.msgpack"    % "msgpack-core"    % Ver.msgpackJava
-    lazy val kindProjector  = "org.spire-math" %% "kind-projector" % Ver.kindProjector
+    lazy val shapeless     = "com.chuusai"     %% "shapeless"      % Ver.shapeless
+    lazy val exportHook    = "org.typelevel"   %% "export-hook"    % Ver.exportHook
+    lazy val scalatest     = "org.scalatest"   %% "scalatest"      % Ver.scalatest
+    lazy val scalacheck    = "org.scalacheck"  %% "scalacheck"     % Ver.scalacheck
+    lazy val msgpackJava   = "org.msgpack"     % "msgpack-core"    % Ver.msgpackJava
+    lazy val kindProjector = "org.spire-math"  %% "kind-projector" % Ver.kindProjector
+    lazy val macroParadise = "org.scalamacros" % "paradise"        % Ver.macroParadise cross CrossVersion.patch
+
+    def scalaReflect(v: String) = "org.scala-lang" % "scala-reflect" % v % "provided"
 
     lazy val forTest = Seq(scalatest, scalacheck).map(_ % "test")
   }
