@@ -1,50 +1,39 @@
 import Dependencies._
 
-lazy val root = (project in file("."))
-  .settings(allSettings)
+lazy val root = project.in(file("."))
   .settings(noPublishSettings)
   .aggregate(core, benchmark, examples)
   .dependsOn(core, benchmark, examples)
 
-lazy val allSettings = buildSettings ++ baseSettings ++ publishSettings
-
-lazy val buildSettings = Seq(
-  name := "mess",
-  organization := "com.github.tkrs",
-  scalaVersion := Ver.`scala2.12`,
-  crossScalaVersions := Seq(
-    Ver.`scala2.11`,
-    Ver.`scala2.12`
-  ),
-  addCompilerPlugin(Pkg.kindProjector)
+ThisBuild / name := "mess"
+ThisBuild / organization := "com.github.tkrs"
+ThisBuild / scalaVersion := Ver.`scala2.12`
+ThisBuild / crossScalaVersions := Seq(
+  Ver.`scala2.11`,
+  Ver.`scala2.12`
 )
-
-lazy val baseSettings = Seq(
-  resolvers ++= Seq(
-    Resolver.sonatypeRepo("releases"),
-    Resolver.sonatypeRepo("snapshots")
-  ),
-  libraryDependencies ++= Pkg.forTest,
-  scalacOptions ++= compilerOptions ++ {
-    CrossVersion.partialVersion(scalaVersion.value) match {
-      case Some((2, p)) if p >= 12 =>
-        Seq(
-          "-Ywarn-extra-implicit",
-          "-Ywarn-unused:implicits",
-          "-Ywarn-unused:imports",
-          "-Ywarn-unused:locals",
-          // "-Ywarn-unused:params",
-          "-Ywarn-unused:patvars",
-          "-Ywarn-unused:privates"
-        )
-      case _ =>
-        Seq.empty
-    }
-  },
-  scalacOptions in (Compile, console) ~= (_.filterNot(_.startsWith("-Ywarn-unused"))),
-  scalacOptions in (Compile, console) ++= Seq("-Yrepl-class-based"),
-  fork in Test := true
+ThisBuild / libraryDependencies ++= Pkg.forTest ++ Seq(
+  compilerPlugin(Pkg.kindProjector),
+  compilerPlugin(Pkg.macroParadise)
 )
+ThisBuild / resolvers ++= Seq(
+  Resolver.sonatypeRepo("releases"),
+  Resolver.sonatypeRepo("snapshots")
+)
+ThisBuild / scalacOptions ++= compilerOptions ++ {
+  CrossVersion.partialVersion(scalaVersion.value) match {
+    case Some((2, p)) if p >= 12 =>
+      Seq(
+        "-Ywarn-extra-implicit",
+        "-Ywarn-unused:_"
+      )
+    case _ =>
+      Nil
+  }
+}
+Compile / console / scalacOptions ~= (_.filterNot(_.startsWith("-Ywarn-unused")))
+Compile / console / scalacOptions ++= Seq("-Yrepl-class-based")
+Test / fork := true
 
 lazy val publishSettings = Seq(
   releaseCrossBuild := true,
@@ -52,7 +41,7 @@ lazy val publishSettings = Seq(
   homepage := Some(url("https://github.com/tkrs/mess")),
   licenses := Seq("MIT License" -> url("http://www.opensource.org/licenses/mit-license.php")),
   publishMavenStyle := true,
-  publishArtifact in Test := false,
+  Test / publishArtifact := false,
   pomIncludeRepository := { _ => false },
   publishTo := {
     val nexus = "https://oss.sonatype.org/"
@@ -81,32 +70,31 @@ lazy val publishSettings = Seq(
 
 lazy val noPublishSettings = Seq(
   publish := ((): Unit),
+  publishTo := Some(Resolver.mavenLocal),
   publishLocal := ((): Unit),
   publishArtifact := false
 )
 
 lazy val core = project.in(file("modules/core"))
-  .settings(allSettings)
+  .settings(publishSettings)
   .settings(
     description := "mess core",
     moduleName := "mess-core",
     name := "core"
   )
   .settings(
-    sourceGenerators in Compile += (sourceManaged in Compile).map(Boilerplate.gen).taskValue
+    Compile / sourceGenerators += (Compile / sourceManaged).map(Boilerplate.gen).taskValue
   )
   .settings(
     libraryDependencies ++= Seq(
       Pkg.msgpackJava,
       Pkg.shapeless,
       Pkg.exportHook,
-      "org.scala-lang" % "scala-reflect" % scalaVersion.value % "provided",
-      compilerPlugin("org.scalamacros" % "paradise" % Ver.macroParadise cross CrossVersion.patch)
+      Pkg.scalaReflect(scalaVersion.value)
     )
   )
 
 lazy val examples = (project in file("modules/examples"))
-  .settings(allSettings)
   .settings(noPublishSettings)
   .settings(
     description := "mess examples",
@@ -119,7 +107,6 @@ lazy val examples = (project in file("modules/examples"))
   .dependsOn(core)
 
 lazy val benchmark = (project in file("modules/benchmark"))
-  .settings(allSettings)
   .settings(noPublishSettings)
   .settings(
     description := "mess benchmark",
