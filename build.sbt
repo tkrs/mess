@@ -31,9 +31,9 @@ ThisBuild / scalacOptions ++= compilerOptions ++ {
       Nil
   }
 }
-Compile / console / scalacOptions ~= (_.filterNot(_.startsWith("-Ywarn-unused")))
-Compile / console / scalacOptions ++= Seq("-Yrepl-class-based")
-Test / fork := true
+ThisBuild / Compile / console / scalacOptions ~= (_.filterNot(_.startsWith("-Ywarn-unused")))
+ThisBuild / Compile / console / scalacOptions ++= Seq("-Yrepl-class-based")
+ThisBuild / Test / fork := true
 
 lazy val publishSettings = Seq(
   releaseCrossBuild := true,
