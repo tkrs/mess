@@ -1,11 +1,5 @@
 import Dependencies._
 
-lazy val root = project.in(file("."))
-  .settings(noPublishSettings)
-  .aggregate(core, benchmark, examples)
-  .dependsOn(core, benchmark, examples)
-
-ThisBuild / name := "mess"
 ThisBuild / organization := "com.github.tkrs"
 ThisBuild / scalaVersion := Ver.`scala2.12`
 ThisBuild / crossScalaVersions := Seq(
@@ -22,18 +16,37 @@ ThisBuild / resolvers ++= Seq(
 )
 ThisBuild / scalacOptions ++= compilerOptions ++ {
   CrossVersion.partialVersion(scalaVersion.value) match {
-    case Some((2, p)) if p >= 12 =>
-      Seq(
-        "-Ywarn-extra-implicit",
-        "-Ywarn-unused:_"
-      )
-    case _ =>
-      Nil
+    case Some((2, p)) if p >= 12 => warnCompilerOptions
+    case _                       => Nil
   }
 }
-ThisBuild / Compile / console / scalacOptions ~= (_.filterNot(_.startsWith("-Ywarn-unused")))
-ThisBuild / Compile / console / scalacOptions ++= Seq("-Yrepl-class-based")
 ThisBuild / Test / fork := true
+
+lazy val compilerOptions = Seq(
+  "-deprecation",
+  "-encoding", "UTF-8",
+  "-unchecked",
+  "-feature",
+  "-language:_",
+  "-Xfuture",
+)
+
+lazy val warnCompilerOptions = Seq(
+  "-Xlint",
+  "-Xfatal-warnings",
+  "-Ywarn-extra-implicit",
+  "-Ywarn-unused:_",
+  "-Yno-adapted-args",
+  "-Ywarn-dead-code",
+  "-Ywarn-numeric-widen",
+)
+
+lazy val mess = project.in(file("."))
+  .settings(noPublishSettings)
+  .settings(Compile / console / scalacOptions --= warnCompilerOptions)
+  .settings(Compile / console / scalacOptions += "-Yrepl-class-based")
+  .aggregate(core, benchmark, examples)
+  .dependsOn(core, benchmark, examples)
 
 lazy val publishSettings = Seq(
   releaseCrossBuild := true,
@@ -79,8 +92,7 @@ lazy val core = project.in(file("modules/core"))
   .settings(publishSettings)
   .settings(
     description := "mess core",
-    moduleName := "mess-core",
-    name := "core"
+    moduleName := "mess-core"
   )
   .settings(
     Compile / sourceGenerators += (Compile / sourceManaged).map(Boilerplate.gen).taskValue
@@ -98,8 +110,7 @@ lazy val examples = (project in file("modules/examples"))
   .settings(noPublishSettings)
   .settings(
     description := "mess examples",
-    moduleName := "mess-examples",
-    name := "examples"
+    moduleName := "mess-examples"
   )
   .settings(
     coverageEnabled := false
@@ -110,25 +121,10 @@ lazy val benchmark = (project in file("modules/benchmark"))
   .settings(noPublishSettings)
   .settings(
     description := "mess benchmark",
-    moduleName := "mess-benchmark",
-    name := "benchmark"
+    moduleName := "mess-benchmark"
   )
   .settings(
     coverageEnabled := false
   )
   .enablePlugins(JmhPlugin)
   .dependsOn(core % "test->test")
-
-lazy val compilerOptions = Seq(
-  "-deprecation",
-  "-encoding", "UTF-8",
-  "-unchecked",
-  "-feature",
-  "-language:_",
-  "-unchecked",
-  "-Yno-adapted-args",
-  "-Ywarn-dead-code",
-  "-Ywarn-numeric-widen",
-  "-Xfuture",
-  "-Xlint"
-)
