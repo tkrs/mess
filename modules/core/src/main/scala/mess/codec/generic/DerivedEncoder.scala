@@ -26,7 +26,10 @@ private[mess] trait LowPriorityDerivedEncoder {
       T: DerivedEncoder[T]): DerivedEncoder[FieldType[K, H] :: T] =
     new DerivedEncoder[FieldType[K, H] :: T] {
       def apply(a: FieldType[K, H] :: T): MsgPack =
-        T(a.tail).add(S(K.value), H(a.head))
+        T(a.tail) match {
+          case tt: MsgPack.MMap => tt.add(S(K.value), H(a.head))
+          case tt               => tt
+        }
     }
 
   implicit final val encodeCNil: DerivedEncoder[CNil] =

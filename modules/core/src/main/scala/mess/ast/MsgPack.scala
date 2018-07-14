@@ -2,9 +2,7 @@ package mess.ast
 
 import java.{util => ju}
 
-sealed trait MsgPack { self =>
-  def add(k: MsgPack, v: MsgPack): MsgPack = self
-}
+sealed trait MsgPack
 object MsgPack {
   final case object MEmpty                                          extends MsgPack
   final case object MNil                                            extends MsgPack
@@ -20,7 +18,7 @@ object MsgPack {
   final case class MFloat(a: Float)                                 extends MsgPack
   final case class MArray(a: Vector[MsgPack])                       extends MsgPack
   final case class MMap(a: MutMap) extends MsgPack {
-    override def add(k: MsgPack, v: MsgPack): MsgPack = {
+    def add(k: MsgPack, v: MsgPack): MsgPack = {
       this.copy(a.add(k, v))
     }
   }
