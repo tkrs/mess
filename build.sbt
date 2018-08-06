@@ -42,6 +42,7 @@ lazy val warnCompilerOptions = Seq(
 )
 
 lazy val mess = project.in(file("."))
+  .settings(publishSettings)
   .settings(noPublishSettings)
   .settings(Compile / console / scalacOptions --= warnCompilerOptions)
   .settings(Compile / console / scalacOptions += "-Yrepl-class-based")
@@ -104,6 +105,7 @@ lazy val core = project.in(file("modules/core"))
   )
 
 lazy val examples = (project in file("modules/examples"))
+  .settings(publishSettings)
   .settings(noPublishSettings)
   .settings(
     description := "mess examples",
@@ -115,6 +117,7 @@ lazy val examples = (project in file("modules/examples"))
   .dependsOn(core)
 
 lazy val benchmark = (project in file("modules/benchmark"))
+  .settings(publishSettings)
   .settings(noPublishSettings)
   .settings(
     description := "mess benchmark",
