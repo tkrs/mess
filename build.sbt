@@ -4,20 +4,24 @@ ThisBuild / organization := "com.github.tkrs"
 ThisBuild / scalaVersion := Ver.`scala2.12`
 ThisBuild / crossScalaVersions := Seq(
   Ver.`scala2.11`,
-  Ver.`scala2.12`
+  Ver.`scala2.12`,
+  Ver.`scala2.13`,
 )
-ThisBuild / libraryDependencies ++= Pkg.forTest ++ Seq(
-  compilerPlugin(Pkg.kindProjector),
-  compilerPlugin(Pkg.macroParadise)
-)
+ThisBuild / libraryDependencies ++= Pkg.forTest ++ {
+  CrossVersion.partialVersion(scalaVersion.value) match {
+    case Some((2, 13)) => Seq(compilerPlugin(Pkg.kindProjector))
+    case _ => Seq(compilerPlugin(Pkg.kindProjector), compilerPlugin(Pkg.macroParadise))
+  }
+}
 ThisBuild / resolvers ++= Seq(
   Resolver.sonatypeRepo("releases"),
   Resolver.sonatypeRepo("snapshots")
 )
 ThisBuild / scalacOptions ++= compilerOptions ++ {
   CrossVersion.partialVersion(scalaVersion.value) match {
-    case Some((2, p)) if p >= 12 => warnCompilerOptions
-    case _                       => Nil
+    case Some((2, 13)) => warnCompilerOptions.filter(_ != "-Yno-adapted-args") ++ Seq("-Ymacro-annotations")
+    case Some((2, 12)) => warnCompilerOptions
+    case _             => Nil
   }
 }
 ThisBuild / Test / fork := true
@@ -86,8 +90,25 @@ lazy val noPublishSettings = Seq(
   publish / skip := true
 )
 
+//
+lazy val crossVersionSharedSources: Seq[Setting[_]] =
+  Seq(Compile, Test).map { sc =>
+    (sc / unmanagedSourceDirectories) ++= {
+      (sc / unmanagedSourceDirectories).value.flatMap { dir: File =>
+        if(dir.getName != "scala") Seq(dir)
+        else
+          CrossVersion.partialVersion(scalaVersion.value) match {
+            case Some((2, 13)) => Seq(new File(dir.getPath + "_2.13"))
+            case Some((2, 12)) => Seq(new File(dir.getPath + "_2.12"))
+            case _ => Seq(new File(dir.getPath + "_2.11"))
+          }
+      }
+    }
+  }
+
 lazy val core = project.in(file("modules/core"))
   .settings(publishSettings)
+  .settings(crossVersionSharedSources)
   .settings(
     description := "mess core",
     moduleName := "mess-core"
