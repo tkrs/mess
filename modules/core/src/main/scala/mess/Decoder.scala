@@ -2,9 +2,9 @@ package mess
 
 import export.imports
 import mess.ast.MsgPack
+import mess.internal.ScalaVersionSpecifics._
 
 import scala.annotation.tailrec
-import scala.collection.generic.CanBuildFrom
 import scala.collection.mutable
 
 trait Decoder[A] extends Serializable { self =>
@@ -166,8 +166,7 @@ object Decoder extends LowPriorityDecoder with TupleDecoder {
       }
     }
 
-  @inline private[this] def decodeContainer[C[_], A](implicit A: Decoder[A],
-                                                     cbf: CanBuildFrom[Nothing, A, C[A]]): Decoder[C[A]] =
+  @inline private[this] def decodeContainer[C[_], A](implicit A: Decoder[A], cbf: Factory[A, C[A]]): Decoder[C[A]] =
     new Decoder[C[A]] {
       def apply(m: MsgPack): Either[Throwable, C[A]] = {
         @tailrec def loop(it: Iterator[MsgPack], b: mutable.Builder[A, C[A]]): Either[Throwable, C[A]] = {
@@ -180,8 +179,8 @@ object Decoder extends LowPriorityDecoder with TupleDecoder {
         }
 
         m match {
-          case MsgPack.MNil | MsgPack.MEmpty => Right(cbf.apply.result())
-          case MsgPack.MArray(a)             => loop(a.iterator, cbf.apply)
+          case MsgPack.MNil | MsgPack.MEmpty => Right(cbf.newBuilder.result())
+          case MsgPack.MArray(a)             => loop(a.iterator, cbf.newBuilder)
           case _                             => Left(new IllegalArgumentException(s"$m"))
         }
       }
@@ -192,11 +191,10 @@ object Decoder extends LowPriorityDecoder with TupleDecoder {
   implicit def decodeList[A: Decoder]: Decoder[List[A]]     = decodeContainer[List, A]
   implicit def decodeVector[A: Decoder]: Decoder[Vector[A]] = decodeContainer[Vector, A]
 
-  implicit def decodeMapLike[M[_, _] <: Map[K, V], K, V](
-      implicit
-      K: Decoder[K],
-      V: Decoder[V],
-      cbf: CanBuildFrom[Nothing, (K, V), M[K, V]]): Decoder[M[K, V]] =
+  implicit def decodeMapLike[M[_, _] <: Map[K, V], K, V](implicit
+                                                         K: Decoder[K],
+                                                         V: Decoder[V],
+                                                         cbf: Factory[(K, V), M[K, V]]): Decoder[M[K, V]] =
     new Decoder[M[K, V]] {
       def apply(m: MsgPack): Either[Throwable, M[K, V]] = {
         @tailrec def loop(it: Iterator[(MsgPack, MsgPack)],
@@ -216,8 +214,8 @@ object Decoder extends LowPriorityDecoder with TupleDecoder {
         }
 
         m match {
-          case MsgPack.MNil | MsgPack.MEmpty => Right(cbf.apply.result())
-          case MsgPack.MMap(a)               => loop(a.iterator, cbf.apply)
+          case MsgPack.MNil | MsgPack.MEmpty => Right(cbf.newBuilder.result())
+          case MsgPack.MMap(a)               => loop(a.iterator, cbf.newBuilder)
           case _                             => Left(new IllegalArgumentException(s"$m"))
         }
       }
