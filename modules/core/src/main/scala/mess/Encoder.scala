@@ -1,7 +1,7 @@
 package mess
 
 import export._
-import mess.ast.{MsgPack, MutMap}
+import mess.ast.MsgPack
 
 import scala.annotation.tailrec
 import scala.collection.mutable
@@ -116,13 +116,14 @@ object Encoder extends LowPriorityEncoder with TupleEncoder {
       }
     }
 
-  @tailrec private[this] def mapLoop[K, V](it: Iterator[(K, V)], acc: MutMap)(implicit
-                                                                              K: Encoder[K],
-                                                                              V: Encoder[V]): MutMap = {
+  @tailrec private[this] def mapLoop[K, V](it: Iterator[(K, V)], acc: mutable.LinkedHashMap[MsgPack, MsgPack])(
+      implicit
+      K: Encoder[K],
+      V: Encoder[V]): mutable.LinkedHashMap[MsgPack, MsgPack] = {
     if (!it.hasNext) acc
     else {
       val (k, v) = it.next()
-      mapLoop(it, acc.add(K(k), V(v)))
+      mapLoop(it, acc += K(k) -> V(v))
     }
   }
 
@@ -131,7 +132,7 @@ object Encoder extends LowPriorityEncoder with TupleEncoder {
                                                                 V: Encoder[V]): Encoder[M[K, V]] =
     new Encoder[M[K, V]] {
       def apply(a: M[K, V]): MsgPack =
-        MsgPack.MMap(mapLoop(a.iterator, MutMap.empty))
+        MsgPack.MMap(mapLoop(a.iterator, mutable.LinkedHashMap.empty))
     }
 
   implicit final def encodeMap[K, V](implicit
@@ -139,7 +140,7 @@ object Encoder extends LowPriorityEncoder with TupleEncoder {
                                      V: Encoder[V]): Encoder[Map[K, V]] =
     new Encoder[Map[K, V]] {
       def apply(a: Map[K, V]): MsgPack =
-        MsgPack.MMap(mapLoop(a.iterator, MutMap.empty))
+        MsgPack.MMap(mapLoop(a.iterator, mutable.LinkedHashMap.empty))
     }
 }
 

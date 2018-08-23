@@ -1,6 +1,6 @@
 package mess.ast
 
-import java.{util => ju}
+import scala.collection.mutable
 
 sealed trait MsgPack
 object MsgPack {
@@ -17,51 +17,9 @@ object MsgPack {
   final case class MDouble(a: Double)                               extends MsgPack
   final case class MFloat(a: Float)                                 extends MsgPack
   final case class MArray(a: Vector[MsgPack])                       extends MsgPack
-  final case class MMap(a: MutMap) extends MsgPack {
+  final case class MMap(a: mutable.LinkedHashMap[MsgPack, MsgPack]) extends MsgPack {
     def add(k: MsgPack, v: MsgPack): MsgPack = {
-      this.copy(a.add(k, v))
+      this.copy(a += k -> v)
     }
   }
-}
-
-private[mess] final class MutMap { self =>
-  import scala.collection.JavaConverters._
-
-  private[this] val _map  = new ju.HashMap[MsgPack, MsgPack]
-  private[this] val _keys = Vector.newBuilder[MsgPack]
-
-  def add(k: MsgPack, v: MsgPack): MutMap = {
-    if (_map.containsKey(k)) self
-    else {
-      _map.put(k, v)
-      _keys += k
-      self
-    }
-  }
-
-  def keys: Seq[MsgPack] = _keys.result().reverse
-
-  def size: Int = _map.size
-
-  def get(key: MsgPack): MsgPack = _map.get(key)
-
-  def iterator: Iterator[(MsgPack, MsgPack)] =
-    new Iterator[(MsgPack, MsgPack)] {
-
-      private[this] val keys = self.keys.iterator
-
-      override def hasNext: Boolean = keys.hasNext
-
-      override def next(): (MsgPack, MsgPack) = {
-        val key = keys.next()
-        key -> self._map.get(key)
-      }
-    }
-
-  override def toString: String =
-    s"CMap(${keys.zip(_map.values().asScala).mkString("[", ", ", "]")})"
-}
-
-object MutMap {
-  def empty: MutMap = new MutMap
 }

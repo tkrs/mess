@@ -1,6 +1,6 @@
 package mess.codec
 
-import mess.ast.{MsgPack, MutMap}
+import mess.ast.MsgPack
 import org.msgpack.core.{MessagePacker, MessageUnpacker, MessageFormat => MF}
 
 import scala.annotation.tailrec
@@ -18,12 +18,14 @@ object Codec {
     }
   }
 
-  @tailrec private[this] def deserializeMap(size: Int, acc: MutMap, buffer: MessageUnpacker): MutMap = {
+  @tailrec private[this] def deserializeMap(size: Int,
+                                            acc: mutable.LinkedHashMap[MsgPack, MsgPack],
+                                            buffer: MessageUnpacker): mutable.LinkedHashMap[MsgPack, MsgPack] = {
     if (size == 0) acc
     else {
       val k = deserialize(buffer)
       val v = deserialize(buffer)
-      deserializeMap(size - 1, acc.add(k, v), buffer)
+      deserializeMap(size - 1, acc += k -> v, buffer)
     }
   }
 
@@ -53,7 +55,7 @@ object Codec {
           MsgPack.MArray(deserializeArr(size, Vector.newBuilder, buffer))
         case MF.FIXMAP | MF.MAP16 | MF.MAP32 =>
           val size = buffer.unpackMapHeader()
-          MsgPack.MMap(deserializeMap(size, MutMap.empty, buffer))
+          MsgPack.MMap(deserializeMap(size, mutable.LinkedHashMap.empty, buffer))
         case MF.EXT8 | MF.EXT16 | MF.EXT32 | MF.FIXEXT1 | MF.FIXEXT2 | MF.FIXEXT4 | MF.FIXEXT8 | MF.FIXEXT16 =>
           val ext   = buffer.unpackExtensionTypeHeader()
           val bytes = Array.ofDim[Byte](ext.getLength)
