@@ -29,7 +29,7 @@ private[mess] trait LowPriorityDerivedDecoder {
           T(m) match {
             case Right(t) =>
               val v = a.get(MsgPack.MString(K.value.name))
-              H(if (v == null) MsgPack.MNil else v) match {
+              H(v.getOrElse(MsgPack.MNil)) match {
                 case Right(h) => Right(field[K](h) :: t)
                 case Left(e)  => Left(e)
               }
@@ -67,7 +67,7 @@ private[mess] trait LowPriorityDerivedDecoder {
       override def apply(m: MsgPack): Either[Throwable, FieldType[K, L] :+: R] = m match {
         case MsgPack.MMap(a) =>
           val v  = a.get(MsgPack.MString(K.value.name))
-          val vv = if (v == null) MsgPack.MNil else v
+          val vv = v.getOrElse(MsgPack.MNil)
           L.map(v => Inl(field[K](v))).apply(vv) match {
             case r @ Right(_) => r
             case Left(_)      => R.map(vv => Inr(vv)).apply(m)

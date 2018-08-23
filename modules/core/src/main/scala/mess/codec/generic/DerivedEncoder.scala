@@ -2,9 +2,11 @@ package mess.codec.generic
 
 import export._
 import mess.Encoder
-import mess.ast.{MsgPack, MutMap}
+import mess.ast.MsgPack
 import shapeless._
 import shapeless.labelled.FieldType
+
+import scala.collection.mutable
 
 trait DerivedEncoder[A] extends Encoder[A]
 
@@ -15,7 +17,7 @@ private[mess] trait LowPriorityDerivedEncoder {
 
   implicit final val encodeHNil: DerivedEncoder[HNil] =
     new DerivedEncoder[HNil] {
-      def apply(a: HNil): MsgPack = MsgPack.MMap(MutMap.empty)
+      def apply(a: HNil): MsgPack = MsgPack.MMap(mutable.LinkedHashMap.empty)
     }
 
   implicit final def encodeLabelledHList[K <: Symbol, H, T <: HList](
@@ -44,7 +46,7 @@ private[mess] trait LowPriorityDerivedEncoder {
       R: DerivedEncoder[R]): DerivedEncoder[FieldType[K, L] :+: R] =
     new DerivedEncoder[FieldType[K, L] :+: R] {
       def apply(a: FieldType[K, L] :+: R): MsgPack = a match {
-        case Inl(h) => MsgPack.MMap(MutMap.empty.add(MsgPack.MString(K.value.name), L(h)))
+        case Inl(h) => MsgPack.MMap(mutable.LinkedHashMap.empty += MsgPack.MString(K.value.name) -> L(h))
         case Inr(t) => R(t)
       }
     }
