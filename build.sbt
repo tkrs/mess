@@ -7,7 +7,7 @@ ThisBuild / crossScalaVersions := Seq(
   Ver.`scala2.12`,
   Ver.`scala2.13`,
 )
-ThisBuild / libraryDependencies ++= Pkg.forTest ++ {
+ThisBuild / libraryDependencies ++= Pkg.forTest(scalaVersion.value) ++ {
   CrossVersion.partialVersion(scalaVersion.value) match {
     case Some((2, 13)) => Seq(compilerPlugin(Pkg.kindProjector))
     case _ => Seq(compilerPlugin(Pkg.kindProjector), compilerPlugin(Pkg.macroParadise))
@@ -19,8 +19,8 @@ ThisBuild / resolvers ++= Seq(
 )
 ThisBuild / scalacOptions ++= compilerOptions ++ {
   CrossVersion.partialVersion(scalaVersion.value) match {
-    case Some((2, 13)) => warnCompilerOptions.filter(_ != "-Yno-adapted-args") ++ Seq("-Ymacro-annotations")
-    case Some((2, 12)) => warnCompilerOptions
+    case Some((2, 13)) => warnCompilerOptions ++ Seq("-Ymacro-annotations")
+    case Some((2, 12)) => warnCompilerOptions ++ Seq("-Yno-adapted-args")
     case _             => Nil
   }
 }
@@ -40,7 +40,6 @@ lazy val warnCompilerOptions = Seq(
   "-Xfatal-warnings",
   "-Ywarn-extra-implicit",
   "-Ywarn-unused:_",
-  "-Yno-adapted-args",
   "-Ywarn-dead-code",
   "-Ywarn-numeric-widen",
 )
@@ -90,7 +89,6 @@ lazy val noPublishSettings = Seq(
   publish / skip := true
 )
 
-//
 lazy val crossVersionSharedSources: Seq[Setting[_]] =
   Seq(Compile, Test).map { sc =>
     (sc / unmanagedSourceDirectories) ++= {
