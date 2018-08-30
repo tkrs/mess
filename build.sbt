@@ -5,7 +5,7 @@ ThisBuild / scalaVersion := Ver.`scala2.12`
 ThisBuild / crossScalaVersions := Seq(
   Ver.`scala2.11`,
   Ver.`scala2.12`,
-  Ver.`scala2.13`,
+  // Ver.`scala2.13`,
 )
 ThisBuild / libraryDependencies ++= Pkg.forTest(scalaVersion.value) ++ {
   CrossVersion.partialVersion(scalaVersion.value) match {
