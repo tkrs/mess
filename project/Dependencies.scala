@@ -5,7 +5,7 @@ object Dependencies {
     val `scala2.13`   = "2.13.0-M4"
     val `scala2.12`   = "2.12.6"
     val `scala2.11`   = "2.11.12"
-    val scalafmt      = "1.3.0"
+    val scalafmt      = "1.5.1"
     val shapeless     = "2.3.3"
     val exportHook    = "1.2.0"
     val scalacheck    = "1.14.0"
