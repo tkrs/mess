@@ -13,7 +13,6 @@ import org.openjdk.jmh.annotations._
   value = 2,
   jvmArgs = Array(
     "-server",
-    "-Xss2m",
     "-Xms2g",
     "-Xmx2g",
     "-XX:NewSize=1g",
