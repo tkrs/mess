@@ -3,7 +3,7 @@ package mess.bench
 import java.nio.ByteBuffer
 
 import mess.Decoder
-import mess.codec.Codec
+import mess.ast.MsgPack
 import mess.codec.generic._
 import org.msgpack.core.MessagePack
 import org.openjdk.jmh.annotations._
@@ -12,7 +12,7 @@ trait UnpackerBench {
 
   @inline private def decode[A](src: ByteBuffer)(implicit A: Decoder[A]): A = {
     val p   = MessagePack.DEFAULT_UNPACKER_CONFIG.newUnpacker(src)
-    val dst = Codec.deserialize(p)
+    val dst = MsgPack.unpack(p)
     val r   = A(dst).right.get
     p.close()
     r

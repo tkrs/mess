@@ -1,7 +1,6 @@
 package mess.bench
 
 import mess.Encoder
-import mess.codec.Codec
 import mess.codec.generic._
 import org.msgpack.core.MessageBufferPacker
 import org.openjdk.jmh.annotations._
@@ -9,7 +8,7 @@ import org.openjdk.jmh.annotations._
 trait PackerBench {
 
   @inline private def encode[A](a: A, p: MessageBufferPacker)(implicit A: Encoder[A]): Array[Byte] = {
-    Codec.serialize(A(a), p)
+    A(a).pack(p)
     val r = p.toByteArray
     p.clear()
     r
