@@ -1,7 +1,6 @@
 package mess
 
 import mess.ast.MsgPack
-import mess.codec.Codec
 import org.scalatest.FunSuite
 import mess.codec.generic.derived._
 import org.msgpack.core.MessagePack
@@ -16,8 +15,8 @@ class EncoderSpec extends FunSuite with MsgpackHelper {
   def check[A](tc: Seq[A])(implicit encodeA: Encoder[A], decodeA: Decoder[A]): Unit = {
     for (p <- tc) {
       packer.clear()
-      Codec.serialize(encodeA(p), packer)
-      val m = Codec.deserialize(MessagePack.DEFAULT_UNPACKER_CONFIG.newUnpacker(packer.toByteArray))
+      encodeA(p).pack(packer)
+      val m = MsgPack.unpack(MessagePack.DEFAULT_UNPACKER_CONFIG.newUnpacker(packer.toByteArray))
       val a = decodeA(m).right.get
       assert(a === p)
     }

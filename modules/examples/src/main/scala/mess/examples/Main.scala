@@ -1,7 +1,7 @@
 package mess.examples
 
 import mess._
-import mess.codec.Codec
+import mess.ast.MsgPack
 import mess.codec.generic._
 import org.msgpack.core.MessagePack._
 
@@ -24,7 +24,7 @@ object Main extends App {
   val bytes = {
     val packer = DEFAULT_PACKER_CONFIG.newBufferPacker()
     try {
-      Codec.serialize(Encoder[Bar].apply(bar), packer)
+      Encoder[Bar].apply(bar).pack(packer)
       packer.toByteArray
     } finally {
       packer.close()
@@ -33,7 +33,7 @@ object Main extends App {
 
   val unpacker = DEFAULT_UNPACKER_CONFIG.newUnpacker(bytes)
 
-  val bar2 = Decoder[Bar].apply(Codec.deserialize(unpacker)).right.get
+  val bar2 = Decoder[Bar].apply(MsgPack.unpack(unpacker)).right.get
 
   assert(bar == bar2)
 }

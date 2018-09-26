@@ -4,7 +4,6 @@ import java.nio.ByteBuffer
 
 import mess.Encoder
 import mess.ast.MsgPack
-import mess.codec.Codec
 import mess.codec.generic.derived._
 import org.msgpack.core.MessagePack
 
@@ -16,7 +15,7 @@ object models {
 
   def packer(ast: MsgPack): Array[Byte] = {
     val p = MessagePack.DEFAULT_PACKER_CONFIG.newBufferPacker()
-    Codec.serialize(ast, p)
+    ast.pack(p)
     val r = p.toByteArray
     p.close()
     r

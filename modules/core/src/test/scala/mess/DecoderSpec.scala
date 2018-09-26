@@ -1,7 +1,6 @@
 package mess
 
 import mess.ast.MsgPack
-import mess.codec.Codec
 import org.msgpack.core.MessagePack
 import org.scalatest.FunSuite
 import mess.codec.generic.derived._
@@ -15,7 +14,7 @@ class DecoderSpec extends FunSuite with MsgpackHelper {
   case class Qux(byte: Option[Int])
 
   def decode[A](arr: Array[Byte])(implicit A: Decoder[A]): Either[Throwable, A] = {
-    A(Codec.deserialize(MessagePack.DEFAULT_UNPACKER_CONFIG.newUnpacker(arr)))
+    A(MsgPack.unpack(MessagePack.DEFAULT_UNPACKER_CONFIG.newUnpacker(arr)))
   }
 
   def check[A: Decoder](tc: Seq[(A, Array[Byte])]): Unit = {

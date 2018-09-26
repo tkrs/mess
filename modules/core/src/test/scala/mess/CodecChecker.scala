@@ -3,7 +3,6 @@ package mess
 import java.time.Instant
 
 import mess.ast.MsgPack
-import mess.codec.Codec
 import mess.codec.generic.derived._
 import org.msgpack.core.MessagePack
 import org.msgpack.core.MessagePack.Code
@@ -34,10 +33,10 @@ class CodecChecker extends FunSuite with Checkers with MsgpackHelper {
 
   def roundTrip[A: Arbitrary: Shrink](implicit encode: Encoder[A], decode: Decoder[A]): Assertion =
     check(Prop.forAll({ a: A =>
-      val ast      = encode(a); Codec.serialize(ast, packer)
+      val ast      = encode(a); ast.pack(packer)
       val bytes    = packer.toByteArray
       val unpacker = MessagePack.DEFAULT_UNPACKER_CONFIG.newUnpacker(bytes)
-      val b        = decode(Codec.deserialize(unpacker)).right.get
+      val b        = decode(MsgPack.unpack(unpacker)).right.get
       packer.clear()
       a === b
     }))
@@ -149,7 +148,7 @@ class CodecChecker extends FunSuite with Checkers with MsgpackHelper {
     locally {
       val in       = x"81 a1 61 c0"
       val unpacker = MessagePack.DEFAULT_UNPACKER_CONFIG.newUnpacker(in)
-      val value    = Decoder[Hoge].apply(Codec.deserialize(unpacker)).right.get
+      val value    = Decoder[Hoge].apply(MsgPack.unpack(unpacker)).right.get
       assert(value === Hoge(None))
     }
 
@@ -157,19 +156,19 @@ class CodecChecker extends FunSuite with Checkers with MsgpackHelper {
 
     locally {
       val unpacker = MessagePack.DEFAULT_UNPACKER_CONFIG.newUnpacker(in)
-      val value    = Decoder[Option[Map[String, String]]].apply(Codec.deserialize(unpacker)).right.get
+      val value    = Decoder[Option[Map[String, String]]].apply(MsgPack.unpack(unpacker)).right.get
       assert(value === None)
     }
 
     locally {
       val unpacker = MessagePack.DEFAULT_UNPACKER_CONFIG.newUnpacker(in)
-      val value    = Decoder[Map[String, String]].apply(Codec.deserialize(unpacker)).right.get
+      val value    = Decoder[Map[String, String]].apply(MsgPack.unpack(unpacker)).right.get
       assert(value === Map.empty)
     }
 
     locally {
       val unpacker = MessagePack.DEFAULT_UNPACKER_CONFIG.newUnpacker(in)
-      val value    = Decoder[Vector[String]].apply(Codec.deserialize(unpacker)).right.get
+      val value    = Decoder[Vector[String]].apply(MsgPack.unpack(unpacker)).right.get
       assert(value === Vector.empty)
     }
   }
@@ -179,19 +178,19 @@ class CodecChecker extends FunSuite with Checkers with MsgpackHelper {
 
     locally {
       val unpacker = MessagePack.DEFAULT_UNPACKER_CONFIG.newUnpacker(in)
-      val value    = Decoder[Vector[String]].apply(Codec.deserialize(unpacker)).right.get
+      val value    = Decoder[Vector[String]].apply(MsgPack.unpack(unpacker)).right.get
       assert(value === Vector.empty)
     }
 
     locally {
       val unpacker = MessagePack.DEFAULT_UNPACKER_CONFIG.newUnpacker(in)
-      val value    = Decoder[Map[String, String]].apply(Codec.deserialize(unpacker)).right.get
+      val value    = Decoder[Map[String, String]].apply(MsgPack.unpack(unpacker)).right.get
       assert(value === Map.empty)
     }
 
     locally {
       val unpacker = MessagePack.DEFAULT_UNPACKER_CONFIG.newUnpacker(in)
-      val value    = Decoder[Option[Hoge]].apply(Codec.deserialize(unpacker)).right.get
+      val value    = Decoder[Option[Hoge]].apply(MsgPack.unpack(unpacker)).right.get
       assert(value === None)
     }
   }
