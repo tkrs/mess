@@ -7,20 +7,20 @@ ThisBuild / crossScalaVersions := Seq(
   Ver.`scala2.12`,
   // Ver.`scala2.13`,
 )
+ThisBuild / resolvers ++= Seq(
+  Resolver.sonatypeRepo("releases"),
+  Resolver.sonatypeRepo("snapshots")
+)
 ThisBuild / libraryDependencies ++= Pkg.forTest(scalaVersion.value) ++ {
   CrossVersion.partialVersion(scalaVersion.value) match {
     case Some((2, 13)) => Seq(compilerPlugin(Pkg.kindProjector))
     case _ => Seq(compilerPlugin(Pkg.kindProjector), compilerPlugin(Pkg.macroParadise))
   }
 }
-ThisBuild / resolvers ++= Seq(
-  Resolver.sonatypeRepo("releases"),
-  Resolver.sonatypeRepo("snapshots")
-)
 ThisBuild / scalacOptions ++= compilerOptions ++ {
   CrossVersion.partialVersion(scalaVersion.value) match {
     case Some((2, 13)) => warnCompilerOptions ++ Seq("-Ymacro-annotations")
-    case Some((2, 12)) => warnCompilerOptions ++ Seq("-Yno-adapted-args")
+    case Some((2, 12)) => warnCompilerOptions :+ "-Yno-adapted-args"
     case _             => Nil
   }
 }
