@@ -11,11 +11,12 @@ scala:
 
 jdk:
   - openjdk8
+  - openjdk11
 
 matrix:
-  include:
-    - scala: 2.12.7
-      jdk: openjdk11
+  allow_failures:
+    - jdk: openjdk11
+      scala: 2.13.0-M4
 
 cache:
   directories:
