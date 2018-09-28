@@ -6,7 +6,7 @@ services:
 
 scala:
   - 2.11.12
-  - 2.12.6
+  - 2.12.7
   # - 2.13.0-M4
 
 jdk:
@@ -14,11 +14,11 @@ jdk:
 
 matrix:
   include:
-    - scala: 2.12.6
+    - scala: 2.12.7
       jdk: openjdk9
-    - scala: 2.12.6
+    - scala: 2.12.7
       jdk: openjdk10
-    - scala: 2.12.6
+    - scala: 2.12.7
       jdk: openjdk11
 
 cache:
