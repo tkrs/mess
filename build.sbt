@@ -5,7 +5,7 @@ ThisBuild / scalaVersion := Ver.`scala2.12`
 ThisBuild / crossScalaVersions := Seq(
   Ver.`scala2.11`,
   Ver.`scala2.12`,
-  // Ver.`scala2.13`,
+  Ver.`scala2.13`,
 )
 ThisBuild / resolvers ++= Seq(
   Resolver.sonatypeRepo("releases"),
@@ -45,6 +45,7 @@ lazy val warnCompilerOptions = Seq(
 )
 
 lazy val mess = project.in(file("."))
+  .settings(docSettings)
   .settings(publishSettings)
   .settings(noPublishSettings)
   .settings(Compile / console / scalacOptions --= warnCompilerOptions)
@@ -89,7 +90,7 @@ lazy val noPublishSettings = Seq(
   publish / skip := true
 )
 
-lazy val crossVersionSharedSources: Seq[Setting[_]] =
+lazy val crossVersionSharedSources =
   Seq(Compile, Test).map { sc =>
     (sc / unmanagedSourceDirectories) ++= {
       (sc / unmanagedSourceDirectories).value.flatMap { dir: File =>
@@ -104,16 +105,24 @@ lazy val crossVersionSharedSources: Seq[Setting[_]] =
     }
   }
 
+lazy val docSettings = Seq(
+  Compile / doc / sources := {
+    CrossVersion.partialVersion(scalaVersion.value) match {
+      case Some((2, 13)) => Nil
+      case _ => (Compile / doc / sources).value
+    }
+  }
+)
+
 lazy val core = project.in(file("modules/core"))
+  .settings(docSettings)
   .settings(publishSettings)
   .settings(crossVersionSharedSources)
   .settings(
     description := "mess core",
     moduleName := "mess-core"
   )
-  .settings(
-    Compile / sourceGenerators += (Compile / sourceManaged).map(Boilerplate.gen).taskValue
-  )
+  .settings(Compile / sourceGenerators += (Compile / sourceManaged).map(Boilerplate.gen).taskValue)
   .settings(
     libraryDependencies ++= Seq(
       Pkg.msgpackJava,
@@ -124,6 +133,7 @@ lazy val core = project.in(file("modules/core"))
   )
 
 lazy val examples = (project in file("modules/examples"))
+  .settings(docSettings)
   .settings(publishSettings)
   .settings(noPublishSettings)
   .settings(
@@ -136,6 +146,7 @@ lazy val examples = (project in file("modules/examples"))
   .dependsOn(core)
 
 lazy val benchmark = (project in file("modules/benchmark"))
+  .settings(docSettings)
   .settings(publishSettings)
   .settings(noPublishSettings)
   .settings(
