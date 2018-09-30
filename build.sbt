@@ -19,12 +19,11 @@ ThisBuild / libraryDependencies ++= Pkg.forTest(scalaVersion.value) ++ {
 }
 ThisBuild / scalacOptions ++= compilerOptions ++ {
   CrossVersion.partialVersion(scalaVersion.value) match {
-    case Some((2, 13)) => warnCompilerOptions ++ Seq("-Ymacro-annotations")
+    case Some((2, 13)) => warnCompilerOptions.filterNot(_ == "-Xfatal-warnings") ++ Seq("-Ymacro-annotations")
     case Some((2, 12)) => warnCompilerOptions :+ "-Yno-adapted-args"
     case _             => Nil
   }
 }
-ThisBuild / Test / fork := true
 
 lazy val compilerOptions = Seq(
   "-deprecation",
@@ -50,6 +49,7 @@ lazy val mess = project.in(file("."))
   .settings(noPublishSettings)
   .settings(Compile / console / scalacOptions --= warnCompilerOptions)
   .settings(Compile / console / scalacOptions += "-Yrepl-class-based")
+  .settings(ThisBuild / Test / fork := true)
   .aggregate(core, benchmark, examples)
   .dependsOn(core, benchmark, examples)
 
