@@ -56,26 +56,19 @@ trait Unpacker {
   def decodeLong60(data: States.UnpackData): models.Long60 = {
     decode[models.Long60](data.long60CC)
   }
-}
-
-trait FromAst {
-
-  private[this] implicit val decodeLong10CC: Decoder[models.Long10] = derivedDecoder[models.Long10]
-  private[this] implicit val decodeLong30CC: Decoder[models.Long30] = derivedDecoder[models.Long30]
-  private[this] implicit val decodeLong60CC: Decoder[models.Long60] = derivedDecoder[models.Long60]
 
   @Benchmark
-  def decodeLong10(data: States.UnpackData): models.Long10 = {
+  def unpackLong10(data: States.UnpackData): models.Long10 = {
     decodeLong10CC(data.long10CCP).right.get
   }
 
   @Benchmark
-  def decodeLong30(data: States.UnpackData): models.Long30 = {
+  def unpackLong30(data: States.UnpackData): models.Long30 = {
     decodeLong30CC(data.long30CCP).right.get
   }
 
   @Benchmark
-  def decodeLong60(data: States.UnpackData): models.Long60 = {
+  def unpackLong60(data: States.UnpackData): models.Long60 = {
     decodeLong60CC(data.long60CCP).right.get
   }
 }
