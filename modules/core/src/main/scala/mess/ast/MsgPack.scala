@@ -1,6 +1,6 @@
 package mess.ast
 
-import org.msgpack.core.{MessagePacker, MessageUnpacker, MessageFormat => MF}
+import org.msgpack.core.{MessagePack, MessagePacker, MessageUnpacker, MessageFormat => MF}
 
 import scala.annotation.tailrec
 import scala.collection.mutable
@@ -94,6 +94,19 @@ object MsgPack {
     }
   }
 
+  def pack(msgPack: MsgPack, config: MessagePack.PackerConfig): Array[Byte] = {
+    val buffer = config.newBufferPacker()
+    try {
+      msgPack.pack(buffer)
+      buffer.toByteArray
+    } finally buffer.close()
+  }
+
+  def unpack(bytes: Array[Byte], config: MessagePack.UnpackerConfig): MsgPack = {
+    val buffer = config.newUnpacker(bytes)
+    try unpack(buffer) finally buffer.close()
+  }
+
   def unpack(buffer: MessageUnpacker): MsgPack = {
     if (!buffer.hasNext) MsgPack.MEmpty
     else
@@ -130,4 +143,18 @@ object MsgPack {
           throw new IllegalStateException("NEVER USED")
       }
   }
+
+  def mNil: MsgPack                          = MNil
+  def mEmpty: MsgPack                        = MEmpty
+  def mMap(xs: (MsgPack, MsgPack)*): MsgPack = MMap(mutable.HashMap(xs: _*))
+  def mArr(xs: MsgPack*): MsgPack            = MArray(Vector(xs: _*))
+  def mBool(x: Boolean): MsgPack             = MBool(x)
+  def mStr(x: String): MsgPack               = MString(x)
+  def mBigInt(x: BigInt): MsgPack            = MBigInt(x)
+  def mByte(x: Byte): MsgPack                = MByte(x)
+  def mShort(x: Short): MsgPack              = MShort(x)
+  def mInt(x: Int): MsgPack                  = MInt(x)
+  def mLong(x: Long): MsgPack                = MLong(x)
+  def mFloat(x: Float): MsgPack              = MFloat(x)
+  def mDouble(x: Double): MsgPack            = MDouble(x)
 }
