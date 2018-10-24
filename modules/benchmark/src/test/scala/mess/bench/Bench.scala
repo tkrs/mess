@@ -26,5 +26,8 @@ import org.openjdk.jmh.annotations._
 )
 abstract class Bench
 
-class PackBench   extends Bench with PackerBench
-class UnpackBench extends Bench with UnpackerBench
+class PackerBench   extends Bench with Packer
+class UnpackerBench extends Bench with Unpacker
+
+class ToAstBench   extends Bench with ToAst
+class FromAstBench extends Bench with FromAst

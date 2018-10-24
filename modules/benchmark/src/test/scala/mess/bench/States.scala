@@ -2,6 +2,7 @@ package mess.bench
 
 import java.nio.ByteBuffer
 
+import mess.ast.MsgPack
 import mess.bench.models._
 import org.msgpack.core.{MessageBufferPacker, MessagePack}
 import org.openjdk.jmh.annotations.{Scope, Setup, State, TearDown}
@@ -50,11 +51,26 @@ object States {
 
     private[this] val long10CC_            = Long10.bytes
     @inline final def long10CC: ByteBuffer = long10CC_.duplicate()
+    val long10CCP: MsgPack = {
+      val unpacker = MessagePack.DEFAULT_UNPACKER_CONFIG.newUnpacker(long10CC)
+      try MsgPack.unpack(unpacker)
+      finally unpacker.close()
+    }
 
     private[this] val long30CC_            = Long30.bytes
     @inline final def long30CC: ByteBuffer = long30CC_.duplicate()
+    val long30CCP: MsgPack = {
+      val unpacker = MessagePack.DEFAULT_UNPACKER_CONFIG.newUnpacker(long30CC)
+      try MsgPack.unpack(unpacker)
+      finally unpacker.close()
+    }
 
     private[this] val long60CC_            = Long60.bytes
     @inline final def long60CC: ByteBuffer = long60CC_.duplicate()
+    val long60CCP: MsgPack = {
+      val unpacker = MessagePack.DEFAULT_UNPACKER_CONFIG.newUnpacker(long60CC)
+      try MsgPack.unpack(unpacker)
+      finally unpacker.close()
+    }
   }
 }
