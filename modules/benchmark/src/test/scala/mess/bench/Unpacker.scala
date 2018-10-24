@@ -8,7 +8,7 @@ import mess.codec.generic._
 import org.msgpack.core.MessagePack
 import org.openjdk.jmh.annotations._
 
-trait UnpackerBench {
+trait Unpacker {
 
   @inline private def decode[A](src: ByteBuffer)(implicit A: Decoder[A]): A = {
     val p   = MessagePack.DEFAULT_UNPACKER_CONFIG.newUnpacker(src)
@@ -55,5 +55,27 @@ trait UnpackerBench {
   @Benchmark
   def decodeLong60(data: States.UnpackData): models.Long60 = {
     decode[models.Long60](data.long60CC)
+  }
+}
+
+trait FromAst {
+
+  private[this] implicit val decodeLong10CC: Decoder[models.Long10] = derivedDecoder[models.Long10]
+  private[this] implicit val decodeLong30CC: Decoder[models.Long30] = derivedDecoder[models.Long30]
+  private[this] implicit val decodeLong60CC: Decoder[models.Long60] = derivedDecoder[models.Long60]
+
+  @Benchmark
+  def decodeLong10(data: States.UnpackData): models.Long10 = {
+    decodeLong10CC(data.long10CCP).right.get
+  }
+
+  @Benchmark
+  def decodeLong30(data: States.UnpackData): models.Long30 = {
+    decodeLong30CC(data.long30CCP).right.get
+  }
+
+  @Benchmark
+  def decodeLong60(data: States.UnpackData): models.Long60 = {
+    decodeLong60CC(data.long60CCP).right.get
   }
 }
