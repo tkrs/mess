@@ -116,10 +116,10 @@ object Encoder extends LowPriorityEncoder with TupleEncoder {
       }
     }
 
-  @tailrec private[this] def mapLoop[K, V](it: Iterator[(K, V)], acc: mutable.LinkedHashMap[MsgPack, MsgPack])(
+  @tailrec private[this] def mapLoop[K, V](it: Iterator[(K, V)], acc: mutable.HashMap[MsgPack, MsgPack])(
       implicit
       K: Encoder[K],
-      V: Encoder[V]): mutable.LinkedHashMap[MsgPack, MsgPack] = {
+      V: Encoder[V]): mutable.HashMap[MsgPack, MsgPack] = {
     if (!it.hasNext) acc
     else {
       val (k, v) = it.next()
@@ -132,7 +132,7 @@ object Encoder extends LowPriorityEncoder with TupleEncoder {
                                                                 V: Encoder[V]): Encoder[M[K, V]] =
     new Encoder[M[K, V]] {
       def apply(a: M[K, V]): MsgPack =
-        MsgPack.MMap(mapLoop(a.iterator, mutable.LinkedHashMap.empty))
+        MsgPack.MMap(mapLoop(a.iterator, mutable.HashMap.empty))
     }
 
   implicit final def encodeMap[K, V](implicit
@@ -140,7 +140,7 @@ object Encoder extends LowPriorityEncoder with TupleEncoder {
                                      V: Encoder[V]): Encoder[Map[K, V]] =
     new Encoder[Map[K, V]] {
       def apply(a: Map[K, V]): MsgPack =
-        MsgPack.MMap(mapLoop(a.iterator, mutable.LinkedHashMap.empty))
+        MsgPack.MMap(mapLoop(a.iterator, mutable.HashMap.empty))
     }
 }
 

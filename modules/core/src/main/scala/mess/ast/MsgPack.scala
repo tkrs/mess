@@ -51,7 +51,7 @@ object MsgPack {
       }
     }
   }
-  final case class MMap(a: mutable.LinkedHashMap[MsgPack, MsgPack]) extends MsgPack {
+  final case class MMap(a: mutable.HashMap[MsgPack, MsgPack]) extends MsgPack {
     def pack(acc: MessagePacker): Unit = {
       acc.packMapHeader(a.size)
       val it = a.iterator
@@ -84,8 +84,8 @@ object MsgPack {
   }
 
   @tailrec private[this] def unpackMap(size: Int,
-                                       acc: mutable.LinkedHashMap[MsgPack, MsgPack],
-                                       buffer: MessageUnpacker): mutable.LinkedHashMap[MsgPack, MsgPack] = {
+                                       acc: mutable.HashMap[MsgPack, MsgPack],
+                                       buffer: MessageUnpacker): mutable.HashMap[MsgPack, MsgPack] = {
     if (size == 0) acc
     else {
       val k = unpack(buffer)
@@ -120,7 +120,7 @@ object MsgPack {
           MsgPack.MArray(unpackArr(size, Vector.newBuilder, buffer))
         case MF.FIXMAP | MF.MAP16 | MF.MAP32 =>
           val size = buffer.unpackMapHeader()
-          MsgPack.MMap(unpackMap(size, mutable.LinkedHashMap.empty, buffer))
+          MsgPack.MMap(unpackMap(size, mutable.HashMap.empty, buffer))
         case MF.EXT8 | MF.EXT16 | MF.EXT32 | MF.FIXEXT1 | MF.FIXEXT2 | MF.FIXEXT4 | MF.FIXEXT8 | MF.FIXEXT16 =>
           val ext   = buffer.unpackExtensionTypeHeader()
           val bytes = Array.ofDim[Byte](ext.getLength)
