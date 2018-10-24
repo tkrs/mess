@@ -17,7 +17,7 @@ private[mess] trait LowPriorityDerivedEncoder {
 
   implicit final val encodeHNil: DerivedEncoder[HNil] =
     new DerivedEncoder[HNil] {
-      def apply(a: HNil): MsgPack = MsgPack.MMap(mutable.LinkedHashMap.empty)
+      def apply(a: HNil): MsgPack = MsgPack.MMap(mutable.HashMap.empty)
     }
 
   implicit final def encodeLabelledHList[K <: Symbol, H, T <: HList](
@@ -46,7 +46,7 @@ private[mess] trait LowPriorityDerivedEncoder {
       R: DerivedEncoder[R]): DerivedEncoder[FieldType[K, L] :+: R] =
     new DerivedEncoder[FieldType[K, L] :+: R] {
       def apply(a: FieldType[K, L] :+: R): MsgPack = a match {
-        case Inl(h) => MsgPack.MMap(mutable.LinkedHashMap.empty += MsgPack.MString(K.value.name) -> L(h))
+        case Inl(h) => MsgPack.MMap(mutable.HashMap.empty += MsgPack.MString(K.value.name) -> L(h))
         case Inr(t) => R(t)
       }
     }
