@@ -28,6 +28,3 @@ abstract class Bench
 
 class PackerBench   extends Bench with Packer
 class UnpackerBench extends Bench with Unpacker
-
-class ToAstBench   extends Bench with ToAst
-class FromAstBench extends Bench with FromAst
