@@ -9,18 +9,18 @@ import scala.collection.mutable
 
 trait Decoder[A] extends Serializable { self =>
 
-  def apply(m: MsgPack): Either[Throwable, A]
+  def apply(m: MsgPack): Decoder.Result[A]
 
   final def map[B](f: A => B): Decoder[B] = new Decoder[B] {
-    def apply(m: MsgPack): Either[Throwable, B] =
+    def apply(m: MsgPack): Decoder.Result[B] =
       self(m) match {
         case Right(v) => Right(f(v))
         case Left(e)  => Left(e)
       }
   }
 
-  final def mapF[B](f: A => Either[Throwable, B]): Decoder[B] = new Decoder[B] {
-    def apply(m: MsgPack): Either[Throwable, B] =
+  final def mapF[B](f: A => Decoder.Result[B]): Decoder[B] = new Decoder[B] {
+    def apply(m: MsgPack): Decoder.Result[B] =
       self(m) match {
         case Right(v) => f(v)
         case Left(e)  => Left(e)
@@ -28,7 +28,7 @@ trait Decoder[A] extends Serializable { self =>
   }
 
   final def flatMap[B](f: A => Decoder[B]): Decoder[B] = new Decoder[B] {
-    def apply(m: MsgPack): Either[Throwable, B] =
+    def apply(m: MsgPack): Decoder.Result[B] =
       self(m) match {
         case Right(v) => f(v).apply(m)
         case Left(e)  => Left(e)
@@ -38,111 +38,113 @@ trait Decoder[A] extends Serializable { self =>
 
 object Decoder extends LowPriorityDecoder with TupleDecoder {
 
+  type Result[A] = Either[DecodingFailure, A]
+
   @inline def apply[A](implicit A: Decoder[A]): Decoder[A] = A
 
   def lift[A](a: A): Decoder[A] = new Decoder[A] {
-    def apply(_m: MsgPack): Either[Throwable, A] = Right(a)
+    def apply(_m: MsgPack): Result[A] = Right(a)
   }
 
-  def liftF[A](a: Either[Throwable, A]): Decoder[A] = new Decoder[A] {
-    def apply(_m: MsgPack): Either[Throwable, A] = a
+  def liftF[A](a: Result[A]): Decoder[A] = new Decoder[A] {
+    def apply(_m: MsgPack): Result[A] = a
   }
 
   implicit val decodeBoolean: Decoder[Boolean] = new Decoder[Boolean] {
-    def apply(m: MsgPack): Either[Throwable, Boolean] = m match {
+    def apply(m: MsgPack): Result[Boolean] = m match {
       case MsgPack.MBool(a) => Right(a)
-      case _                => Left(new IllegalArgumentException(s"$m"))
+      case _                => Left(TypeMismatchError("Boolean", m))
     }
   }
 
-  implicit val decodeBytes: Decoder[Byte] = new Decoder[Byte] {
-    def apply(m: MsgPack): Either[Throwable, Byte] = m match {
+  implicit val decodeByte: Decoder[Byte] = new Decoder[Byte] {
+    def apply(m: MsgPack): Result[Byte] = m match {
       case MsgPack.MByte(a)   => Right(a)
       case MsgPack.MShort(a)  => Right(a.toByte)
       case MsgPack.MInt(a)    => Right(a.toByte)
       case MsgPack.MLong(a)   => Right(a.toByte)
       case MsgPack.MBigInt(a) => Right(a.toByte)
-      case _                  => Left(new IllegalArgumentException(s"$m"))
+      case _                  => Left(TypeMismatchError("Byte", m))
     }
   }
 
   implicit val decodeShort: Decoder[Short] = new Decoder[Short] {
-    def apply(m: MsgPack): Either[Throwable, Short] = m match {
+    def apply(m: MsgPack): Result[Short] = m match {
       case MsgPack.MByte(a)   => Right(a.toShort)
       case MsgPack.MShort(a)  => Right(a)
       case MsgPack.MInt(a)    => Right(a.toShort)
       case MsgPack.MLong(a)   => Right(a.toShort)
       case MsgPack.MBigInt(a) => Right(a.toShort)
-      case _                  => Left(new IllegalArgumentException(s"$m"))
+      case _                  => Left(TypeMismatchError("Short", m))
     }
   }
 
   implicit val decodeInt: Decoder[Int] = new Decoder[Int] {
-    def apply(m: MsgPack): Either[Throwable, Int] = m match {
+    def apply(m: MsgPack): Result[Int] = m match {
       case MsgPack.MByte(a)   => Right(a.toInt)
       case MsgPack.MShort(a)  => Right(a.toInt)
       case MsgPack.MInt(a)    => Right(a)
       case MsgPack.MLong(a)   => Right(a.toInt)
       case MsgPack.MBigInt(a) => Right(a.toInt)
-      case _                  => Left(new IllegalArgumentException(s"$m"))
+      case _                  => Left(TypeMismatchError("Int", m))
     }
   }
 
   implicit val decodeLong: Decoder[Long] = new Decoder[Long] {
-    def apply(m: MsgPack): Either[Throwable, Long] = m match {
+    def apply(m: MsgPack): Result[Long] = m match {
       case MsgPack.MByte(a)   => Right(a.toLong)
       case MsgPack.MShort(a)  => Right(a.toLong)
       case MsgPack.MInt(a)    => Right(a.toLong)
       case MsgPack.MLong(a)   => Right(a)
       case MsgPack.MBigInt(a) => Right(a.toLong)
-      case _                  => Left(new IllegalArgumentException(s"$m"))
+      case _                  => Left(TypeMismatchError("Long", m))
     }
   }
 
   implicit val decodeBigInt: Decoder[BigInt] = new Decoder[BigInt] {
-    def apply(m: MsgPack): Either[Throwable, BigInt] = m match {
+    def apply(m: MsgPack): Result[BigInt] = m match {
       case MsgPack.MByte(a)   => Right(BigInt(a.toInt))
       case MsgPack.MShort(a)  => Right(BigInt(a.toInt))
       case MsgPack.MInt(a)    => Right(BigInt(a))
       case MsgPack.MLong(a)   => Right(BigInt(a))
       case MsgPack.MBigInt(a) => Right(a)
-      case _                  => Left(new IllegalArgumentException(s"$m"))
+      case _                  => Left(TypeMismatchError("BigInt", m))
     }
   }
 
   implicit val decodeDouble: Decoder[Double] = new Decoder[Double] {
-    def apply(m: MsgPack): Either[Throwable, Double] = m match {
+    def apply(m: MsgPack): Result[Double] = m match {
       case MsgPack.MFloat(a)  => Right(a.toDouble)
       case MsgPack.MDouble(a) => Right(a)
-      case _                  => Left(new IllegalArgumentException(s"$m"))
+      case _                  => Left(TypeMismatchError("Double", m))
     }
   }
 
   implicit val decodeFloat: Decoder[Float] = new Decoder[Float] {
-    def apply(m: MsgPack): Either[Throwable, Float] = m match {
+    def apply(m: MsgPack): Result[Float] = m match {
       case MsgPack.MFloat(a)  => Right(a)
       case MsgPack.MDouble(a) => Right(a.toFloat)
-      case _                  => Left(new IllegalArgumentException(s"$m"))
+      case _                  => Left(TypeMismatchError("Float", m))
     }
   }
 
   implicit val decodeChar: Decoder[Char] = new Decoder[Char] {
-    def apply(m: MsgPack): Either[Throwable, Char] = m match {
+    def apply(m: MsgPack): Result[Char] = m match {
       case MsgPack.MString(a) if a.length == 1 => Right(a.charAt(0))
-      case _                                   => Left(new IllegalArgumentException(s"$m"))
+      case _                                   => Left(TypeMismatchError("Char", m))
     }
   }
 
   implicit val decodeString: Decoder[String] = new Decoder[String] {
-    def apply(m: MsgPack): Either[Throwable, String] = m match {
+    def apply(m: MsgPack): Result[String] = m match {
       case MsgPack.MString(a) => Right(a)
-      case _                  => Left(new IllegalArgumentException(s"$m"))
+      case _                  => Left(TypeMismatchError("String", m))
     }
   }
 
   implicit def decodeSome[A](implicit A: Decoder[A]): Decoder[Some[A]] =
     new Decoder[Some[A]] {
-      def apply(m: MsgPack): Either[Throwable, Some[A]] =
+      def apply(m: MsgPack): Result[Some[A]] =
         A(m) match {
           case Right(v) => Right(Some(v))
           case Left(e)  => Left(e)
@@ -151,12 +153,12 @@ object Decoder extends LowPriorityDecoder with TupleDecoder {
 
   implicit val decodeNone: Decoder[None.type] =
     new Decoder[None.type] {
-      def apply(m: MsgPack): Either[Throwable, None.type] = Right(None)
+      def apply(m: MsgPack): Result[None.type] = Right(None)
     }
 
   implicit def decodeOption[A](implicit A: Decoder[A]): Decoder[Option[A]] =
     new Decoder[Option[A]] {
-      def apply(m: MsgPack): Either[Throwable, Option[A]] = m match {
+      def apply(m: MsgPack): Result[Option[A]] = m match {
         case MsgPack.MNil | MsgPack.MEmpty => Right(None)
         case _ =>
           A(m) match {
@@ -168,8 +170,8 @@ object Decoder extends LowPriorityDecoder with TupleDecoder {
 
   @inline private[this] def decodeContainer[C[_], A](implicit A: Decoder[A], cbf: Factory[A, C[A]]): Decoder[C[A]] =
     new Decoder[C[A]] {
-      def apply(m: MsgPack): Either[Throwable, C[A]] = {
-        @tailrec def loop(it: Iterator[MsgPack], b: mutable.Builder[A, C[A]]): Either[Throwable, C[A]] = {
+      def apply(m: MsgPack): Result[C[A]] = {
+        @tailrec def loop(it: Iterator[MsgPack], b: mutable.Builder[A, C[A]]): Result[C[A]] = {
           if (!it.hasNext) Right(b.result())
           else
             A.apply(it.next()) match {
@@ -181,7 +183,7 @@ object Decoder extends LowPriorityDecoder with TupleDecoder {
         m match {
           case MsgPack.MNil | MsgPack.MEmpty => Right(cbf.newBuilder.result())
           case MsgPack.MArray(a)             => loop(a.iterator, cbf.newBuilder)
-          case _                             => Left(new IllegalArgumentException(s"$m"))
+          case _                             => Left(TypeMismatchError(s"C[A]", m))
         }
       }
     }
@@ -196,9 +198,8 @@ object Decoder extends LowPriorityDecoder with TupleDecoder {
                                                          V: Decoder[V],
                                                          cbf: Factory[(K, V), M[K, V]]): Decoder[M[K, V]] =
     new Decoder[M[K, V]] {
-      def apply(m: MsgPack): Either[Throwable, M[K, V]] = {
-        @tailrec def loop(it: Iterator[(MsgPack, MsgPack)],
-                          b: mutable.Builder[(K, V), M[K, V]]): Either[Throwable, M[K, V]] = {
+      def apply(m: MsgPack): Result[M[K, V]] = {
+        @tailrec def loop(it: Iterator[(MsgPack, MsgPack)], b: mutable.Builder[(K, V), M[K, V]]): Result[M[K, V]] = {
           if (!it.hasNext) Right(b.result())
           else {
             val (k, v) = it.next()
@@ -216,7 +217,7 @@ object Decoder extends LowPriorityDecoder with TupleDecoder {
         m match {
           case MsgPack.MNil | MsgPack.MEmpty => Right(cbf.newBuilder.result())
           case MsgPack.MMap(a)               => loop(a.iterator, cbf.newBuilder)
-          case _                             => Left(new IllegalArgumentException(s"$m"))
+          case _                             => Left(TypeMismatchError(s"M[K, V]", m))
         }
       }
     }

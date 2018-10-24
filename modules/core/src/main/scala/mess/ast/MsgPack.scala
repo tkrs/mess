@@ -104,7 +104,8 @@ object MsgPack {
 
   def unpack(bytes: Array[Byte], config: MessagePack.UnpackerConfig): MsgPack = {
     val buffer = config.newUnpacker(bytes)
-    try unpack(buffer) finally buffer.close()
+    try unpack(buffer)
+    finally buffer.close()
   }
 
   def unpack(buffer: MessageUnpacker): MsgPack = {
@@ -140,21 +141,23 @@ object MsgPack {
           buffer.readPayload(bytes)
           MsgPack.MExtension(ext.getType, ext.getLength, bytes)
         case MF.NEVER_USED =>
-          throw new IllegalStateException("NEVER USED")
+          throw sys.error("cannot unpack format: NEVER USED")
       }
   }
 
-  def mNil: MsgPack                          = MNil
-  def mEmpty: MsgPack                        = MEmpty
-  def mMap(xs: (MsgPack, MsgPack)*): MsgPack = MMap(mutable.HashMap(xs: _*))
-  def mArr(xs: MsgPack*): MsgPack            = MArray(Vector(xs: _*))
-  def mBool(x: Boolean): MsgPack             = MBool(x)
-  def mStr(x: String): MsgPack               = MString(x)
-  def mBigInt(x: BigInt): MsgPack            = MBigInt(x)
-  def mByte(x: Byte): MsgPack                = MByte(x)
-  def mShort(x: Short): MsgPack              = MShort(x)
-  def mInt(x: Int): MsgPack                  = MInt(x)
-  def mLong(x: Long): MsgPack                = MLong(x)
-  def mFloat(x: Float): MsgPack              = MFloat(x)
-  def mDouble(x: Double): MsgPack            = MDouble(x)
+  def mNil: MsgPack                                        = MNil
+  def mEmpty: MsgPack                                      = MEmpty
+  def mMap(xs: (MsgPack, MsgPack)*): MsgPack               = MMap(mutable.HashMap(xs: _*))
+  def mMap(xs: mutable.HashMap[MsgPack, MsgPack]): MsgPack = MMap(xs)
+  def mArr(xs: MsgPack*): MsgPack                          = MArray(Vector(xs: _*))
+  def mArr(xs: Vector[MsgPack]): MsgPack                   = MArray(xs)
+  def mBool(x: Boolean): MsgPack                           = MBool(x)
+  def mStr(x: String): MsgPack                             = MString(x)
+  def mBigInt(x: BigInt): MsgPack                          = MBigInt(x)
+  def mByte(x: Byte): MsgPack                              = MByte(x)
+  def mShort(x: Short): MsgPack                            = MShort(x)
+  def mInt(x: Int): MsgPack                                = MInt(x)
+  def mLong(x: Long): MsgPack                              = MLong(x)
+  def mFloat(x: Float): MsgPack                            = MFloat(x)
+  def mDouble(x: Double): MsgPack                          = MDouble(x)
 }

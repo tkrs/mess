@@ -201,18 +201,12 @@ class DecoderSpec extends FunSuite with MsgpackHelper {
     }
   }
 
-  test("Decoder[Qux] should return IllegalArgumentException when its type conversion is failed") {
-    decode[Qux](x"a1 20") match {
-      case Left(e) if e.isInstanceOf[IllegalArgumentException] => succeed
-      case _                                                   => fail()
-    }
+  test("Decoder[Qux] should return TypeMismatchError when its type conversion is failed") {
+    assert(decode[Qux](x"a1 20") == Left(TypeMismatchError("FieldType[K, H] :: T", MsgPack.MString(" "))))
   }
 
-  test("Decoder[Qux] should return IllegalArgumentException when its field type conversion is failed") {
-    decode[Qux](x"81 a4 62 79 74 65 a1 01") match {
-      case Left(e) if e.isInstanceOf[IllegalArgumentException] => succeed
-      case _                                                   => fail()
-    }
+  test("Decoder[Qux] should return TypeMismatchError when its field type conversion is failed") {
+    assert(decode[Qux](x"81 a4 62 79 74 65 a1 20") == Left(TypeMismatchError("Int", MsgPack.mStr(" "))))
   }
 
   test("map") {

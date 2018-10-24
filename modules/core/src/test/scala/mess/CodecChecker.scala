@@ -127,7 +127,7 @@ class CodecChecker extends FunSuite with Checkers with MsgpackHelper {
   }
 
   implicit val decodeInstantAsFluentdEventTime: Decoder[Instant] = new Decoder[Instant] {
-    def apply(a: MsgPack): Either[Throwable, Instant] = a match {
+    def apply(a: MsgPack): Decoder.Result[Instant] = a match {
       case MsgPack.MExtension(Code.EXT8, _, arr) =>
         val f: (Int, Long) => Long = (i, j) => (arr(i) & 0xff).toLong << j
 
@@ -135,7 +135,7 @@ class CodecChecker extends FunSuite with Checkers with MsgpackHelper {
         val nanos   = f(4, 24L) | f(5, 16L) | f(6, 8L) | f(7, 0L)
         Right(Instant.ofEpochSecond(seconds, nanos))
       case _ =>
-        Left(new IllegalArgumentException(s"$a"))
+        Left(TypeMismatchError("Instant", a))
     }
   }
 

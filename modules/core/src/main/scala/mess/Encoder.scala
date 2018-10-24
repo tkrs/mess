@@ -25,54 +25,54 @@ object Encoder extends LowPriorityEncoder with TupleEncoder {
     }
 
   implicit final val encodeBoolean: Encoder[Boolean] = new Encoder[Boolean] {
-    def apply(a: Boolean): MsgPack = MsgPack.MBool(a)
+    def apply(a: Boolean): MsgPack = MsgPack.mBool(a)
   }
 
   implicit final val encodeByte: Encoder[Byte] = new Encoder[Byte] {
-    def apply(a: Byte): MsgPack = MsgPack.MByte(a)
+    def apply(a: Byte): MsgPack = MsgPack.mByte(a)
   }
 
   implicit final val encodeShort: Encoder[Short] = new Encoder[Short] {
-    def apply(a: Short): MsgPack = MsgPack.MShort(a)
+    def apply(a: Short): MsgPack = MsgPack.mShort(a)
   }
 
   implicit final val encodeInt: Encoder[Int] = new Encoder[Int] {
-    def apply(a: Int): MsgPack = MsgPack.MInt(a)
+    def apply(a: Int): MsgPack = MsgPack.mInt(a)
   }
 
   implicit final val encodeLong: Encoder[Long] = new Encoder[Long] {
-    def apply(a: Long): MsgPack = MsgPack.MLong(a)
+    def apply(a: Long): MsgPack = MsgPack.mLong(a)
   }
 
   implicit final val encodeBigInt: Encoder[BigInt] = new Encoder[BigInt] {
-    def apply(a: BigInt): MsgPack = MsgPack.MBigInt(a)
+    def apply(a: BigInt): MsgPack = MsgPack.mBigInt(a)
   }
 
   implicit final val encodeDouble: Encoder[Double] = new Encoder[Double] {
-    def apply(a: Double): MsgPack = MsgPack.MDouble(a)
+    def apply(a: Double): MsgPack = MsgPack.mDouble(a)
   }
 
   implicit final val encodeFloat: Encoder[Float] = new Encoder[Float] {
-    def apply(a: Float): MsgPack = MsgPack.MFloat(a)
+    def apply(a: Float): MsgPack = MsgPack.mFloat(a)
   }
 
   implicit final val encodeChar: Encoder[Char] = new Encoder[Char] {
-    def apply(a: Char): MsgPack = MsgPack.MString(a.toString)
+    def apply(a: Char): MsgPack = MsgPack.mStr(a.toString)
   }
 
   implicit final val encodeString: Encoder[String] = new Encoder[String] {
-    def apply(a: String): MsgPack = MsgPack.MString(a)
+    def apply(a: String): MsgPack = MsgPack.mStr(a)
   }
 
   implicit final def encodeSymbol[K <: Symbol]: Encoder[K] = new Encoder[K] {
-    def apply(a: K): MsgPack = MsgPack.MString(a.name)
+    def apply(a: K): MsgPack = MsgPack.mStr(a.name)
   }
 
   implicit final def encodeOption[A](implicit A: Encoder[A]): Encoder[Option[A]] =
     new Encoder[Option[A]] {
       def apply(a: Option[A]): MsgPack = a match {
         case Some(v) => A(v)
-        case None    => MsgPack.MNil
+        case None    => MsgPack.mNil
       }
     }
 
@@ -80,7 +80,7 @@ object Encoder extends LowPriorityEncoder with TupleEncoder {
     A.contramap[Some[A]](_.get)
 
   implicit final val encodeNone: Encoder[None.type] = new Encoder[None.type] {
-    def apply(a: None.type): MsgPack = MsgPack.MNil
+    def apply(a: None.type): MsgPack = MsgPack.mNil
   }
 
   @tailrec private[this] def iterLoop[A](rem: Iterator[A], acc: mutable.Builder[MsgPack, Vector[MsgPack]])(
@@ -91,28 +91,28 @@ object Encoder extends LowPriorityEncoder with TupleEncoder {
   implicit final def encodeSeq[A: Encoder]: Encoder[Seq[A]] =
     new Encoder[Seq[A]] {
       def apply(a: Seq[A]): MsgPack = {
-        MsgPack.MArray(iterLoop(a.iterator, Vector.newBuilder))
+        MsgPack.mArr(iterLoop(a.iterator, Vector.newBuilder))
       }
     }
 
   implicit final def encodeSet[A: Encoder]: Encoder[Set[A]] =
     new Encoder[Set[A]] {
       def apply(a: Set[A]): MsgPack = {
-        MsgPack.MArray(iterLoop(a.iterator, Vector.newBuilder))
+        MsgPack.mArr(iterLoop(a.iterator, Vector.newBuilder))
       }
     }
 
   implicit final def encodeList[A: Encoder]: Encoder[List[A]] =
     new Encoder[List[A]] {
       def apply(a: List[A]): MsgPack = {
-        MsgPack.MArray(iterLoop(a.iterator, Vector.newBuilder))
+        MsgPack.mArr(iterLoop(a.iterator, Vector.newBuilder))
       }
     }
 
   implicit final def encodeVector[A: Encoder]: Encoder[Vector[A]] =
     new Encoder[Vector[A]] {
       def apply(a: Vector[A]): MsgPack = {
-        MsgPack.MArray(iterLoop(a.iterator, Vector.newBuilder))
+        MsgPack.mArr(iterLoop(a.iterator, Vector.newBuilder))
       }
     }
 
@@ -132,7 +132,7 @@ object Encoder extends LowPriorityEncoder with TupleEncoder {
                                                                 V: Encoder[V]): Encoder[M[K, V]] =
     new Encoder[M[K, V]] {
       def apply(a: M[K, V]): MsgPack =
-        MsgPack.MMap(mapLoop(a.iterator, mutable.HashMap.empty))
+        MsgPack.mMap(mapLoop(a.iterator, mutable.HashMap.empty))
     }
 
   implicit final def encodeMap[K, V](implicit
@@ -140,7 +140,7 @@ object Encoder extends LowPriorityEncoder with TupleEncoder {
                                      V: Encoder[V]): Encoder[Map[K, V]] =
     new Encoder[Map[K, V]] {
       def apply(a: Map[K, V]): MsgPack =
-        MsgPack.MMap(mapLoop(a.iterator, mutable.HashMap.empty))
+        MsgPack.mMap(mapLoop(a.iterator, mutable.HashMap.empty))
     }
 }
 
