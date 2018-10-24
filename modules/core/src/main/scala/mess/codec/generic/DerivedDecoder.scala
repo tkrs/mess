@@ -1,7 +1,7 @@
 package mess.codec.generic
 
 import export._
-import mess.Decoder
+import mess.{Decoder, TypeMismatchError}
 import mess.ast.MsgPack
 import shapeless._
 import shapeless.labelled.{FieldType, field}
@@ -15,7 +15,7 @@ private[mess] trait LowPriorityDerivedDecoder {
 
   implicit final val decodeHNil: DerivedDecoder[HNil] =
     new DerivedDecoder[HNil] {
-      def apply(a: MsgPack): Either[Throwable, HNil] = Right(HNil)
+      def apply(a: MsgPack): Decoder.Result[HNil] = Right(HNil)
     }
 
   implicit final def decodeLabelledHList[K <: Symbol, H, T <: HList](
@@ -24,7 +24,7 @@ private[mess] trait LowPriorityDerivedDecoder {
       H: Decoder[H],
       T: DerivedDecoder[T]): DerivedDecoder[FieldType[K, H] :: T] =
     new DerivedDecoder[FieldType[K, H] :: T] {
-      def apply(m: MsgPack): Either[Throwable, FieldType[K, H] :: T] = m match {
+      def apply(m: MsgPack): Decoder.Result[FieldType[K, H] :: T] = m match {
         case MsgPack.MMap(a) =>
           T(m) match {
             case Right(t) =>
@@ -35,21 +35,21 @@ private[mess] trait LowPriorityDerivedDecoder {
               }
             case Left(e) => Left(e)
           }
-        case _ => Left(new IllegalArgumentException(s"$m"))
+        case _ => Left(TypeMismatchError("FieldType[K, H] :: T", m))
       }
     }
 
   implicit final val decodeCNil: DerivedDecoder[CNil] =
     new DerivedDecoder[CNil] {
-      override def apply(m: MsgPack): Either[Throwable, CNil] =
-        Left(new IllegalStateException(s"$m cannot decoding to CNil"))
+      override def apply(m: MsgPack): Decoder.Result[CNil] =
+        Left(TypeMismatchError("CNil", m))
     }
 
   implicit final def decodeCCons[L, R <: Coproduct](implicit
                                                     L: Decoder[L],
                                                     R: DerivedDecoder[R]): DerivedDecoder[L :+: R] = {
     new DerivedDecoder[L :+: R] {
-      override def apply(m: MsgPack): Either[Throwable, L :+: R] = {
+      override def apply(m: MsgPack): Decoder.Result[L :+: R] = {
         L.map(Inl(_)).apply(m) match {
           case r @ Right(_) => r
           case Left(_)      => R.map(Inr(_)).apply(m)
@@ -64,7 +64,7 @@ private[mess] trait LowPriorityDerivedDecoder {
       L: Decoder[L],
       R: DerivedDecoder[R]): DerivedDecoder[FieldType[K, L] :+: R] = {
     new DerivedDecoder[FieldType[K, L] :+: R] {
-      override def apply(m: MsgPack): Either[Throwable, FieldType[K, L] :+: R] = m match {
+      override def apply(m: MsgPack): Decoder.Result[FieldType[K, L] :+: R] = m match {
         case MsgPack.MMap(a) =>
           val v  = a.get(MsgPack.MString(K.value.name))
           val vv = v.getOrElse(MsgPack.MNil)
@@ -72,7 +72,7 @@ private[mess] trait LowPriorityDerivedDecoder {
             case r @ Right(_) => r
             case Left(_)      => R.map(vv => Inr(vv)).apply(m)
           }
-        case _ => Left(new IllegalArgumentException(s"$m"))
+        case _ => Left(TypeMismatchError("FieldType[K, L] :+: R", m))
       }
     }
   }
@@ -81,7 +81,7 @@ private[mess] trait LowPriorityDerivedDecoder {
                                      gen: LabelledGeneric.Aux[A, R],
                                      R: Lazy[DerivedDecoder[R]]): DerivedDecoder[A] =
     new DerivedDecoder[A] {
-      def apply(a: MsgPack): Either[Throwable, A] = R.value(a) match {
+      def apply(a: MsgPack): Decoder.Result[A] = R.value(a) match {
         case Right(v) => Right(gen.from(v))
         case Left(e)  => Left(e)
       }

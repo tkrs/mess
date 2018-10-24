@@ -124,11 +124,11 @@ object Boilerplate {
         -
         -  implicit def decodeTuple$arity[${`A..N`}](implicit ${`a:F[A]..n:F[N]`("Decoder")}): Decoder[${`(A..N)`}] =
         -    new Decoder[${`(A..N)`}] {
-        -      def apply(ma: MsgPack): Either[Throwable, ${`(A..N)`}] = ma match {
+        -      def apply(ma: MsgPack): Decoder.Result[${`(A..N)`}] = ma match {
         -        case MsgPack.MArray(xs) if xs.size == $arity =>
         -          $expr
         -        case _ =>
-        -          Left(new IllegalArgumentException(s"$$ma"))
+        -          Left(new TypeMismatchError("${`A..N`}", ma))
         -      }
         -    }
         |}
