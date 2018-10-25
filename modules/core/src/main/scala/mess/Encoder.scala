@@ -19,10 +19,9 @@ object Encoder extends LowPriorityEncoder with TupleEncoder {
 
   @inline def apply[A](implicit A: Encoder[A]): Encoder[A] = A
 
-  final def instance[A](fa: A => MsgPack): Encoder[A] =
-    new Encoder[A] {
-      def apply(a: A): MsgPack = fa(a)
-    }
+  final def instance[A](fa: A => MsgPack): Encoder[A] = new Encoder[A] {
+    def apply(a: A): MsgPack = fa(a)
+  }
 
   implicit final val encodeBoolean: Encoder[Boolean] = new Encoder[Boolean] {
     def apply(a: Boolean): MsgPack = MsgPack.mBool(a)
@@ -68,13 +67,12 @@ object Encoder extends LowPriorityEncoder with TupleEncoder {
     def apply(a: K): MsgPack = MsgPack.mStr(a.name)
   }
 
-  implicit final def encodeOption[A](implicit A: Encoder[A]): Encoder[Option[A]] =
-    new Encoder[Option[A]] {
-      def apply(a: Option[A]): MsgPack = a match {
-        case Some(v) => A(v)
-        case None    => MsgPack.mNil
-      }
+  implicit final def encodeOption[A](implicit A: Encoder[A]): Encoder[Option[A]] = new Encoder[Option[A]] {
+    def apply(a: Option[A]): MsgPack = a match {
+      case Some(v) => A(v)
+      case None    => MsgPack.mNil
     }
+  }
 
   implicit final def encodeSome[A](implicit A: Encoder[A]): Encoder[Some[A]] =
     A.contramap[Some[A]](_.get)
@@ -88,33 +86,29 @@ object Encoder extends LowPriorityEncoder with TupleEncoder {
     if (!rem.hasNext) acc.result()
     else iterLoop(rem, acc += A(rem.next()))
 
-  implicit final def encodeSeq[A: Encoder]: Encoder[Seq[A]] =
-    new Encoder[Seq[A]] {
-      def apply(a: Seq[A]): MsgPack = {
-        MsgPack.mArr(iterLoop(a.iterator, Vector.newBuilder))
-      }
+  implicit final def encodeSeq[A: Encoder]: Encoder[Seq[A]] = new Encoder[Seq[A]] {
+    def apply(a: Seq[A]): MsgPack = {
+      MsgPack.mArr(iterLoop(a.iterator, Vector.newBuilder))
     }
+  }
 
-  implicit final def encodeSet[A: Encoder]: Encoder[Set[A]] =
-    new Encoder[Set[A]] {
-      def apply(a: Set[A]): MsgPack = {
-        MsgPack.mArr(iterLoop(a.iterator, Vector.newBuilder))
-      }
+  implicit final def encodeSet[A: Encoder]: Encoder[Set[A]] = new Encoder[Set[A]] {
+    def apply(a: Set[A]): MsgPack = {
+      MsgPack.mArr(iterLoop(a.iterator, Vector.newBuilder))
     }
+  }
 
-  implicit final def encodeList[A: Encoder]: Encoder[List[A]] =
-    new Encoder[List[A]] {
-      def apply(a: List[A]): MsgPack = {
-        MsgPack.mArr(iterLoop(a.iterator, Vector.newBuilder))
-      }
+  implicit final def encodeList[A: Encoder]: Encoder[List[A]] = new Encoder[List[A]] {
+    def apply(a: List[A]): MsgPack = {
+      MsgPack.mArr(iterLoop(a.iterator, Vector.newBuilder))
     }
+  }
 
-  implicit final def encodeVector[A: Encoder]: Encoder[Vector[A]] =
-    new Encoder[Vector[A]] {
-      def apply(a: Vector[A]): MsgPack = {
-        MsgPack.mArr(iterLoop(a.iterator, Vector.newBuilder))
-      }
+  implicit final def encodeVector[A: Encoder]: Encoder[Vector[A]] = new Encoder[Vector[A]] {
+    def apply(a: Vector[A]): MsgPack = {
+      MsgPack.mArr(iterLoop(a.iterator, Vector.newBuilder))
     }
+  }
 
   @tailrec private[this] def mapLoop[K, V](it: Iterator[(K, V)], acc: mutable.HashMap[MsgPack, MsgPack])(
       implicit
