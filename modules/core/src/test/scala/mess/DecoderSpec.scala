@@ -18,8 +18,12 @@ class DecoderSpec extends FunSuite with MsgpackHelper {
 
   def check[A: Decoder](tc: Seq[(A, MsgPack)]): Unit = {
     for ((expected, p) <- tc) {
-      val v = decode(p).right.get
-      assert(v === expected)
+      decode(p) match {
+        case Right(v) =>
+          assert(v === expected)
+        case Left(e) =>
+          throw e
+      }
     }
   }
 
@@ -238,6 +242,12 @@ class DecoderSpec extends FunSuite with MsgpackHelper {
     }
   }
 
+  test("Decoder[Qux] failure") {
+    assert(decode[Qux](MsgPack.mStr(" ")) === Left(TypeMismatchError("FieldType[K, H] :: T", MsgPack.mStr(" "))))
+    val a = decode[Qux](MsgPack.mMap(MsgPack.mStr("byte") -> MsgPack.mStr(" ")))
+    assert(a === Left(TypeMismatchError("Int", MsgPack.mStr(" "))))
+  }
+
   test("Decoder[Z]") {
     check {
       Seq[(Z, MsgPack)](
@@ -247,14 +257,11 @@ class DecoderSpec extends FunSuite with MsgpackHelper {
     }
   }
 
-  test("Decoder[Qux] should return TypeMismatchError when its type conversion is failed") {
-    assert(decode[Qux](MsgPack.mStr(" ")) == Left(TypeMismatchError("FieldType[K, H] :: T", MsgPack.MString(" "))))
-  }
-
-  test("Decoder[Qux] should return TypeMismatchError when its field type conversion is failed") {
-    assert(
-      decode[Qux](MsgPack.mMap(MsgPack.mStr("byte") -> MsgPack.mStr(" "))) == Left(
-        TypeMismatchError("Int", MsgPack.mStr(" "))))
+  test("Decoder[Z] failure") {
+    val a = decode[Z](MsgPack.mStr(" "))
+    assert(a === Left(TypeMismatchError("FieldType[K, L] :+: R", MsgPack.mStr(" "))))
+    val b = decode[Z](MsgPack.mMap(MsgPack.mStr("Z2") -> MsgPack.mInt(1)))
+    assert(b === Left(TypeMismatchError("CNil", MsgPack.mMap(MsgPack.mStr("Z2") -> MsgPack.mInt(1)))))
   }
 
   test("map") {
