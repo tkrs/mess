@@ -1,33 +1,29 @@
 package mess
 
 import mess.ast.MsgPack
-import org.msgpack.core.MessagePack
 import org.scalatest.FunSuite
 import mess.codec.generic.derived._
 
 class DecoderSpec extends FunSuite with MsgpackHelper {
-  import MsgpackHelper._
 
   case class Bar(double: Double)
   case class Foo(int: Int, str: String, bar: Bar)
 
   case class Qux(byte: Option[Int])
 
-  def decode[A](arr: Array[Byte])(implicit A: Decoder[A]): Either[Throwable, A] = {
-    A(MsgPack.unpack(MessagePack.DEFAULT_UNPACKER_CONFIG.newUnpacker(arr)))
-  }
+  def decode[A](msg: MsgPack)(implicit A: Decoder[A]): Either[Throwable, A] = A(msg)
 
-  def check[A: Decoder](tc: Seq[(A, Array[Byte])]): Unit = {
+  def check[A: Decoder](tc: Seq[(A, MsgPack)]): Unit = {
     for ((expected, p) <- tc) {
       val v = decode(p).right.get
       assert(v === expected)
     }
   }
 
-  test("Decoder[Some[Int]]") {
+  test("Decoder[Some[A]]") {
     check {
       Seq(
-        (Some(1), x"01")
+        (Some(1), MsgPack.mInt(1))
       )
     }
   }
@@ -35,7 +31,7 @@ class DecoderSpec extends FunSuite with MsgpackHelper {
   test("Decoder[Char]") {
     check {
       Seq(
-        ('a', x"a1 61")
+        ('a', MsgPack.mStr("a"))
       )
     }
   }
@@ -43,16 +39,16 @@ class DecoderSpec extends FunSuite with MsgpackHelper {
   test("Decoder[None.type]") {
     check {
       Seq(
-        (None, x"c0")
+        (None, MsgPack.mNil)
       )
     }
   }
 
-  test("Decoder[Option[Int]]") {
+  test("Decoder[Option[A]]") {
     check {
       Seq(
-        (Option(1), x"01"),
-        (Option.empty[Int], x"c0")
+        (Option(1), MsgPack.mInt(1)),
+        (Option.empty[Int], MsgPack.mNil)
       )
     }
   }
@@ -60,108 +56,139 @@ class DecoderSpec extends FunSuite with MsgpackHelper {
   test("Decoder[Boolean]") {
     check {
       Seq(
-        (true, x"c3"),
-        (false, x"c2")
+        (true, MsgPack.True),
+        (false, MsgPack.False)
       )
     }
+  }
+  test("Decoder[Boolean] failure") {
+    val msg = MsgPack.mEmpty
+    assert(decode[Boolean](msg) === Left(TypeMismatchError("Boolean", msg)))
   }
 
   test("Decoder[Byte]") {
     check {
       Seq(
-        (0.toByte, x"00"),
-        ((-32).toByte, x"e0"),
-        ((-33).toByte, x"d0 df"),
-        (Byte.MaxValue, x"7f"),
-        (Byte.MinValue, x"d0 80")
+        (0.toByte, MsgPack.mByte(0.toByte)),
+        (1.toByte, MsgPack.mInt(1)),
+        (2.toByte, MsgPack.mShort(2.toShort)),
+        (3.toByte, MsgPack.mLong(3L)),
+        (4.toByte, MsgPack.mBigInt(BigInt(4)))
       )
     }
+  }
+  test("Decoder[Byte] failure") {
+    val msg = MsgPack.mEmpty
+    assert(decode[Byte](msg) === Left(TypeMismatchError("Byte", msg)))
   }
 
   test("Decoder[Short]") {
     check {
       Seq(
-        (Byte.MaxValue.toShort, x"7f"),
-        (Byte.MinValue.toShort, x"d0 80"),
-        ((Byte.MaxValue.toShort + 1.toShort).toShort, x"cc 80"),
-        ((Byte.MinValue.toShort - 1.toShort).toShort, x"d1 ff 7f"),
-        (255.toShort, x"cc ff"),
-        (256.toShort, x"cd 01 00"),
-        (Short.MaxValue, x"cd 7f ff"),
-        (Short.MinValue, x"d1 80 00")
+        (0.toShort, MsgPack.mByte(0.toByte)),
+        (1.toShort, MsgPack.mInt(1)),
+        (2.toShort, MsgPack.mShort(2.toShort)),
+        (3.toShort, MsgPack.mLong(3L)),
+        (4.toShort, MsgPack.mBigInt(BigInt(4)))
       )
     }
+  }
+  test("Decoder[Short] failure") {
+    val msg = MsgPack.mEmpty
+    assert(decode[Short](msg) === Left(TypeMismatchError("Short", msg)))
   }
 
   test("Decoder[Int]") {
     check {
       Seq(
-        (Short.MaxValue.toInt, x"cd 7f ff"),
-        (Short.MinValue.toInt, x"d1 80 00"),
-        (Short.MaxValue.toInt + 1, x"cd 80 00"),
-        (65535, x"cd ff ff"),
-        (65536, x"ce 00 01 00 00"),
-        (Int.MaxValue, x"ce 7f ff ff ff"),
-        (Int.MinValue, x"d2 80 00 00 00")
+        (0, MsgPack.mByte(0.toByte)),
+        (1, MsgPack.mInt(1)),
+        (2, MsgPack.mShort(2.toShort)),
+        (3, MsgPack.mLong(3L)),
+        (4, MsgPack.mBigInt(BigInt(4)))
       )
     }
+  }
+  test("Decoder[Int] failure") {
+    val msg = MsgPack.mEmpty
+    assert(decode[Int](msg) === Left(TypeMismatchError("Int", msg)))
   }
 
   test("Decoder[Long]") {
     check {
       Seq(
-        (Int.MaxValue.toLong, x"ce 7f ff ff ff"),
-        (Int.MinValue.toLong, x"d2 80 00 00 00"),
-        (Int.MinValue - 1L, x"d3 ff ff ff ff 7f ff ff ff"),
-        (Int.MaxValue + 1L, x"ce 80 00 00 00"),
-        (Long.MaxValue, x"cf 7f ff ff ff ff ff ff ff"),
-        (Long.MinValue, x"d3 80 00 00 00 00 00 00 00")
+        (0L, MsgPack.mByte(0.toByte)),
+        (1L, MsgPack.mInt(1)),
+        (2L, MsgPack.mShort(2.toShort)),
+        (3L, MsgPack.mLong(3L)),
+        (4L, MsgPack.mBigInt(BigInt(4)))
       )
     }
+  }
+  test("Decoder[Long] failure") {
+    val msg = MsgPack.mEmpty
+    assert(decode[Long](msg) === Left(TypeMismatchError("Long", msg)))
   }
 
   test("Decoder[BigInt]") {
     check {
       Seq(
-        (BigInt(Long.MaxValue), x"cf 7f ff ff ff ff ff ff ff"),
-        (BigInt(Long.MinValue), x"d3 80 00 00 00 00 00 00 00"),
-        ((BigInt(1) << 64) - 1, x"cf ff ff ff ff ff ff ff ff")
+        (BigInt(0), MsgPack.mByte(0.toByte)),
+        (BigInt(1), MsgPack.mInt(1)),
+        (BigInt(2), MsgPack.mShort(2.toShort)),
+        (BigInt(3), MsgPack.mLong(3L)),
+        (BigInt(4), MsgPack.mBigInt(BigInt(4)))
       )
     }
+  }
+  test("Decoder[BigInt] failure") {
+    val msg = MsgPack.mEmpty
+    assert(decode[BigInt](msg) === Left(TypeMismatchError("BigInt", msg)))
   }
 
   test("Decoder[Double]") {
     check {
       Seq(
-        (0.0, x"cb 00 00 00 00 00 00 00 00"),
-        (Double.MaxValue, x"cb 7f ef ff ff ff ff ff ff"),
-        (Double.MinValue, x"cb ff ef ff ff ff ff ff ff")
+        (0.0, MsgPack.mFloat(0.0f)),
+        (0.1, MsgPack.mDouble(0.1))
       )
     }
+  }
+  test("Decoder[Double] failure") {
+    val msg = MsgPack.mEmpty
+    assert(decode[Double](msg) === Left(TypeMismatchError("Double", msg)))
   }
 
   test("Decoder[Float]") {
     check {
       Seq(
-        (0.0f, x"ca 00 00 00 00"),
-        (Float.MaxValue, x"ca 7f 7f ff ff"),
-        (Float.MinValue, x"ca ff 7f ff ff")
+        (0.0f, MsgPack.mFloat(0.0f)),
+        (0.1f, MsgPack.mDouble(0.1))
       )
     }
+  }
+  test("Decoder[Float] failure") {
+    val msg = MsgPack.mEmpty
+    assert(decode[Float](msg) === Left(TypeMismatchError("Float", msg)))
   }
 
   test("Decoder[Seq[A]]") {
     check {
       Seq(
-        (Seq(0 to 14: _*), x"9f 00 01 02 03 04 05 06 07 08 09 0a 0b 0c 0d 0e")
+        (Seq(0 to 14: _*), MsgPack.mArr((0 to 14).map(MsgPack.mInt): _*)),
+        (Seq.empty[Int], MsgPack.mEmpty)
       )
     }
+  }
+  test("Decoder[Seq[A]] failure") {
+    val msg = MsgPack.mStr("")
+    assert(decode[Seq[Int]](msg) === Left(TypeMismatchError("C[A]", msg)))
   }
 
   test("Decoder[List[A]]") {
     check {
       Seq(
-        ((0 to 14).toList, x"9f 00 01 02 03 04 05 06 07 08 09 0a 0b 0c 0d 0e")
+        (List(0 to 14: _*), MsgPack.mArr((0 to 14).map(MsgPack.mInt): _*))
       )
     }
   }
@@ -169,7 +196,7 @@ class DecoderSpec extends FunSuite with MsgpackHelper {
   test("Decoder[Vector[A]]") {
     check {
       Seq(
-        ((0 to 14).toVector, x"9f 00 01 02 03 04 05 06 07 08 09 0a 0b 0c 0d 0e")
+        (Vector(0 to 14: _*), MsgPack.mArr((0 to 14).map(MsgPack.mInt): _*))
       )
     }
   }
@@ -177,17 +204,24 @@ class DecoderSpec extends FunSuite with MsgpackHelper {
   test("Decoder[Map[A, B]]") {
     check {
       Seq(
-        (('a' to 'z').zip(0 to 14).toMap,
-         x"8f a1 64 03 a1 6f 0e a1 6b 0a a1 68 07 a1 63 02 a1 6c 0b a1 67 06 a1 62 01 a1 69 08 a1 6d 0c a1 61 00 a1 66 05 a1 6a 09 a1 6e 0d a1 65 04")
+        (('a' to 'z').zip(0 to 14).toMap, MsgPack.mMap(('a' to 'z').zip(0 to 14).map {
+          case (k, v) => MsgPack.mStr(k.toString) -> MsgPack.mByte(v.toByte)
+        }: _*)),
+        (Map.empty[Char, Int], MsgPack.mEmpty)
       )
     }
+  }
+  test("Decoder[Map[A, B]] failure") {
+    val msg = MsgPack.mStr("")
+    assert(decode[Map[Int, Int]](msg) === Left(TypeMismatchError("M[K, V]", msg)))
   }
 
   test("Decoder[Map[A, Bar]]") {
     check {
       Seq(
-        (('a' to 'z').zip((0 to 14).map(a => Bar(a.toDouble))).toMap,
-         x"8f a1 64 81 a6 64 6f 75 62 6c 65 cb 40 08 00 00 00 00 00 00 a1 6f 81 a6 64 6f 75 62 6c 65 cb 40 2c 00 00 00 00 00 00 a1 6b 81 a6 64 6f 75 62 6c 65 cb 40 24 00 00 00 00 00 00 a1 68 81 a6 64 6f 75 62 6c 65 cb 40 1c 00 00 00 00 00 00 a1 63 81 a6 64 6f 75 62 6c 65 cb 40 00 00 00 00 00 00 00 a1 6c 81 a6 64 6f 75 62 6c 65 cb 40 26 00 00 00 00 00 00 a1 67 81 a6 64 6f 75 62 6c 65 cb 40 18 00 00 00 00 00 00 a1 62 81 a6 64 6f 75 62 6c 65 cb 3f f0 00 00 00 00 00 00 a1 69 81 a6 64 6f 75 62 6c 65 cb 40 20 00 00 00 00 00 00 a1 6d 81 a6 64 6f 75 62 6c 65 cb 40 28 00 00 00 00 00 00 a1 61 81 a6 64 6f 75 62 6c 65 cb 00 00 00 00 00 00 00 00 a1 66 81 a6 64 6f 75 62 6c 65 cb 40 14 00 00 00 00 00 00 a1 6a 81 a6 64 6f 75 62 6c 65 cb 40 22 00 00 00 00 00 00 a1 6e 81 a6 64 6f 75 62 6c 65 cb 40 2a 00 00 00 00 00 00 a1 65 81 a6 64 6f 75 62 6c 65 cb 40 10 00 00 00 00 00 00")
+        (('a' to 'z').zip((0 to 14).map(a => Bar(a.toDouble))).toMap, MsgPack.mMap(('a' to 'z').zip(0 to 14).map {
+          case (k, v) => MsgPack.mStr(k.toString) -> MsgPack.mMap(MsgPack.mStr("double") -> MsgPack.mDouble(v.toDouble))
+        }: _*))
       )
     }
   }
@@ -195,18 +229,20 @@ class DecoderSpec extends FunSuite with MsgpackHelper {
   test("Decoder[Qux]") {
     check {
       Seq(
-        (Qux(None), x"81 a4 62 79 74 65 c0"),
-        (Qux(Some(1)), x"81 a4 62 79 74 65 01")
+        (Qux(None), MsgPack.mMap(MsgPack.mStr("byte")    -> MsgPack.mNil)),
+        (Qux(Some(1)), MsgPack.mMap(MsgPack.mStr("byte") -> MsgPack.mByte(1.toByte)))
       )
     }
   }
 
   test("Decoder[Qux] should return TypeMismatchError when its type conversion is failed") {
-    assert(decode[Qux](x"a1 20") == Left(TypeMismatchError("FieldType[K, H] :: T", MsgPack.MString(" "))))
+    assert(decode[Qux](MsgPack.mStr(" ")) == Left(TypeMismatchError("FieldType[K, H] :: T", MsgPack.MString(" "))))
   }
 
   test("Decoder[Qux] should return TypeMismatchError when its field type conversion is failed") {
-    assert(decode[Qux](x"81 a4 62 79 74 65 a1 20") == Left(TypeMismatchError("Int", MsgPack.mStr(" "))))
+    assert(
+      decode[Qux](MsgPack.mMap(MsgPack.mStr("byte") -> MsgPack.mStr(" "))) == Left(
+        TypeMismatchError("Int", MsgPack.mStr(" "))))
   }
 
   test("map") {
