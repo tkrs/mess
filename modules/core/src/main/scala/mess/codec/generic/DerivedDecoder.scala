@@ -45,19 +45,6 @@ private[mess] trait LowPriorityDerivedDecoder {
         Left(TypeMismatchError("CNil", m))
     }
 
-  implicit final def decodeCCons[L, R <: Coproduct](implicit
-                                                    L: Decoder[L],
-                                                    R: DerivedDecoder[R]): DerivedDecoder[L :+: R] = {
-    new DerivedDecoder[L :+: R] {
-      override def apply(m: MsgPack): Decoder.Result[L :+: R] = {
-        L.map(Inl(_)).apply(m) match {
-          case r @ Right(_) => r
-          case Left(_)      => R.map(Inr(_)).apply(m)
-        }
-      }
-    }
-  }
-
   implicit final def decodeLabelledCCons[K <: Symbol, L, R <: Coproduct](
       implicit
       K: Witness.Aux[K],

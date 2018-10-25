@@ -8,8 +8,11 @@ class DecoderSpec extends FunSuite with MsgpackHelper {
 
   case class Bar(double: Double)
   case class Foo(int: Int, str: String, bar: Bar)
-
   case class Qux(byte: Option[Int])
+
+  sealed trait Z
+  case class Z0(a: Int) extends Z
+  case class Z1(b: Int) extends Z
 
   def decode[A](msg: MsgPack)(implicit A: Decoder[A]): Either[Throwable, A] = A(msg)
 
@@ -231,6 +234,15 @@ class DecoderSpec extends FunSuite with MsgpackHelper {
       Seq(
         (Qux(None), MsgPack.mMap(MsgPack.mStr("byte")    -> MsgPack.mNil)),
         (Qux(Some(1)), MsgPack.mMap(MsgPack.mStr("byte") -> MsgPack.mByte(1.toByte)))
+      )
+    }
+  }
+
+  test("Decoder[Z]") {
+    check {
+      Seq[(Z, MsgPack)](
+        (Z0(1), MsgPack.mMap(MsgPack.mStr("Z0") -> MsgPack.mMap(MsgPack.mStr("a") -> MsgPack.mByte(1.toByte)))),
+        (Z1(2), MsgPack.mMap(MsgPack.mStr("Z1") -> MsgPack.mMap(MsgPack.mStr("b") -> MsgPack.mByte(2.toByte))))
       )
     }
   }
