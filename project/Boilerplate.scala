@@ -128,7 +128,7 @@ object Boilerplate {
         -        case MsgPack.MArray(xs) if xs.size == $arity =>
         -          $expr
         -        case _ =>
-        -          Left(new TypeMismatchError("${`A..N`}", ma))
+        -          Left(TypeMismatchError("(${`A..N`})", ma))
         -      }
         -    }
         |}

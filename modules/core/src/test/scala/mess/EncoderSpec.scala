@@ -145,7 +145,8 @@ class EncoderSpec extends FunSuite with MsgpackHelper {
   test("Encoder[Seq[A]]") {
     check {
       Seq(
-        (Seq(0 to 14: _*), MsgPack.mArr((0 to 14).map(a => MsgPack.mByte(a.toByte)): _*))
+        (Seq(0 to 14: _*), MsgPack.mArr((0 to 14).map(a => MsgPack.mByte(a.toByte)): _*)),
+        (Seq.empty[Int], MsgPack.mArr())
       )
     }
   }
@@ -171,7 +172,8 @@ class EncoderSpec extends FunSuite with MsgpackHelper {
       Seq(
         (('a' to 'z').zip(0 to 14).toMap, MsgPack.mMap(('a' to 'z').zip(0 to 14).map {
           case (k, v) => MsgPack.mStr(k.toString) -> MsgPack.mByte(v.toByte)
-        }: _*))
+        }: _*)),
+        (Map.empty[Char, Int], MsgPack.mMap())
       )
     }
   }
