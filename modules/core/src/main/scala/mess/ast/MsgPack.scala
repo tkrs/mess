@@ -1,5 +1,7 @@
 package mess.ast
 
+import java.math.BigInteger
+
 import org.msgpack.core.{MessagePack, MessagePacker, MessageUnpacker, MessageFormat => MF}
 
 import scala.annotation.tailrec
@@ -45,20 +47,16 @@ object MsgPack {
   final case class MArray(a: Vector[MsgPack]) extends MsgPack {
     def pack(acc: MessagePacker): Unit = {
       acc.packArrayHeader(a.size)
-      val it = a.iterator
-      while (it.hasNext) {
-        it.next.pack(acc)
-      }
+      a.foreach(_.pack(acc))
     }
   }
   final case class MMap(a: mutable.HashMap[MsgPack, MsgPack]) extends MsgPack {
     def pack(acc: MessagePacker): Unit = {
       acc.packMapHeader(a.size)
-      val it = a.iterator
-      while (it.hasNext) {
-        val (k, v) = it.next
-        k.pack(acc)
-        v.pack(acc)
+      a.foreach {
+        case (k, v) =>
+          k.pack(acc)
+          v.pack(acc)
       }
     }
 
@@ -121,12 +119,29 @@ object MsgPack {
           MsgPack.MFloat(buffer.unpackFloat())
         case MF.FLOAT64 =>
           MsgPack.MDouble(buffer.unpackDouble())
-        case MF.POSFIXINT | MF.NEGFIXINT | MF.INT8 | MF.INT16 | MF.INT32 | MF.UINT8 | MF.UINT16 =>
+        case MF.POSFIXINT | MF.NEGFIXINT | MF.INT8 =>
+          MsgPack.MByte(buffer.unpackByte())
+        case MF.UINT8 =>
+          val x = buffer.unpackShort()
+          if (x < 128) MsgPack.MByte(x.toByte) else MsgPack.MShort(x)
+        case MF.INT16 =>
+          MsgPack.MShort(buffer.unpackShort())
+        case MF.INT32 =>
           MsgPack.MInt(buffer.unpackInt())
-        case MF.UINT32 | MF.INT64 =>
+        case MF.UINT16 =>
+          val x = buffer.unpackInt()
+          if (x < 32768) MsgPack.MShort(x.toShort) else MsgPack.MInt(x)
+        case MF.INT64 =>
           MsgPack.MLong(buffer.unpackLong())
+        case MF.UINT32 =>
+          val x = buffer.unpackLong()
+          if (x < 2147483648L) MsgPack.MInt(x.toInt) else MsgPack.MLong(x)
         case MF.UINT64 =>
-          MsgPack.MBigInt(BigInt(buffer.unpackBigInteger()))
+          val x = buffer.unpackBigInteger()
+          if (x.compareTo(BigInteger.valueOf(9223372036854775807L)) <= 0)
+            MsgPack.MLong(x.longValue())
+          else
+            MsgPack.MBigInt(BigInt(x))
         case MF.BIN8 | MF.BIN16 | MF.BIN32 | MF.STR8 | MF.STR16 | MF.STR32 | MF.FIXSTR =>
           MsgPack.MString(buffer.unpackString())
         case MF.FIXARRAY | MF.ARRAY16 | MF.ARRAY32 =>
@@ -145,13 +160,16 @@ object MsgPack {
       }
   }
 
+  final val True  = MBool(true)
+  final val False = MBool(false)
+
   def mNil: MsgPack                                        = MNil
   def mEmpty: MsgPack                                      = MEmpty
   def mMap(xs: (MsgPack, MsgPack)*): MsgPack               = MMap(mutable.HashMap(xs: _*))
   def mMap(xs: mutable.HashMap[MsgPack, MsgPack]): MsgPack = MMap(xs)
   def mArr(xs: MsgPack*): MsgPack                          = MArray(Vector(xs: _*))
   def mArr(xs: Vector[MsgPack]): MsgPack                   = MArray(xs)
-  def mBool(x: Boolean): MsgPack                           = MBool(x)
+  def mBool(x: Boolean): MsgPack                           = if (x) True else False
   def mStr(x: String): MsgPack                             = MString(x)
   def mBigInt(x: BigInt): MsgPack                          = MBigInt(x)
   def mByte(x: Byte): MsgPack                              = MByte(x)

@@ -2,7 +2,6 @@ package mess
 
 import mess.ast.MsgPack
 import org.scalatest.FunSuite
-import mess.codec.generic.derived._
 import org.msgpack.core.MessagePack
 
 class EncoderSpec extends FunSuite with MsgpackHelper {
@@ -12,39 +11,39 @@ class EncoderSpec extends FunSuite with MsgpackHelper {
 
   case class Qux(byte: Option[Int])
 
-  def check[A](tc: Seq[A])(implicit encodeA: Encoder[A], decodeA: Decoder[A]): Unit = {
-    for (p <- tc) {
+  def check[A](tc: Seq[(A, MsgPack)])(implicit encodeA: Encoder[A]): Unit = {
+    for ((p, expected) <- tc) {
       packer.clear()
       encodeA(p).pack(packer)
       val m = MsgPack.unpack(MessagePack.DEFAULT_UNPACKER_CONFIG.newUnpacker(packer.toByteArray))
-      val a = decodeA(m).right.get
-      assert(a === p)
+      packer.clear()
+      assert(m === expected)
     }
   }
 
-  test("Encoder[Some[Int]]") {
+  test("Encoder[Some[A]]") {
     check {
-      Seq(Some(1))
+      Seq((Some(1), MsgPack.mByte(1.toByte)))
     }
   }
 
   test("Encoder[Char]") {
     check {
-      Seq('a')
+      Seq(('a', MsgPack.mStr("a")))
     }
   }
 
   test("Encoder[None.type]") {
     check {
-      Seq(None)
+      Seq((None, MsgPack.mNil))
     }
   }
 
-  test("Encoder[Option[Int]]") {
+  test("Encoder[Option[A]]") {
     check {
       Seq(
-        Option(1),
-        Option.empty[Int]
+        (Option(Int.MaxValue), MsgPack.mInt(Int.MaxValue)),
+        (Option.empty[Int], MsgPack.mNil)
       )
     }
   }
@@ -52,8 +51,8 @@ class EncoderSpec extends FunSuite with MsgpackHelper {
   test("Encoder[Boolean]") {
     check {
       Seq(
-        true,
-        false
+        (true, MsgPack.True),
+        (false, MsgPack.False)
       )
     }
   }
@@ -61,11 +60,11 @@ class EncoderSpec extends FunSuite with MsgpackHelper {
   test("Encoder[Byte]") {
     check {
       Seq(
-        0.toByte,
-        (-32).toByte,
-        (-33).toByte,
-        Byte.MaxValue,
-        Byte.MinValue
+        (0.toByte, MsgPack.mByte(0.toByte)),
+        ((-32).toByte, MsgPack.mByte((-32).toByte)),
+        ((-33).toByte, MsgPack.mByte((-33).toByte)),
+        (Byte.MaxValue, MsgPack.mByte(Byte.MaxValue)),
+        (Byte.MinValue, MsgPack.mByte(Byte.MinValue))
       )
     }
   }
@@ -73,14 +72,14 @@ class EncoderSpec extends FunSuite with MsgpackHelper {
   test("Encoder[Short]") {
     check {
       Seq(
-        Byte.MaxValue.toShort,
-        Byte.MinValue.toShort,
-        (Byte.MaxValue.toShort + 1.toShort).toShort,
-        (Byte.MinValue.toShort - 1.toShort).toShort,
-        255.toShort,
-        256.toShort,
-        Short.MaxValue,
-        Short.MinValue
+        (Byte.MaxValue.toShort, MsgPack.mByte(Byte.MaxValue)),
+        (Byte.MinValue.toShort, MsgPack.mByte(Byte.MinValue)),
+        ((Byte.MaxValue.toShort + 1.toShort).toShort, MsgPack.mShort((Byte.MaxValue.toShort + 1.toShort).toShort)),
+        ((Byte.MinValue.toShort - 1.toShort).toShort, MsgPack.mShort((Byte.MinValue.toShort - 1.toShort).toShort)),
+        (255.toShort, MsgPack.mShort(255.toShort)),
+        (256.toShort, MsgPack.mShort(256.toShort)),
+        (Short.MaxValue, MsgPack.mShort(Short.MaxValue)),
+        (Short.MinValue, MsgPack.mShort(Short.MinValue))
       )
     }
   }
@@ -88,13 +87,14 @@ class EncoderSpec extends FunSuite with MsgpackHelper {
   test("Encoder[Int]") {
     check {
       Seq(
-        Short.MaxValue.toInt,
-        Short.MinValue.toInt,
-        Short.MaxValue.toInt + 1,
-        65535,
-        65536,
-        Int.MaxValue,
-        Int.MinValue
+        (Short.MaxValue.toInt, MsgPack.mShort(Short.MaxValue)),
+        (Short.MinValue.toInt, MsgPack.mShort(Short.MinValue)),
+        (Short.MaxValue.toInt + 1, MsgPack.mInt(Short.MaxValue.toInt + 1)),
+        (Short.MinValue.toInt - 1, MsgPack.mInt(Short.MinValue.toInt - 1)),
+        (65535, MsgPack.mInt(65535)),
+        (65536, MsgPack.mInt(65536)),
+        (Int.MaxValue, MsgPack.mInt(Int.MaxValue)),
+        (Int.MinValue, MsgPack.mInt(Int.MinValue))
       )
     }
   }
@@ -102,12 +102,12 @@ class EncoderSpec extends FunSuite with MsgpackHelper {
   test("Encoder[Long]") {
     check {
       Seq(
-        Int.MaxValue.toLong,
-        Int.MinValue.toLong,
-        Int.MinValue - 1L,
-        Int.MaxValue + 1L,
-        Long.MaxValue,
-        Long.MinValue
+        (Int.MaxValue.toLong, MsgPack.mInt(Int.MaxValue)),
+        (Int.MinValue.toLong, MsgPack.mInt(Int.MinValue)),
+        (Int.MinValue - 1L, MsgPack.mLong(Int.MinValue - 1L)),
+        (Int.MaxValue + 1L, MsgPack.mLong(Int.MaxValue + 1L)),
+        (Long.MaxValue, MsgPack.mLong(Long.MaxValue)),
+        (Long.MinValue, MsgPack.mLong(Long.MinValue))
       )
     }
   }
@@ -115,9 +115,9 @@ class EncoderSpec extends FunSuite with MsgpackHelper {
   test("Encoder[BigInt]") {
     check {
       Seq(
-        BigInt(Long.MaxValue),
-        BigInt(Long.MinValue),
-        (BigInt(1) << 64) - 1
+        (BigInt(Long.MaxValue), MsgPack.mLong(Long.MaxValue)),
+        (BigInt(Long.MinValue), MsgPack.mLong(Long.MinValue)),
+        ((BigInt(1) << 64) - 1, MsgPack.mBigInt((BigInt(1) << 64) - 1))
       )
     }
   }
@@ -125,9 +125,9 @@ class EncoderSpec extends FunSuite with MsgpackHelper {
   test("Encoder[Double]") {
     check {
       Seq(
-        0.0,
-        Double.MaxValue,
-        Double.MinValue
+        (0.0, MsgPack.mDouble(0.0)),
+        (Double.MaxValue, MsgPack.mDouble(Double.MaxValue)),
+        (Double.MinValue, MsgPack.mDouble(Double.MinValue))
       )
     }
   }
@@ -135,9 +135,9 @@ class EncoderSpec extends FunSuite with MsgpackHelper {
   test("Encoder[Float]") {
     check {
       Seq(
-        0.0f,
-        Float.MaxValue,
-        Float.MinValue
+        (0.0f, MsgPack.MFloat(0.0f)),
+        (Float.MaxValue, MsgPack.MFloat(Float.MaxValue)),
+        (Float.MinValue, MsgPack.MFloat(Float.MinValue))
       )
     }
   }
@@ -145,7 +145,7 @@ class EncoderSpec extends FunSuite with MsgpackHelper {
   test("Encoder[Seq[A]]") {
     check {
       Seq(
-        Seq(0 to 14: _*)
+        (Seq(0 to 14: _*), MsgPack.mArr((0 to 14).map(a => MsgPack.mByte(a.toByte)): _*))
       )
     }
   }
@@ -153,7 +153,7 @@ class EncoderSpec extends FunSuite with MsgpackHelper {
   test("Encoder[List[A]]") {
     check {
       Seq(
-        (0 to 14).toList
+        ((0 to 14).toList, MsgPack.mArr((0 to 14).map(a => MsgPack.mByte(a.toByte)): _*))
       )
     }
   }
@@ -161,7 +161,7 @@ class EncoderSpec extends FunSuite with MsgpackHelper {
   test("Encoder[Vector[A]]") {
     check {
       Seq(
-        (0 to 14).toVector
+        ((0 to 14).toVector, MsgPack.mArr((0 to 14).map(a => MsgPack.mByte(a.toByte)): _*))
       )
     }
   }
@@ -169,24 +169,30 @@ class EncoderSpec extends FunSuite with MsgpackHelper {
   test("Encoder[Map[A, B]]") {
     check {
       Seq(
-        ('a' to 'z').zip(0 to 14).toMap
+        (('a' to 'z').zip(0 to 14).toMap, MsgPack.mMap(('a' to 'z').zip(0 to 14).map {
+          case (k, v) => MsgPack.mStr(k.toString) -> MsgPack.mByte(v.toByte)
+        }: _*))
       )
     }
   }
 
   test("Encoder[Map[A, Bar]]") {
+    import mess.codec.generic.derived._
     check {
       Seq(
-        ('a' to 'z').zip((0 to 14).map(a => Bar(a.toDouble))).toMap
+        (('a' to 'z').zip((0 to 14).map(a => Bar(a.toDouble))).toMap, MsgPack.mMap(('a' to 'z').zip(0 to 14).map {
+          case (k, v) => MsgPack.mStr(k.toString) -> MsgPack.mMap(MsgPack.mStr("double") -> MsgPack.mDouble(v.toDouble))
+        }: _*))
       )
     }
   }
 
   test("Encoder[Qux]") {
+    import mess.codec.generic.derived._
     check {
       Seq(
-        Qux(None),
-        Qux(Some(1))
+        (Qux(None), MsgPack.mMap(MsgPack.mStr("byte")    -> MsgPack.mNil)),
+        (Qux(Some(1)), MsgPack.mMap(MsgPack.mStr("byte") -> MsgPack.mByte(1.toByte)))
       )
     }
   }

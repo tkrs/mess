@@ -51,16 +51,6 @@ private[mess] trait LowPriorityDerivedEncoder {
       }
     }
 
-  implicit final def encodeCCons[L, R <: Coproduct](implicit
-                                                    L: Encoder[L],
-                                                    R: DerivedEncoder[R]): DerivedEncoder[L :+: R] =
-    new DerivedEncoder[L :+: R] {
-      def apply(a: L :+: R): MsgPack = a match {
-        case Inl(h) => L(h)
-        case Inr(t) => R(t)
-      }
-    }
-
   implicit final def encodeGen[A, R](implicit
                                      gen: LabelledGeneric.Aux[A, R],
                                      R: Lazy[DerivedEncoder[R]]): DerivedEncoder[A] =
