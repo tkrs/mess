@@ -121,14 +121,6 @@ object Encoder extends LowPriorityEncoder with TupleEncoder {
     }
   }
 
-  implicit final def encodeMapLike[M[k, +v] <: Map[K, V], K, V](implicit
-                                                                K: Encoder[K],
-                                                                V: Encoder[V]): Encoder[M[K, V]] =
-    new Encoder[M[K, V]] {
-      def apply(a: M[K, V]): MsgPack =
-        MsgPack.mMap(mapLoop(a.iterator, mutable.HashMap.empty))
-    }
-
   implicit final def encodeMap[K, V](implicit
                                      K: Encoder[K],
                                      V: Encoder[V]): Encoder[Map[K, V]] =
