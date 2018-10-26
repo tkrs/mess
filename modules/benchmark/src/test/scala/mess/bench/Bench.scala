@@ -7,9 +7,6 @@ import mess.codec.generic._
 import mess.{Decoder, Encoder}
 import org.msgpack.core.MessagePack
 import org.openjdk.jmh.annotations._
-
-import scala.util.Random
-
 @State(Scope.Thread)
 @BenchmarkMode(Array(Mode.Throughput))
 @Warmup(iterations = 10, time = 1)
@@ -32,7 +29,6 @@ import scala.util.Random
 )
 abstract class Bench
 object Bench {
-  val rnd = new Random()
 
   def toBytes[A](a: A)(implicit encodeA: Encoder[A]): Array[Byte] = {
     val buffer = MessagePack.DEFAULT_PACKER_CONFIG.newBufferPacker()
@@ -57,11 +53,11 @@ object Foo {
   implicit val encodeFoo: Encoder[Foo] = derivedEncoder[Foo]
 
   def next(): Foo = Foo(
-    Bench.rnd.nextInt(),
-    Bench.rnd.nextLong(),
-    Bench.rnd.nextString(10),
-    Bench.rnd.nextBoolean(),
-    Bench.rnd.nextDouble()
+    9843720,
+    97693437922040L,
+    "abcdefghijklmnopqrstmvwxyz",
+    true,
+    0.2387430
   )
 }
 
@@ -88,16 +84,21 @@ class ContainerBench extends Bench {
 
   private[this] var map: Map[Long, Double] = _
   private[this] var mapBytes: Array[Byte]  = _
-
-  private[this] var seq: Seq[Long]        = _
-  private[this] var seqBytes: Array[Byte] = _
+  private[this] var seq: Seq[Long]         = _
+  private[this] var seqBytes: Array[Byte]  = _
+  private[this] var list: List[Long]       = _
+  private[this] var vec: Vector[Long]      = _
+  private[this] var set: Set[Long]         = _
 
   @Setup
   def setup(): Unit = {
-    map = Iterator.continually(Bench.rnd.nextLong() -> Bench.rnd.nextDouble()).take(size).toMap
+    map = (1 to size).map(a => a.toLong -> a * 0.12).toMap
     mapBytes = Bench.toBytes(map)
-    seq = Iterator.continually(Bench.rnd.nextLong()).take(size).toSeq
+    seq = (1L to size.toLong).toSeq
     seqBytes = Bench.toBytes(seq)
+    list = seq.toList
+    vec = seq.toVector
+    set = seq.toSet
   }
 
   @Benchmark
@@ -118,5 +119,35 @@ class ContainerBench extends Bench {
   @Benchmark
   def encodeSeq(): Array[Byte] = {
     MsgPack.pack(Encoder[Seq[Long]].apply(seq), MessagePack.DEFAULT_PACKER_CONFIG)
+  }
+
+  @Benchmark
+  def decodeList(): Decoder.Result[List[Long]] = {
+    Decoder[List[Long]].apply(MsgPack.unpack(seqBytes, MessagePack.DEFAULT_UNPACKER_CONFIG))
+  }
+
+  @Benchmark
+  def encodeList(): Array[Byte] = {
+    MsgPack.pack(Encoder[List[Long]].apply(list), MessagePack.DEFAULT_PACKER_CONFIG)
+  }
+
+  @Benchmark
+  def decodeVector(): Decoder.Result[Vector[Long]] = {
+    Decoder[Vector[Long]].apply(MsgPack.unpack(seqBytes, MessagePack.DEFAULT_UNPACKER_CONFIG))
+  }
+
+  @Benchmark
+  def encodeVector(): Array[Byte] = {
+    MsgPack.pack(Encoder[Vector[Long]].apply(vec), MessagePack.DEFAULT_PACKER_CONFIG)
+  }
+
+  @Benchmark
+  def decodeSet(): Decoder.Result[Set[Long]] = {
+    Decoder[Set[Long]].apply(MsgPack.unpack(seqBytes, MessagePack.DEFAULT_UNPACKER_CONFIG))
+  }
+
+  @Benchmark
+  def encodeSet(): Array[Byte] = {
+    MsgPack.pack(Encoder[Set[Long]].apply(set), MessagePack.DEFAULT_PACKER_CONFIG)
   }
 }
