@@ -70,15 +70,18 @@ object MsgPack {
       acc.writePayload(a)
     }
   }
+  final case class MBin(a: Array[Byte]) extends MsgPack {
+    def pack(acc: MessagePacker): Unit = {
+      acc.packBinaryHeader(a.length)
+      acc.writePayload(a)
+    }
+  }
 
   @tailrec private[this] def unpackArr(size: Int,
                                        acc: mutable.Builder[MsgPack, Vector[MsgPack]],
                                        buffer: MessageUnpacker): Vector[MsgPack] = {
     if (size == 0) acc.result()
-    else {
-      val v = unpack(buffer)
-      unpackArr(size - 1, acc += v, buffer)
-    }
+    else unpackArr(size - 1, acc += unpack(buffer), buffer)
   }
 
   @tailrec private[this] def unpackMap(size: Int,
@@ -142,7 +145,7 @@ object MsgPack {
             MsgPack.MLong(x.longValue())
           else
             MsgPack.MBigInt(BigInt(x))
-        case MF.BIN8 | MF.BIN16 | MF.BIN32 | MF.STR8 | MF.STR16 | MF.STR32 | MF.FIXSTR =>
+        case MF.STR8 | MF.STR16 | MF.STR32 | MF.FIXSTR =>
           MsgPack.MString(buffer.unpackString())
         case MF.FIXARRAY | MF.ARRAY16 | MF.ARRAY32 =>
           val size = buffer.unpackArrayHeader()
@@ -150,6 +153,9 @@ object MsgPack {
         case MF.FIXMAP | MF.MAP16 | MF.MAP32 =>
           val size = buffer.unpackMapHeader()
           MsgPack.MMap(unpackMap(size, mutable.HashMap.empty, buffer))
+        case MF.BIN8 | MF.BIN16 | MF.BIN32 =>
+          val size = buffer.unpackBinaryHeader()
+          MsgPack.MBin(buffer.readPayload(size))
         case MF.EXT8 | MF.EXT16 | MF.EXT32 | MF.FIXEXT1 | MF.FIXEXT2 | MF.FIXEXT4 | MF.FIXEXT8 | MF.FIXEXT16 =>
           val ext   = buffer.unpackExtensionTypeHeader()
           val bytes = Array.ofDim[Byte](ext.getLength)
@@ -178,4 +184,5 @@ object MsgPack {
   def mLong(x: Long): MsgPack                              = MLong(x)
   def mFloat(x: Float): MsgPack                            = MFloat(x)
   def mDouble(x: Double): MsgPack                          = MDouble(x)
+  def mBin(x: Array[Byte]): MsgPack                        = MBin(x)
 }

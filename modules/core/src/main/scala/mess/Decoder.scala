@@ -57,6 +57,13 @@ object Decoder extends LowPriorityDecoder with TupleDecoder {
     }
   }
 
+  implicit val decodeBytes: Decoder[Array[Byte]] = new Decoder[Array[Byte]] {
+    def apply(m: MsgPack): Result[Array[Byte]] = m match {
+      case MsgPack.MBin(a) => Right(a)
+      case _               => Left(TypeMismatchError("Array[Byte]", m))
+    }
+  }
+
   implicit val decodeByte: Decoder[Byte] = new Decoder[Byte] {
     def apply(m: MsgPack): Result[Byte] = m match {
       case MsgPack.MByte(a)   => Right(a)
