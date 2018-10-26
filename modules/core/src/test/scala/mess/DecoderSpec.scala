@@ -43,6 +43,14 @@ class DecoderSpec extends FunSuite with MsgpackHelper {
     }
   }
 
+  test("Decoder[Array[Byte]]") {
+    check {
+      Seq(
+        (Array(0x11, 0x1a).map(_.toByte), MsgPack.mBin(Array(0x11, 0x1a).map(_.toByte)))
+      )
+    }
+  }
+
   test("Decoder[Char] failure") {
     val msg = MsgPack.mStr("ab")
     assert(decode[Char](msg) === Left(TypeMismatchError("Char", msg)))

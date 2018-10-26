@@ -18,12 +18,12 @@ class CodecChecker extends FunSuite with Checkers with MsgpackHelper {
   case class User[F[_]](int: Int, friends: F[User[F]])
   object User {
 
-    def fix(depth: Int, i: Int, acc: User[List]): User[List] = {
+    private def fix(depth: Int, i: Int, acc: User[List]): User[List] = {
       if (depth == 0) acc
       else fix(depth - 1, i + 1, User(i, List(acc)))
     }
 
-    val genFix: Gen[User[List]] = for {
+    private val genFix: Gen[User[List]] = for {
       depth <- Gen.chooseNum(1, 100)
       i     <- Gen.size
     } yield fix(depth, i, User[List](i, Nil))
@@ -43,6 +43,7 @@ class CodecChecker extends FunSuite with Checkers with MsgpackHelper {
 
   // format: off
   test("Boolean")(roundTrip[Boolean])
+  test("Array[Byte]")(roundTrip[Array[Byte]])
   test("Byte")(roundTrip[Byte])
   test("Short")(roundTrip[Short])
   test("Int")(roundTrip[Int])

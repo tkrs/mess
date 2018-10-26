@@ -27,6 +27,8 @@ object Encoder extends LowPriorityEncoder with TupleEncoder {
     def apply(a: Boolean): MsgPack = MsgPack.mBool(a)
   }
 
+  implicit final val encodeBytes: Encoder[Array[Byte]] = Encoder.instance[Array[Byte]](MsgPack.mBin)
+
   implicit final val encodeByte: Encoder[Byte] = new Encoder[Byte] {
     def apply(a: Byte): MsgPack = MsgPack.mByte(a)
   }
