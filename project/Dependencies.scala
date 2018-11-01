@@ -2,7 +2,7 @@ import sbt._
 
 object Dependencies {
   val Ver = new {
-    val `scala2.13`   = "2.13.0-M4"
+    val `scala2.13`   = "2.13.0-M5"
     val `scala2.12`   = "2.12.7"
     val `scala2.11`   = "2.11.12"
     val scalafmt      = "1.5.1"
@@ -10,9 +10,9 @@ object Dependencies {
     val exportHook    = "1.2.0"
     val scalacheck    = "1.14.0"
     val scalatest     = "3.0.5"
-    val scalatestSnap = "3.0.6-SNAP2"
+    val scalatestSnap = "3.0.6-SNAP4"
     val msgpackJava   = "0.8.16"
-    val kindProjector = "0.9.7"
+    val kindProjector = "0.9.8"
     val macroParadise = "2.1.1"
   }
 
