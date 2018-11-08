@@ -10,7 +10,7 @@ object Dependencies {
     val exportHook    = "1.2.0"
     val scalacheck    = "1.14.0"
     val scalatest     = "3.0.5"
-    val scalatestSnap = "3.0.6-SNAP4"
+    val scalatestSnap = "3.0.6-SNAP5"
     val msgpackJava   = "0.8.16"
     val kindProjector = "0.9.8"
     val macroParadise = "2.1.1"
