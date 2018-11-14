@@ -51,101 +51,79 @@ object Decoder extends LowPriorityDecoder with TupleDecoder {
   }
 
   implicit val decodeBoolean: Decoder[Boolean] = new Decoder[Boolean] {
-    def apply(m: MsgPack): Result[Boolean] = m match {
-      case MsgPack.MBool(a) => Right(a)
-      case _                => Left(TypeMismatchError("Boolean", m))
+    def apply(m: MsgPack): Result[Boolean] = m.asBoolean match {
+      case Some(a) => Right(a)
+      case _       => Left(TypeMismatchError("Boolean", m))
     }
   }
 
   implicit val decodeBytes: Decoder[Array[Byte]] = new Decoder[Array[Byte]] {
-    def apply(m: MsgPack): Result[Array[Byte]] = m match {
-      case MsgPack.MBin(a) => Right(a)
-      case _               => Left(TypeMismatchError("Array[Byte]", m))
+    def apply(m: MsgPack): Result[Array[Byte]] = m.asByteArray match {
+      case Some(a) => Right(a)
+      case _       => Left(TypeMismatchError("Array[Byte]", m))
     }
   }
 
   implicit val decodeByte: Decoder[Byte] = new Decoder[Byte] {
-    def apply(m: MsgPack): Result[Byte] = m match {
-      case MsgPack.MByte(a)   => Right(a)
-      case MsgPack.MShort(a)  => Right(a.toByte)
-      case MsgPack.MInt(a)    => Right(a.toByte)
-      case MsgPack.MLong(a)   => Right(a.toByte)
-      case MsgPack.MBigInt(a) => Right(a.toByte)
-      case _                  => Left(TypeMismatchError("Byte", m))
+    def apply(m: MsgPack): Result[Byte] = m.asByte match {
+      case Some(a) => Right(a)
+      case _       => Left(TypeMismatchError("Byte", m))
     }
   }
 
   implicit val decodeShort: Decoder[Short] = new Decoder[Short] {
-    def apply(m: MsgPack): Result[Short] = m match {
-      case MsgPack.MByte(a)   => Right(a.toShort)
-      case MsgPack.MShort(a)  => Right(a)
-      case MsgPack.MInt(a)    => Right(a.toShort)
-      case MsgPack.MLong(a)   => Right(a.toShort)
-      case MsgPack.MBigInt(a) => Right(a.toShort)
-      case _                  => Left(TypeMismatchError("Short", m))
+    def apply(m: MsgPack): Result[Short] = m.asShort match {
+      case Some(a) => Right(a)
+      case _       => Left(TypeMismatchError("Short", m))
     }
   }
 
   implicit val decodeInt: Decoder[Int] = new Decoder[Int] {
-    def apply(m: MsgPack): Result[Int] = m match {
-      case MsgPack.MByte(a)   => Right(a.toInt)
-      case MsgPack.MShort(a)  => Right(a.toInt)
-      case MsgPack.MInt(a)    => Right(a)
-      case MsgPack.MLong(a)   => Right(a.toInt)
-      case MsgPack.MBigInt(a) => Right(a.toInt)
-      case _                  => Left(TypeMismatchError("Int", m))
+    def apply(m: MsgPack): Result[Int] = m.asInt match {
+      case Some(a) => Right(a)
+      case _       => Left(TypeMismatchError("Int", m))
     }
   }
 
   implicit val decodeLong: Decoder[Long] = new Decoder[Long] {
-    def apply(m: MsgPack): Result[Long] = m match {
-      case MsgPack.MByte(a)   => Right(a.toLong)
-      case MsgPack.MShort(a)  => Right(a.toLong)
-      case MsgPack.MInt(a)    => Right(a.toLong)
-      case MsgPack.MLong(a)   => Right(a)
-      case MsgPack.MBigInt(a) => Right(a.toLong)
-      case _                  => Left(TypeMismatchError("Long", m))
+    def apply(m: MsgPack): Result[Long] = m.asLong match {
+      case Some(a) => Right(a)
+      case _       => Left(TypeMismatchError("Long", m))
     }
   }
 
   implicit val decodeBigInt: Decoder[BigInt] = new Decoder[BigInt] {
-    def apply(m: MsgPack): Result[BigInt] = m match {
-      case MsgPack.MByte(a)   => Right(BigInt(a.toInt))
-      case MsgPack.MShort(a)  => Right(BigInt(a.toInt))
-      case MsgPack.MInt(a)    => Right(BigInt(a))
-      case MsgPack.MLong(a)   => Right(BigInt(a))
-      case MsgPack.MBigInt(a) => Right(a)
-      case _                  => Left(TypeMismatchError("BigInt", m))
+    def apply(m: MsgPack): Result[BigInt] = m.asBigInt match {
+      case Some(a) => Right(a)
+      case _       => Left(TypeMismatchError("BigInt", m))
     }
   }
 
   implicit val decodeDouble: Decoder[Double] = new Decoder[Double] {
-    def apply(m: MsgPack): Result[Double] = m match {
-      case MsgPack.MFloat(a)  => Right(a.toDouble)
-      case MsgPack.MDouble(a) => Right(a)
-      case _                  => Left(TypeMismatchError("Double", m))
+    def apply(m: MsgPack): Result[Double] = m.asDouble match {
+      case Some(a) => Right(a)
+      case _       => Left(TypeMismatchError("Double", m))
     }
   }
 
   implicit val decodeFloat: Decoder[Float] = new Decoder[Float] {
-    def apply(m: MsgPack): Result[Float] = m match {
-      case MsgPack.MFloat(a)  => Right(a)
-      case MsgPack.MDouble(a) => Right(a.toFloat)
-      case _                  => Left(TypeMismatchError("Float", m))
+    def apply(m: MsgPack): Result[Float] = m.asFloat match {
+      case Some(a) => Right(a)
+      case _       => Left(TypeMismatchError("Float", m))
     }
   }
 
   implicit val decodeChar: Decoder[Char] = new Decoder[Char] {
-    def apply(m: MsgPack): Result[Char] = m match {
-      case MsgPack.MString(a) if a.length == 1 => Right(a.charAt(0))
-      case _                                   => Left(TypeMismatchError("Char", m))
+    def apply(m: MsgPack): Result[Char] = m.asChar match {
+      case Some(a) => Right(a)
+      case _       => Left(TypeMismatchError("Char", m))
     }
   }
 
   implicit val decodeString: Decoder[String] = new Decoder[String] {
-    def apply(m: MsgPack): Result[String] = m match {
-      case MsgPack.MString(a) => Right(a)
-      case _                  => Left(TypeMismatchError("String", m))
+    def apply(m: MsgPack): Result[String] = m.asString match {
+      case Some(a) => Right(a)
+      case _       => Left(TypeMismatchError("String", m))
     }
   }
 

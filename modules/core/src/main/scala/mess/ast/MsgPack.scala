@@ -8,49 +8,218 @@ import scala.annotation.tailrec
 import scala.collection.mutable
 
 sealed trait MsgPack {
+
   def pack(acc: MessagePacker): Unit
+
+  def asBoolean: Option[Boolean]
+
+  def asByteArray: Option[Array[Byte]]
+
+  def asByte: Option[Byte]
+
+  def asShort: Option[Short]
+
+  def asInt: Option[Int]
+
+  def asLong: Option[Long]
+
+  def asBigInt: Option[BigInt]
+
+  def asDouble: Option[Double]
+
+  def asFloat: Option[Float]
+
+  def asChar: Option[Char]
+
+  def asString: Option[String]
 }
+
 object MsgPack {
-  final case object MEmpty extends MsgPack {
-    def pack(acc: MessagePacker): Unit = ()
+
+  private[mess] final case object MEmpty extends MsgPack {
+    def pack(acc: MessagePacker): Unit   = ()
+    def asBoolean: Option[Boolean]       = None
+    def asByteArray: Option[Array[Byte]] = None
+    def asByte: Option[Byte]             = None
+    def asShort: Option[Short]           = None
+    def asInt: Option[Int]               = None
+    def asLong: Option[Long]             = None
+    def asBigInt: Option[BigInt]         = None
+    def asDouble: Option[Double]         = None
+    def asFloat: Option[Float]           = None
+    def asChar: Option[Char]             = None
+    def asString: Option[String]         = None
   }
-  final case object MNil extends MsgPack {
-    def pack(acc: MessagePacker): Unit = acc.packNil()
+
+  private[mess] final case object MNil extends MsgPack {
+    def pack(acc: MessagePacker): Unit   = acc.packNil()
+    def asBoolean: Option[Boolean]       = None
+    def asByteArray: Option[Array[Byte]] = None
+    def asByte: Option[Byte]             = None
+    def asShort: Option[Short]           = None
+    def asInt: Option[Int]               = None
+    def asLong: Option[Long]             = None
+    def asBigInt: Option[BigInt]         = None
+    def asDouble: Option[Double]         = None
+    def asFloat: Option[Float]           = None
+    def asChar: Option[Char]             = None
+    def asString: Option[String]         = None
   }
-  final case class MBool(a: Boolean) extends MsgPack {
-    def pack(acc: MessagePacker): Unit = acc.packBoolean(a)
+
+  private[mess] final case class MBool(a: Boolean) extends MsgPack {
+    def pack(acc: MessagePacker): Unit   = acc.packBoolean(a)
+    def asBoolean: Option[Boolean]       = Some(a)
+    def asByteArray: Option[Array[Byte]] = None
+    def asByte: Option[Byte]             = None
+    def asShort: Option[Short]           = None
+    def asInt: Option[Int]               = None
+    def asLong: Option[Long]             = None
+    def asBigInt: Option[BigInt]         = None
+    def asDouble: Option[Double]         = None
+    def asFloat: Option[Float]           = None
+    def asChar: Option[Char]             = None
+    def asString: Option[String]         = None
   }
-  final case class MString(a: String) extends MsgPack {
-    def pack(acc: MessagePacker): Unit = acc.packString(a)
+
+  private[mess] final case class MString(a: String) extends MsgPack {
+    def pack(acc: MessagePacker): Unit   = acc.packString(a)
+    def asBoolean: Option[Boolean]       = None
+    def asByteArray: Option[Array[Byte]] = None
+    def asByte: Option[Byte]             = None
+    def asShort: Option[Short]           = None
+    def asInt: Option[Int]               = None
+    def asLong: Option[Long]             = None
+    def asBigInt: Option[BigInt]         = None
+    def asDouble: Option[Double]         = None
+    def asFloat: Option[Float]           = None
+    def asChar: Option[Char]             = if (a.length == 1) Some(a.charAt(0)) else None
+    def asString: Option[String]         = Some(a)
   }
-  final case class MByte(a: Byte) extends MsgPack {
-    def pack(acc: MessagePacker): Unit = acc.packByte(a)
+
+  private[mess] final case class MByte(a: Byte) extends MsgPack {
+    def pack(acc: MessagePacker): Unit   = acc.packByte(a)
+    def asBoolean: Option[Boolean]       = None
+    def asByteArray: Option[Array[Byte]] = None
+    def asByte: Option[Byte]             = Some(a)
+    def asShort: Option[Short]           = Some(a.toShort)
+    def asInt: Option[Int]               = Some(a.toInt)
+    def asLong: Option[Long]             = Some(a.toLong)
+    def asBigInt: Option[BigInt]         = Some(BigInt(a.toInt))
+    def asDouble: Option[Double]         = None
+    def asFloat: Option[Float]           = None
+    def asChar: Option[Char]             = None
+    def asString: Option[String]         = None
   }
-  final case class MShort(a: Short) extends MsgPack {
-    def pack(acc: MessagePacker): Unit = acc.packShort(a)
+
+  private[mess] final case class MShort(a: Short) extends MsgPack {
+    def pack(acc: MessagePacker): Unit   = acc.packShort(a)
+    def asBoolean: Option[Boolean]       = None
+    def asByteArray: Option[Array[Byte]] = None
+    def asByte: Option[Byte]             = Some(a.toByte)
+    def asShort: Option[Short]           = Some(a)
+    def asInt: Option[Int]               = Some(a.toInt)
+    def asLong: Option[Long]             = Some(a.toLong)
+    def asBigInt: Option[BigInt]         = Some(BigInt(a.toInt))
+    def asDouble: Option[Double]         = None
+    def asFloat: Option[Float]           = None
+    def asChar: Option[Char]             = None
+    def asString: Option[String]         = None
   }
-  final case class MInt(a: Int) extends MsgPack {
-    def pack(acc: MessagePacker): Unit = acc.packInt(a)
+
+  private[mess] final case class MInt(a: Int) extends MsgPack {
+    def pack(acc: MessagePacker): Unit   = acc.packInt(a)
+    def asBoolean: Option[Boolean]       = None
+    def asByteArray: Option[Array[Byte]] = None
+    def asByte: Option[Byte]             = Some(a.toByte)
+    def asShort: Option[Short]           = Some(a.toShort)
+    def asInt: Option[Int]               = Some(a.toInt)
+    def asLong: Option[Long]             = Some(a.toLong)
+    def asBigInt: Option[BigInt]         = Some(BigInt(a))
+    def asDouble: Option[Double]         = None
+    def asFloat: Option[Float]           = None
+    def asChar: Option[Char]             = None
+    def asString: Option[String]         = None
   }
-  final case class MLong(a: Long) extends MsgPack {
-    def pack(acc: MessagePacker): Unit = acc.packLong(a)
+
+  private[mess] final case class MLong(a: Long) extends MsgPack {
+    def pack(acc: MessagePacker): Unit   = acc.packLong(a)
+    def asBoolean: Option[Boolean]       = None
+    def asByteArray: Option[Array[Byte]] = None
+    def asByte: Option[Byte]             = Some(a.toByte)
+    def asShort: Option[Short]           = Some(a.toShort)
+    def asInt: Option[Int]               = Some(a.toInt)
+    def asLong: Option[Long]             = Some(a)
+    def asBigInt: Option[BigInt]         = Some(BigInt(a))
+    def asDouble: Option[Double]         = None
+    def asFloat: Option[Float]           = None
+    def asChar: Option[Char]             = None
+    def asString: Option[String]         = None
   }
-  final case class MBigInt(a: BigInt) extends MsgPack {
-    def pack(acc: MessagePacker): Unit = acc.packBigInteger(a.bigInteger)
+
+  private[mess] final case class MBigInt(a: BigInt) extends MsgPack {
+    def pack(acc: MessagePacker): Unit   = acc.packBigInteger(a.bigInteger)
+    def asBoolean: Option[Boolean]       = None
+    def asByteArray: Option[Array[Byte]] = None
+    def asByte: Option[Byte]             = Some(a.toByte)
+    def asShort: Option[Short]           = Some(a.toShort)
+    def asInt: Option[Int]               = Some(a.toInt)
+    def asLong: Option[Long]             = Some(a.toLong)
+    def asBigInt: Option[BigInt]         = Some(a)
+    def asDouble: Option[Double]         = None
+    def asFloat: Option[Float]           = None
+    def asChar: Option[Char]             = None
+    def asString: Option[String]         = None
   }
-  final case class MDouble(a: Double) extends MsgPack {
-    def pack(acc: MessagePacker): Unit = acc.packDouble(a)
+
+  private[mess] final case class MDouble(a: Double) extends MsgPack {
+    def pack(acc: MessagePacker): Unit   = acc.packDouble(a)
+    def asBoolean: Option[Boolean]       = None
+    def asByteArray: Option[Array[Byte]] = None
+    def asByte: Option[Byte]             = None
+    def asShort: Option[Short]           = None
+    def asInt: Option[Int]               = None
+    def asLong: Option[Long]             = None
+    def asBigInt: Option[BigInt]         = None
+    def asDouble: Option[Double]         = Some(a)
+    def asFloat: Option[Float]           = Some(a.toFloat)
+    def asChar: Option[Char]             = None
+    def asString: Option[String]         = None
   }
-  final case class MFloat(a: Float) extends MsgPack {
-    def pack(acc: MessagePacker): Unit = acc.packFloat(a)
+
+  private[mess] final case class MFloat(a: Float) extends MsgPack {
+    def pack(acc: MessagePacker): Unit   = acc.packFloat(a)
+    def asBoolean: Option[Boolean]       = None
+    def asByteArray: Option[Array[Byte]] = None
+    def asByte: Option[Byte]             = None
+    def asShort: Option[Short]           = None
+    def asInt: Option[Int]               = None
+    def asLong: Option[Long]             = None
+    def asBigInt: Option[BigInt]         = None
+    def asDouble: Option[Double]         = Some(a.toDouble)
+    def asFloat: Option[Float]           = Some(a)
+    def asChar: Option[Char]             = None
+    def asString: Option[String]         = None
   }
-  final case class MArray(a: Vector[MsgPack]) extends MsgPack {
+
+  private[mess] final case class MArray(a: Vector[MsgPack]) extends MsgPack {
     def pack(acc: MessagePacker): Unit = {
       acc.packArrayHeader(a.size)
       a.foreach(_.pack(acc))
     }
+    def asBoolean: Option[Boolean]       = None
+    def asByteArray: Option[Array[Byte]] = None
+    def asByte: Option[Byte]             = None
+    def asShort: Option[Short]           = None
+    def asInt: Option[Int]               = None
+    def asLong: Option[Long]             = None
+    def asBigInt: Option[BigInt]         = None
+    def asDouble: Option[Double]         = None
+    def asFloat: Option[Float]           = None
+    def asChar: Option[Char]             = None
+    def asString: Option[String]         = None
   }
-  final case class MMap(a: mutable.HashMap[MsgPack, MsgPack]) extends MsgPack {
+
+  private[mess] final case class MMap(a: mutable.HashMap[MsgPack, MsgPack]) extends MsgPack {
     def pack(acc: MessagePacker): Unit = {
       acc.packMapHeader(a.size)
       a.foreach {
@@ -63,18 +232,56 @@ object MsgPack {
     def add(k: MsgPack, v: MsgPack): MsgPack = {
       this.copy(a += k -> v)
     }
+
+    def asBoolean: Option[Boolean]       = None
+    def asByteArray: Option[Array[Byte]] = None
+    def asByte: Option[Byte]             = None
+    def asShort: Option[Short]           = None
+    def asInt: Option[Int]               = None
+    def asLong: Option[Long]             = None
+    def asBigInt: Option[BigInt]         = None
+    def asDouble: Option[Double]         = None
+    def asFloat: Option[Float]           = None
+    def asChar: Option[Char]             = None
+    def asString: Option[String]         = None
   }
-  final case class MExtension(typ: Byte, size: Int, a: Array[Byte]) extends MsgPack {
+
+  private[mess] final case class MExtension(typ: Byte, size: Int, a: Array[Byte]) extends MsgPack {
     def pack(acc: MessagePacker): Unit = {
       acc.packExtensionTypeHeader(typ, size)
       acc.writePayload(a)
     }
+
+    def asBoolean: Option[Boolean]       = None
+    def asByteArray: Option[Array[Byte]] = Some(a)
+    def asByte: Option[Byte]             = None
+    def asShort: Option[Short]           = None
+    def asInt: Option[Int]               = None
+    def asLong: Option[Long]             = None
+    def asBigInt: Option[BigInt]         = None
+    def asDouble: Option[Double]         = None
+    def asFloat: Option[Float]           = None
+    def asChar: Option[Char]             = None
+    def asString: Option[String]         = None
   }
-  final case class MBin(a: Array[Byte]) extends MsgPack {
+
+  private[mess] final case class MBin(a: Array[Byte]) extends MsgPack {
     def pack(acc: MessagePacker): Unit = {
       acc.packBinaryHeader(a.length)
       acc.writePayload(a)
     }
+
+    def asBoolean: Option[Boolean]       = None
+    def asByteArray: Option[Array[Byte]] = Some(a)
+    def asByte: Option[Byte]             = None
+    def asShort: Option[Short]           = None
+    def asInt: Option[Int]               = None
+    def asLong: Option[Long]             = None
+    def asBigInt: Option[BigInt]         = None
+    def asDouble: Option[Double]         = None
+    def asFloat: Option[Float]           = None
+    def asChar: Option[Char]             = None
+    def asString: Option[String]         = None
   }
 
   @tailrec private[this] def unpackArr(size: Int,

@@ -15,7 +15,7 @@ trait Encoder[A] extends Serializable { self =>
   }
 
   final def map(f: MsgPack => MsgPack): Encoder[A] = new Encoder[A] {
-    override def apply(a: A): MsgPack = f(self(a))
+    def apply(a: A): MsgPack = f(self(a))
   }
 }
 
