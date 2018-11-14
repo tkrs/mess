@@ -21,15 +21,7 @@ object Main extends App {
 
   val bar = Bar(Foo(2305, "Archimedes") :: Foo(411, "Johannes Kepler") :: Nil)
 
-  val bytes = {
-    val packer = DEFAULT_PACKER_CONFIG.newBufferPacker()
-    try {
-      Encoder[Bar].apply(bar).pack(packer)
-      packer.toByteArray
-    } finally {
-      packer.close()
-    }
-  }
+  val bytes = MsgPack.pack(Encoder[Bar].apply(bar), DEFAULT_PACKER_CONFIG)
 
   val unpacker = DEFAULT_UNPACKER_CONFIG.newUnpacker(bytes)
 
