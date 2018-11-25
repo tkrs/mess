@@ -23,9 +23,7 @@ object Main extends App {
 
   val bytes = MsgPack.pack(Encoder[Bar].apply(bar), DEFAULT_PACKER_CONFIG)
 
-  val unpacker = DEFAULT_UNPACKER_CONFIG.newUnpacker(bytes)
-
-  val bar2 = Decoder[Bar].apply(MsgPack.unpack(unpacker)).right.get
+  val bar2 = Decoder[Bar].apply(MsgPack.unpack(bytes, DEFAULT_UNPACKER_CONFIG)).right.get
 
   assert(bar == bar2)
 }
