@@ -7,6 +7,7 @@ import mess.codec.generic._
 import mess.{Decoder, Encoder}
 import org.msgpack.core.MessagePack
 import org.openjdk.jmh.annotations._
+
 @State(Scope.Thread)
 @BenchmarkMode(Array(Mode.Throughput))
 @Warmup(iterations = 10, time = 1)
