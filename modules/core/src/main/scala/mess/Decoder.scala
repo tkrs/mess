@@ -143,14 +143,14 @@ object Decoder extends LowPriorityDecoder with TupleDecoder {
 
   implicit def decodeOption[A](implicit A: Decoder[A]): Decoder[Option[A]] =
     new Decoder[Option[A]] {
-      def apply(m: MsgPack): Result[Option[A]] = m match {
-        case MsgPack.MNil | MsgPack.MEmpty => Right(None)
-        case _ =>
+      def apply(m: MsgPack): Result[Option[A]] =
+        if (m.isNil || m.isEmpty)
+          Right(None)
+        else
           A(m) match {
             case Right(v) => Right(Option(v))
             case Left(e)  => Left(e)
           }
-      }
     }
 
   @inline private[this] def decodeContainer[C[_], A](implicit
@@ -167,11 +167,13 @@ object Decoder extends LowPriorityDecoder with TupleDecoder {
             }
         }
 
-        m match {
-          case MsgPack.MNil | MsgPack.MEmpty => Right(factoryA.newBuilder.result())
-          case MsgPack.MArray(a)             => loop(a.iterator, factoryA.newBuilder)
-          case _                             => Left(TypeMismatchError(s"C[A]", m))
-        }
+        if (m.isNil || m.isEmpty)
+          Right(factoryA.newBuilder.result())
+        else
+          m.asVector match {
+            case Some(a) => loop(a.iterator, factoryA.newBuilder)
+            case _       => Left(TypeMismatchError(s"C[A]", m))
+          }
       }
     }
 
@@ -201,11 +203,13 @@ object Decoder extends LowPriorityDecoder with TupleDecoder {
           }
         }
 
-        m match {
-          case MsgPack.MNil | MsgPack.MEmpty => Right(factoryKV.newBuilder.result())
-          case MsgPack.MMap(a)               => loop(a.iterator, factoryKV.newBuilder)
-          case _                             => Left(TypeMismatchError(s"M[K, V]", m))
-        }
+        if (m.isNil || m.isEmpty)
+          Right(factoryKV.newBuilder.result())
+        else
+          m match {
+            case m: MsgPack.MMap => loop(m.iterator, factoryKV.newBuilder)
+            case _               => Left(TypeMismatchError(s"M[K, V]", m))
+          }
       }
     }
 }
