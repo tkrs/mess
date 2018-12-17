@@ -13,6 +13,10 @@ trait Encoder[A] extends Serializable { self =>
   final def contramap[B](f: B => A): Encoder[B] = new Encoder[B] {
     def apply(a: B): MsgPack = self(f(a))
   }
+
+  final def map(f: MsgPack => MsgPack): Encoder[A] = new Encoder[A] {
+    override def apply(a: A): MsgPack = f(self(a))
+  }
 }
 
 object Encoder extends LowPriorityEncoder with TupleEncoder {
