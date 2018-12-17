@@ -203,4 +203,12 @@ class EncoderSpec extends FunSuite with MsgpackHelper {
     val encode = Encoder[Int].contramap[String](_.toInt)
     assert(encode("10") == MsgPack.MInt(10))
   }
+
+  test("mapMsgPack") {
+    val encode = Encoder[Map[String, Option[Int]]].map {
+      case MsgPack.MMap(m) => MsgPack.MMap(m.filterNot(_._2 == MsgPack.MNil))
+      case _               => fail()
+    }
+    assert(encode(Map("a" -> Some(10), "b" -> None)) == MsgPack.mMap(MsgPack.mStr("a") -> MsgPack.mInt(10)))
+  }
 }
