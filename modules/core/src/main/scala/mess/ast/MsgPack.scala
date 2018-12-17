@@ -376,20 +376,20 @@ object MsgPack {
   final val True  = MBool(true)
   final val False = MBool(false)
 
-  def mNil: MsgPack                                        = MNil
-  def mEmpty: MsgPack                                      = MEmpty
-  def mMap(xs: (MsgPack, MsgPack)*): MsgPack               = MMap(mutable.HashMap(xs: _*))
-  def mMap(xs: mutable.HashMap[MsgPack, MsgPack]): MsgPack = MMap(xs)
-  def mArr(xs: MsgPack*): MsgPack                          = MArray(Vector(xs: _*))
-  def mArr(xs: Vector[MsgPack]): MsgPack                   = MArray(xs)
-  def mBool(x: Boolean): MsgPack                           = if (x) True else False
-  def mStr(x: String): MsgPack                             = MString(x)
-  def mBigInt(x: BigInt): MsgPack                          = MBigInt(x)
-  def mByte(x: Byte): MsgPack                              = MByte(x)
-  def mShort(x: Short): MsgPack                            = MShort(x)
-  def mInt(x: Int): MsgPack                                = MInt(x)
-  def mLong(x: Long): MsgPack                              = MLong(x)
-  def mFloat(x: Float): MsgPack                            = MFloat(x)
-  def mDouble(x: Double): MsgPack                          = MDouble(x)
-  def mBin(x: Array[Byte]): MsgPack                        = MBin(x)
+  def mNil: MsgPack                                     = MNil
+  def mEmpty: MsgPack                                   = MEmpty
+  def mMap(xs: (MsgPack, MsgPack)*): MsgPack            = MMap(mutable.HashMap(xs: _*))
+  def mMapFromSeq(xs: Seq[(MsgPack, MsgPack)]): MsgPack = MMap(mutable.HashMap(xs: _*))
+  def mArr(xs: MsgPack*): MsgPack                       = MArray(Vector(xs: _*))
+  def mArrFromVector(xs: Vector[MsgPack]): MsgPack      = MArray(xs)
+  def mBool(x: Boolean): MsgPack                        = if (x) True else False
+  def mStr(x: String): MsgPack                          = MString(x)
+  def mBigInt(x: BigInt): MsgPack                       = MBigInt(x)
+  def mByte(x: Byte): MsgPack                           = MByte(x)
+  def mShort(x: Short): MsgPack                         = MShort(x)
+  def mInt(x: Int): MsgPack                             = MInt(x)
+  def mLong(x: Long): MsgPack                           = MLong(x)
+  def mFloat(x: Float): MsgPack                         = MFloat(x)
+  def mDouble(x: Double): MsgPack                       = MDouble(x)
+  def mBin(x: Array[Byte]): MsgPack                     = MBin(x)
 }

@@ -170,9 +170,9 @@ class EncoderSpec extends FunSuite with MsgpackHelper {
   test("Encoder[Map[A, B]]") {
     check {
       Seq(
-        (('a' to 'z').zip(0 to 14).toMap, MsgPack.mMap(('a' to 'z').zip(0 to 14).map {
+        (('a' to 'z').zip(0 to 14).toMap, MsgPack.mMapFromSeq(('a' to 'z').zip(0 to 14).map {
           case (k, v) => MsgPack.mStr(k.toString) -> MsgPack.mByte(v.toByte)
-        }: _*)),
+        })),
         (Map.empty[Char, Int], MsgPack.mMap())
       )
     }
@@ -182,9 +182,11 @@ class EncoderSpec extends FunSuite with MsgpackHelper {
     import mess.codec.generic.derived._
     check {
       Seq(
-        (('a' to 'z').zip((0 to 14).map(a => Bar(a.toDouble))).toMap, MsgPack.mMap(('a' to 'z').zip(0 to 14).map {
-          case (k, v) => MsgPack.mStr(k.toString) -> MsgPack.mMap(MsgPack.mStr("double") -> MsgPack.mDouble(v.toDouble))
-        }: _*))
+        (('a' to 'z').zip((0 to 14).map(a => Bar(a.toDouble))).toMap,
+         MsgPack.mMapFromSeq(('a' to 'z').zip(0 to 14).map {
+           case (k, v) =>
+             MsgPack.mStr(k.toString) -> MsgPack.mMap(MsgPack.mStr("double") -> MsgPack.mDouble(v.toDouble))
+         }))
       )
     }
   }

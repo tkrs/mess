@@ -94,33 +94,34 @@ object Encoder extends LowPriorityEncoder with TupleEncoder {
 
   implicit final def encodeSeq[A: Encoder]: Encoder[Seq[A]] = new Encoder[Seq[A]] {
     def apply(a: Seq[A]): MsgPack = {
-      MsgPack.mArr(iterLoop(a.iterator, Vector.newBuilder))
+      MsgPack.mArrFromVector(iterLoop(a.iterator, Vector.newBuilder))
     }
   }
 
   implicit final def encodeSet[A: Encoder]: Encoder[Set[A]] = new Encoder[Set[A]] {
     def apply(a: Set[A]): MsgPack = {
-      MsgPack.mArr(iterLoop(a.iterator, Vector.newBuilder))
+      MsgPack.mArrFromVector(iterLoop(a.iterator, Vector.newBuilder))
     }
   }
 
   implicit final def encodeList[A: Encoder]: Encoder[List[A]] = new Encoder[List[A]] {
     def apply(a: List[A]): MsgPack = {
-      MsgPack.mArr(iterLoop(a.iterator, Vector.newBuilder))
+      MsgPack.mArrFromVector(iterLoop(a.iterator, Vector.newBuilder))
     }
   }
 
   implicit final def encodeVector[A: Encoder]: Encoder[Vector[A]] = new Encoder[Vector[A]] {
     def apply(a: Vector[A]): MsgPack = {
-      MsgPack.mArr(iterLoop(a.iterator, Vector.newBuilder))
+      MsgPack.mArrFromVector(iterLoop(a.iterator, Vector.newBuilder))
     }
   }
 
-  @tailrec private[this] def mapLoop[K, V](it: Iterator[(K, V)], acc: mutable.HashMap[MsgPack, MsgPack])(
+  @tailrec private[this] def mapLoop[K, V](it: Iterator[(K, V)],
+                                           acc: mutable.Builder[(MsgPack, MsgPack), Seq[(MsgPack, MsgPack)]])(
       implicit
       K: Encoder[K],
-      V: Encoder[V]): mutable.HashMap[MsgPack, MsgPack] = {
-    if (!it.hasNext) acc
+      V: Encoder[V]): Seq[(MsgPack, MsgPack)] = {
+    if (!it.hasNext) acc.result()
     else {
       val (k, v) = it.next()
       mapLoop(it, acc += K(k) -> V(v))
@@ -132,7 +133,7 @@ object Encoder extends LowPriorityEncoder with TupleEncoder {
                                      V: Encoder[V]): Encoder[Map[K, V]] =
     new Encoder[Map[K, V]] {
       def apply(a: Map[K, V]): MsgPack =
-        MsgPack.mMap(mapLoop(a.iterator, mutable.HashMap.empty))
+        MsgPack.mMapFromSeq(mapLoop(a.iterator, Seq.newBuilder))
     }
 }
 
