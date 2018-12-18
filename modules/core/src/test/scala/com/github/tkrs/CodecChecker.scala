@@ -1,7 +1,8 @@
-package mess
+package com.github.tkrs
 
 import java.time.Instant
 
+import mess._
 import mess.ast.MsgPack
 import mess.codec.generic.derived._
 import org.msgpack.core.MessagePack
@@ -123,20 +124,22 @@ class CodecChecker extends FunSuite with Checkers with MsgpackHelper {
       val fn: Long => Byte        = f(n, _)
 
       val arr = Array(fs(24L), fs(16L), fs(8L), fs(0L), fn(24L), fn(16L), fn(8L), fn(0L))
-      MsgPack.MExtension(Code.EXT8, 8, arr)
+      MsgPack.extension(Code.EXT8, 8, arr)
     }
   }
 
   implicit val decodeInstantAsFluentdEventTime: Decoder[Instant] = new Decoder[Instant] {
-    def apply(a: MsgPack): Decoder.Result[Instant] = a match {
-      case MsgPack.MExtension(Code.EXT8, _, arr) =>
-        val f: (Int, Long) => Long = (i, j) => (arr(i) & 0xff).toLong << j
+    def apply(a: MsgPack): Decoder.Result[Instant] = {
+      a.asExtension match {
+        case Some((Code.EXT8, _, arr)) =>
+          val f: (Int, Long) => Long = (i, j) => (arr(i) & 0xff).toLong << j
 
-        val seconds = f(0, 24L) | f(1, 16L) | f(2, 8L) | f(3, 0L)
-        val nanos   = f(4, 24L) | f(5, 16L) | f(6, 8L) | f(7, 0L)
-        Right(Instant.ofEpochSecond(seconds, nanos))
-      case _ =>
-        Left(TypeMismatchError("Instant", a))
+          val seconds = f(0, 24L) | f(1, 16L) | f(2, 8L) | f(3, 0L)
+          val nanos   = f(4, 24L) | f(5, 16L) | f(6, 8L) | f(7, 0L)
+          Right(Instant.ofEpochSecond(seconds, nanos))
+        case _ =>
+          Left(TypeMismatchError("Instant", a))
+      }
     }
   }
 
