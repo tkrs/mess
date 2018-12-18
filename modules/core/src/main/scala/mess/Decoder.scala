@@ -127,10 +127,10 @@ object Decoder extends LowPriorityDecoder with TupleDecoder {
     }
   }
 
-  implicit def decodeSome[A](implicit A: Decoder[A]): Decoder[Some[A]] =
+  implicit def decodeSome[A](implicit decodeA: Decoder[A]): Decoder[Some[A]] =
     new Decoder[Some[A]] {
       def apply(m: MsgPack): Result[Some[A]] =
-        A(m) match {
+        decodeA(m) match {
           case Right(v) => Right(Some(v))
           case Left(e)  => Left(e)
         }
@@ -143,33 +143,37 @@ object Decoder extends LowPriorityDecoder with TupleDecoder {
 
   implicit def decodeOption[A](implicit A: Decoder[A]): Decoder[Option[A]] =
     new Decoder[Option[A]] {
-      def apply(m: MsgPack): Result[Option[A]] = m match {
-        case MsgPack.MNil | MsgPack.MEmpty => Right(None)
-        case _ =>
+      def apply(m: MsgPack): Result[Option[A]] =
+        if (m.isNil || m.isEmpty)
+          Right(None)
+        else
           A(m) match {
             case Right(v) => Right(Option(v))
             case Left(e)  => Left(e)
           }
-      }
     }
 
-  @inline private[this] def decodeContainer[C[_], A](implicit A: Decoder[A], cbf: Factory[A, C[A]]): Decoder[C[A]] =
+  @inline private[this] def decodeContainer[C[_], A](implicit
+                                                     decodeA: Decoder[A],
+                                                     factoryA: Factory[A, C[A]]): Decoder[C[A]] =
     new Decoder[C[A]] {
       def apply(m: MsgPack): Result[C[A]] = {
         @tailrec def loop(it: Iterator[MsgPack], b: mutable.Builder[A, C[A]]): Result[C[A]] = {
           if (!it.hasNext) Right(b.result())
           else
-            A.apply(it.next()) match {
+            decodeA(it.next()) match {
               case Right(aa) => loop(it, b += aa)
               case Left(e)   => Left(e)
             }
         }
 
-        m match {
-          case MsgPack.MNil | MsgPack.MEmpty => Right(cbf.newBuilder.result())
-          case MsgPack.MArray(a)             => loop(a.iterator, cbf.newBuilder)
-          case _                             => Left(TypeMismatchError(s"C[A]", m))
-        }
+        if (m.isNil || m.isEmpty)
+          Right(factoryA.newBuilder.result())
+        else
+          m.asVector match {
+            case Some(a) => loop(a.iterator, factoryA.newBuilder)
+            case _       => Left(TypeMismatchError(s"C[A]", m))
+          }
       }
     }
 
@@ -179,18 +183,18 @@ object Decoder extends LowPriorityDecoder with TupleDecoder {
   implicit def decodeVector[A: Decoder]: Decoder[Vector[A]] = decodeContainer[Vector, A]
 
   implicit def decodeMapLike[M[_, _] <: Map[K, V], K, V](implicit
-                                                         K: Decoder[K],
-                                                         V: Decoder[V],
-                                                         cbf: Factory[(K, V), M[K, V]]): Decoder[M[K, V]] =
+                                                         decodeK: Decoder[K],
+                                                         decodeV: Decoder[V],
+                                                         factoryKV: Factory[(K, V), M[K, V]]): Decoder[M[K, V]] =
     new Decoder[M[K, V]] {
       def apply(m: MsgPack): Result[M[K, V]] = {
         @tailrec def loop(it: Iterator[(MsgPack, MsgPack)], b: mutable.Builder[(K, V), M[K, V]]): Result[M[K, V]] = {
           if (!it.hasNext) Right(b.result())
           else {
             val (k, v) = it.next()
-            K.apply(k) match {
+            decodeK(k) match {
               case Right(kk) =>
-                V.apply(v) match {
+                decodeV(v) match {
                   case Right(vv) => loop(it, b += kk -> vv)
                   case Left(e)   => Left(e)
                 }
@@ -199,11 +203,13 @@ object Decoder extends LowPriorityDecoder with TupleDecoder {
           }
         }
 
-        m match {
-          case MsgPack.MNil | MsgPack.MEmpty => Right(cbf.newBuilder.result())
-          case MsgPack.MMap(a)               => loop(a.iterator, cbf.newBuilder)
-          case _                             => Left(TypeMismatchError(s"M[K, V]", m))
-        }
+        if (m.isNil || m.isEmpty)
+          Right(factoryKV.newBuilder.result())
+        else
+          m match {
+            case m: MsgPack.MMap => loop(m.iterator, factoryKV.newBuilder)
+            case _               => Left(TypeMismatchError(s"M[K, V]", m))
+          }
       }
     }
 }

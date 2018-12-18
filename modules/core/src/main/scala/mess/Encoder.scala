@@ -119,18 +119,16 @@ object Encoder extends LowPriorityEncoder with TupleEncoder {
   @tailrec private[this] def mapLoop[K, V](it: Iterator[(K, V)],
                                            acc: mutable.Builder[(MsgPack, MsgPack), Seq[(MsgPack, MsgPack)]])(
       implicit
-      K: Encoder[K],
-      V: Encoder[V]): Seq[(MsgPack, MsgPack)] = {
+      encodeK: Encoder[K],
+      encodeV: Encoder[V]): Seq[(MsgPack, MsgPack)] = {
     if (!it.hasNext) acc.result()
     else {
       val (k, v) = it.next()
-      mapLoop(it, acc += K(k) -> V(v))
+      mapLoop(it, acc += encodeK(k) -> encodeV(v))
     }
   }
 
-  implicit final def encodeMap[K, V](implicit
-                                     K: Encoder[K],
-                                     V: Encoder[V]): Encoder[Map[K, V]] =
+  implicit final def encodeMap[K: Encoder, V: Encoder]: Encoder[Map[K, V]] =
     new Encoder[Map[K, V]] {
       def apply(a: Map[K, V]): MsgPack =
         MsgPack.fromPairSeq(mapLoop(a.iterator, Seq.newBuilder))

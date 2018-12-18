@@ -22,14 +22,14 @@ private[mess] trait LowPriorityDerivedEncoder {
 
   implicit final def encodeLabelledHList[K <: Symbol, H, T <: HList](
       implicit
-      K: Witness.Aux[K],
-      S: Encoder[K],
-      H: Encoder[H],
-      T: DerivedEncoder[T]): DerivedEncoder[FieldType[K, H] :: T] =
+      witK: Witness.Aux[K],
+      encodeK: Encoder[K],
+      encodeH: Encoder[H],
+      encodeT: DerivedEncoder[T]): DerivedEncoder[FieldType[K, H] :: T] =
     new DerivedEncoder[FieldType[K, H] :: T] {
       def apply(a: FieldType[K, H] :: T): MsgPack =
-        T(a.tail) match {
-          case tt: MsgPack.MMap => tt.add(S(K.value), H(a.head))
+        encodeT(a.tail) match {
+          case tt: MsgPack.MMap => tt.add(encodeK(witK.value), encodeH(a.head))
           case tt               => tt
         }
     }
@@ -41,20 +41,20 @@ private[mess] trait LowPriorityDerivedEncoder {
 
   implicit final def encodeLabelledCCons[K <: Symbol, L, R <: Coproduct](
       implicit
-      K: Witness.Aux[K],
-      L: Encoder[L],
-      R: DerivedEncoder[R]): DerivedEncoder[FieldType[K, L] :+: R] =
+      witK: Witness.Aux[K],
+      encodeL: Encoder[L],
+      encodeR: DerivedEncoder[R]): DerivedEncoder[FieldType[K, L] :+: R] =
     new DerivedEncoder[FieldType[K, L] :+: R] {
       def apply(a: FieldType[K, L] :+: R): MsgPack = a match {
-        case Inl(h) => MsgPack.MMap(mutable.HashMap.empty += MsgPack.MString(K.value.name) -> L(h))
-        case Inr(t) => R(t)
+        case Inl(h) => MsgPack.MMap(mutable.HashMap.empty += MsgPack.fromString(witK.value.name) -> encodeL(h))
+        case Inr(t) => encodeR(t)
       }
     }
 
   implicit final def encodeGen[A, R](implicit
                                      gen: LabelledGeneric.Aux[A, R],
-                                     R: Lazy[DerivedEncoder[R]]): DerivedEncoder[A] =
+                                     encodeR: Lazy[DerivedEncoder[R]]): DerivedEncoder[A] =
     new DerivedEncoder[A] {
-      def apply(a: A): MsgPack = R.value(gen.to(a))
+      def apply(a: A): MsgPack = encodeR.value(gen.to(a))
     }
 }
