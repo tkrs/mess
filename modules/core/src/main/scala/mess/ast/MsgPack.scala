@@ -289,7 +289,7 @@ object MsgPack {
     def asVector: Option[Vector[MsgPack]]             = Some(a)
   }
 
-  private[mess] final case class MMap(a: mutable.HashMap[MsgPack, MsgPack]) extends MsgPack {
+  private[mess] final case class MMap(a: Map[MsgPack, MsgPack]) extends MsgPack {
     def isNil: Boolean                                = false
     def isEmpty: Boolean                              = false
     def asBoolean: Option[Boolean]                    = None
@@ -304,11 +304,8 @@ object MsgPack {
     def asFloat: Option[Float]                        = None
     def asChar: Option[Char]                          = None
     def asString: Option[String]                      = None
-    def asMap: Option[Map[MsgPack, MsgPack]]          = Some(a.toMap)
+    def asMap: Option[Map[MsgPack, MsgPack]]          = Some(a)
     def asVector: Option[Vector[MsgPack]]             = None
-    def add(k: MsgPack, v: MsgPack): MsgPack = {
-      this.copy(a += k -> v)
-    }
     def pack(acc: MessagePacker): Unit = {
       acc.packMapHeader(a.size)
       a.foreach {
@@ -375,9 +372,9 @@ object MsgPack {
   }
 
   @tailrec private[this] def unpackMap(size: Int,
-                                       acc: mutable.HashMap[MsgPack, MsgPack],
-                                       buffer: MessageUnpacker): mutable.HashMap[MsgPack, MsgPack] = {
-    if (size == 0) acc
+                                       acc: mutable.Builder[(MsgPack, MsgPack), Map[MsgPack, MsgPack]],
+                                       buffer: MessageUnpacker): Map[MsgPack, MsgPack] = {
+    if (size == 0) acc.result()
     else {
       val k = unpack(buffer)
       val v = unpack(buffer)
@@ -438,11 +435,15 @@ object MsgPack {
         case MF.STR8 | MF.STR16 | MF.STR32 | MF.FIXSTR =>
           MsgPack.MString(buffer.unpackString())
         case MF.FIXARRAY | MF.ARRAY16 | MF.ARRAY32 =>
-          val size = buffer.unpackArrayHeader()
-          MsgPack.MArray(unpackArr(size, Vector.newBuilder, buffer))
+          val size    = buffer.unpackArrayHeader()
+          val builder = Vector.newBuilder[MsgPack]
+          builder.sizeHint(size)
+          MsgPack.MArray(unpackArr(size, builder, buffer))
         case MF.FIXMAP | MF.MAP16 | MF.MAP32 =>
-          val size = buffer.unpackMapHeader()
-          MsgPack.MMap(unpackMap(size, mutable.HashMap.empty, buffer))
+          val size    = buffer.unpackMapHeader()
+          val builder = Map.newBuilder[MsgPack, MsgPack]
+          builder.sizeHint(size)
+          MsgPack.MMap(unpackMap(size, builder, buffer))
         case MF.BIN8 | MF.BIN16 | MF.BIN32 =>
           val size = buffer.unpackBinaryHeader()
           MsgPack.MBin(buffer.readPayload(size))
@@ -461,8 +462,9 @@ object MsgPack {
 
   def nil: MsgPack                                        = MNil
   def empty: MsgPack                                      = MEmpty
-  def fromPairs(xs: (MsgPack, MsgPack)*): MsgPack         = MMap(mutable.HashMap(xs: _*))
-  def fromPairSeq(xs: Seq[(MsgPack, MsgPack)]): MsgPack   = MMap(mutable.HashMap(xs: _*))
+  def fromPairs(xs: (MsgPack, MsgPack)*): MsgPack         = MMap(Map(xs: _*))
+  def fromPairSeq(xs: Seq[(MsgPack, MsgPack)]): MsgPack   = MMap(Map(xs: _*))
+  def fromMap(xs: Map[MsgPack, MsgPack]): MsgPack         = MMap(xs)
   def fromValues(xs: MsgPack*): MsgPack                   = MArray(xs.toVector)
   def fromVector(xs: Vector[MsgPack]): MsgPack            = MArray(xs)
   def fromBoolean(x: Boolean): MsgPack                    = if (x) True else False

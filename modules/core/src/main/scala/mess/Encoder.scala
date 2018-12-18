@@ -94,33 +94,40 @@ object Encoder extends LowPriorityEncoder with TupleEncoder {
 
   implicit final def encodeSeq[A: Encoder]: Encoder[Seq[A]] = new Encoder[Seq[A]] {
     def apply(a: Seq[A]): MsgPack = {
-      MsgPack.fromVector(iterLoop(a.iterator, Vector.newBuilder))
+      val builder = Vector.newBuilder[MsgPack]
+      builder.sizeHint(a)
+      MsgPack.fromVector(iterLoop(a.iterator, builder))
     }
   }
 
   implicit final def encodeSet[A: Encoder]: Encoder[Set[A]] = new Encoder[Set[A]] {
     def apply(a: Set[A]): MsgPack = {
-      MsgPack.fromVector(iterLoop(a.iterator, Vector.newBuilder))
+      val builder = Vector.newBuilder[MsgPack]
+      builder.sizeHint(a)
+      MsgPack.fromVector(iterLoop(a.iterator, builder))
     }
   }
 
   implicit final def encodeList[A: Encoder]: Encoder[List[A]] = new Encoder[List[A]] {
     def apply(a: List[A]): MsgPack = {
-      MsgPack.fromVector(iterLoop(a.iterator, Vector.newBuilder))
+      val builder = Vector.newBuilder[MsgPack]
+      builder.sizeHint(a)
+      MsgPack.fromVector(iterLoop(a.iterator, builder))
     }
   }
 
   implicit final def encodeVector[A: Encoder]: Encoder[Vector[A]] = new Encoder[Vector[A]] {
     def apply(a: Vector[A]): MsgPack = {
-      MsgPack.fromVector(iterLoop(a.iterator, Vector.newBuilder))
+      val builder = Vector.newBuilder[MsgPack]
+      MsgPack.fromVector(iterLoop(a.iterator, builder))
     }
   }
 
   @tailrec private[this] def mapLoop[K, V](it: Iterator[(K, V)],
-                                           acc: mutable.Builder[(MsgPack, MsgPack), Seq[(MsgPack, MsgPack)]])(
+                                           acc: mutable.Builder[(MsgPack, MsgPack), Map[MsgPack, MsgPack]])(
       implicit
       encodeK: Encoder[K],
-      encodeV: Encoder[V]): Seq[(MsgPack, MsgPack)] = {
+      encodeV: Encoder[V]): Map[MsgPack, MsgPack] = {
     if (!it.hasNext) acc.result()
     else {
       val (k, v) = it.next()
@@ -130,8 +137,11 @@ object Encoder extends LowPriorityEncoder with TupleEncoder {
 
   implicit final def encodeMap[K: Encoder, V: Encoder]: Encoder[Map[K, V]] =
     new Encoder[Map[K, V]] {
-      def apply(a: Map[K, V]): MsgPack =
-        MsgPack.fromPairSeq(mapLoop(a.iterator, Seq.newBuilder))
+      def apply(a: Map[K, V]): MsgPack = {
+        val builder = Map.newBuilder[MsgPack, MsgPack]
+        builder.sizeHint(a.size)
+        MsgPack.fromMap(mapLoop(a.iterator, builder))
+      }
     }
 }
 
