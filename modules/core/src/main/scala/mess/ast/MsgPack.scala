@@ -380,7 +380,7 @@ object MsgPack {
   def empty: MsgPack                                    = MEmpty
   def fromPairs(xs: (MsgPack, MsgPack)*): MsgPack       = MMap(mutable.HashMap(xs: _*))
   def fromPairSeq(xs: Seq[(MsgPack, MsgPack)]): MsgPack = MMap(mutable.HashMap(xs: _*))
-  def fromValues(xs: MsgPack*): MsgPack                 = MArray(Vector(xs: _*))
+  def fromValues(xs: MsgPack*): MsgPack                 = MArray(xs.toVector)
   def fromVector(xs: Vector[MsgPack]): MsgPack          = MArray(xs)
   def fromBoolean(x: Boolean): MsgPack                  = if (x) True else False
   def fromString(x: String): MsgPack                    = MString(x)
