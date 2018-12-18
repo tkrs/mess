@@ -1,4 +1,4 @@
-package mess.examples
+package com.github.tkrs.example
 
 import mess._
 import mess.ast.MsgPack
