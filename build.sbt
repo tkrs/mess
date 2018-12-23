@@ -13,8 +13,8 @@ ThisBuild / resolvers ++= Seq(
 )
 ThisBuild / libraryDependencies ++= Pkg.forTest(scalaVersion.value) ++ {
   CrossVersion.partialVersion(scalaVersion.value) match {
-    case Some((2, 13)) => Seq(compilerPlugin(Pkg.kindProjector))
-    case _ => Seq(compilerPlugin(Pkg.kindProjector), compilerPlugin(Pkg.macroParadise))
+    case Some((2, 13)) => Nil
+    case _ => Seq(compilerPlugin(Pkg.macroParadise))
   }
 }
 ThisBuild / scalacOptions ++= compilerOptions ++ {

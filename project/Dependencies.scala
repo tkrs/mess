@@ -12,7 +12,6 @@ object Dependencies {
     val scalatest     = "3.0.5"
     val scalatestSnap = "3.0.6-SNAP5"
     val msgpackJava   = "0.8.16"
-    val kindProjector = "0.9.8"
     val macroParadise = "2.1.1"
   }
 
@@ -21,7 +20,6 @@ object Dependencies {
     lazy val exportHook    = "org.typelevel"   %% "export-hook"    % Ver.exportHook
     lazy val scalacheck    = "org.scalacheck"  %% "scalacheck"     % Ver.scalacheck
     lazy val msgpackJava   = "org.msgpack"     % "msgpack-core"    % Ver.msgpackJava
-    lazy val kindProjector = "org.spire-math"  %% "kind-projector" % Ver.kindProjector
     lazy val macroParadise = "org.scalamacros" % "paradise"        % Ver.macroParadise cross CrossVersion.patch
 
     def scalatest(v: String) = "org.scalatest" %% "scalatest" % (if (v == Ver.`scala2.13`) Ver.scalatestSnap else Ver.scalatest)
