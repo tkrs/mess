@@ -35,11 +35,10 @@ object Bench {
     val buffer = MessagePack.DEFAULT_PACKER_CONFIG.newBufferPacker()
     try { encodeA.apply(a).pack(buffer); buffer.toByteArray } finally buffer.close()
   }
-  def fromBytes[A](bytes: Array[Byte])(implicit decodeA: Decoder[A]): A = {
+  def fromBytes[A](bytes: Array[Byte])(implicit decodeA: Decoder[A]): A =
     decodeA.apply(MsgPack.unpack(bytes, MessagePack.DEFAULT_UNPACKER_CONFIG)) match {
       case Right(v) => v; case Left(e) => throw e
     }
-  }
 }
 
 final case class Foo(
@@ -68,14 +67,12 @@ class GenericBench extends Bench {
   private[this] val fooBytes = Bench.toBytes(foo)
 
   @Benchmark
-  def decodeFoo(): Decoder.Result[Foo] = {
+  def decodeFoo(): Decoder.Result[Foo] =
     Decoder[Foo].apply(MsgPack.unpack(fooBytes, MessagePack.DEFAULT_UNPACKER_CONFIG))
-  }
 
   @Benchmark
-  def encodeFoo(): Array[Byte] = {
+  def encodeFoo(): Array[Byte] =
     MsgPack.pack(Encoder[Foo].apply(foo), MessagePack.DEFAULT_PACKER_CONFIG)
-  }
 }
 
 class ContainerBench extends Bench {
@@ -103,52 +100,42 @@ class ContainerBench extends Bench {
   }
 
   @Benchmark
-  def decodeMap(): Decoder.Result[Map[Long, Double]] = {
+  def decodeMap(): Decoder.Result[Map[Long, Double]] =
     Decoder[Map[Long, Double]].apply(MsgPack.unpack(mapBytes, MessagePack.DEFAULT_UNPACKER_CONFIG))
-  }
 
   @Benchmark
-  def encodeMap(): Array[Byte] = {
+  def encodeMap(): Array[Byte] =
     MsgPack.pack(Encoder[Map[Long, Double]].apply(map), MessagePack.DEFAULT_PACKER_CONFIG)
-  }
 
   @Benchmark
-  def decodeSeq(): Decoder.Result[Seq[Long]] = {
+  def decodeSeq(): Decoder.Result[Seq[Long]] =
     Decoder[Seq[Long]].apply(MsgPack.unpack(seqBytes, MessagePack.DEFAULT_UNPACKER_CONFIG))
-  }
 
   @Benchmark
-  def encodeSeq(): Array[Byte] = {
+  def encodeSeq(): Array[Byte] =
     MsgPack.pack(Encoder[Seq[Long]].apply(seq), MessagePack.DEFAULT_PACKER_CONFIG)
-  }
 
   @Benchmark
-  def decodeList(): Decoder.Result[List[Long]] = {
+  def decodeList(): Decoder.Result[List[Long]] =
     Decoder[List[Long]].apply(MsgPack.unpack(seqBytes, MessagePack.DEFAULT_UNPACKER_CONFIG))
-  }
 
   @Benchmark
-  def encodeList(): Array[Byte] = {
+  def encodeList(): Array[Byte] =
     MsgPack.pack(Encoder[List[Long]].apply(list), MessagePack.DEFAULT_PACKER_CONFIG)
-  }
 
   @Benchmark
-  def decodeVector(): Decoder.Result[Vector[Long]] = {
+  def decodeVector(): Decoder.Result[Vector[Long]] =
     Decoder[Vector[Long]].apply(MsgPack.unpack(seqBytes, MessagePack.DEFAULT_UNPACKER_CONFIG))
-  }
 
   @Benchmark
-  def encodeVector(): Array[Byte] = {
+  def encodeVector(): Array[Byte] =
     MsgPack.pack(Encoder[Vector[Long]].apply(vec), MessagePack.DEFAULT_PACKER_CONFIG)
-  }
 
   @Benchmark
-  def decodeSet(): Decoder.Result[Set[Long]] = {
+  def decodeSet(): Decoder.Result[Set[Long]] =
     Decoder[Set[Long]].apply(MsgPack.unpack(seqBytes, MessagePack.DEFAULT_UNPACKER_CONFIG))
-  }
 
   @Benchmark
-  def encodeSet(): Array[Byte] = {
+  def encodeSet(): Array[Byte] =
     MsgPack.pack(Encoder[Set[Long]].apply(set), MessagePack.DEFAULT_PACKER_CONFIG)
-  }
 }

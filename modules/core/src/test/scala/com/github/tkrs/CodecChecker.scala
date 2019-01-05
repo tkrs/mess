@@ -19,10 +19,9 @@ class CodecChecker extends FunSuite with Checkers with MsgpackHelper {
   case class User[F[_]](int: Int, friends: F[User[F]])
   object User {
 
-    private def fix(depth: Int, i: Int, acc: User[List]): User[List] = {
+    private def fix(depth: Int, i: Int, acc: User[List]): User[List] =
       if (depth == 0) acc
       else fix(depth - 1, i + 1, User(i, List(acc)))
-    }
 
     private val genFix: Gen[User[List]] = for {
       depth <- Gen.chooseNum(1, 100)
@@ -129,7 +128,7 @@ class CodecChecker extends FunSuite with Checkers with MsgpackHelper {
   }
 
   implicit val decodeInstantAsFluentdEventTime: Decoder[Instant] = new Decoder[Instant] {
-    def apply(a: MsgPack): Decoder.Result[Instant] = {
+    def apply(a: MsgPack): Decoder.Result[Instant] =
       a.asExtension match {
         case Some((Code.EXT8, _, arr)) =>
           val f: (Int, Long) => Long = (i, j) => (arr(i) & 0xff).toLong << j
@@ -140,7 +139,6 @@ class CodecChecker extends FunSuite with Checkers with MsgpackHelper {
         case _ =>
           Left(TypeMismatchError("Instant", a))
       }
-    }
   }
 
   test("Instant(Extension)")(roundTrip[Instant])

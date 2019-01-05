@@ -16,7 +16,7 @@ class DecoderSpec extends FunSuite with MsgpackHelper {
 
   def decode[A](msg: MsgPack)(implicit A: Decoder[A]): Either[Throwable, A] = A(msg)
 
-  def check[A: Decoder](tc: Seq[(A, MsgPack)]): Unit = {
+  def check[A: Decoder](tc: Seq[(A, MsgPack)]): Unit =
     for ((expected, p) <- tc) {
       decode(p) match {
         case Right(v) =>
@@ -25,7 +25,6 @@ class DecoderSpec extends FunSuite with MsgpackHelper {
           throw e
       }
     }
-  }
 
   test("Decoder[Some[A]]") {
     check {

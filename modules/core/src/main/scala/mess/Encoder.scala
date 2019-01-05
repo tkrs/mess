@@ -93,40 +93,35 @@ object Encoder extends LowPriorityEncoder with TupleEncoder {
     else iterLoop(rem, acc += A(rem.next()))
 
   implicit final def encodeSeq[A: Encoder]: Encoder[Seq[A]] = new Encoder[Seq[A]] {
-    def apply(a: Seq[A]): MsgPack = {
+    def apply(a: Seq[A]): MsgPack =
       MsgPack.fromVector(iterLoop(a.iterator, Vector.newBuilder))
-    }
   }
 
   implicit final def encodeSet[A: Encoder]: Encoder[Set[A]] = new Encoder[Set[A]] {
-    def apply(a: Set[A]): MsgPack = {
+    def apply(a: Set[A]): MsgPack =
       MsgPack.fromVector(iterLoop(a.iterator, Vector.newBuilder))
-    }
   }
 
   implicit final def encodeList[A: Encoder]: Encoder[List[A]] = new Encoder[List[A]] {
-    def apply(a: List[A]): MsgPack = {
+    def apply(a: List[A]): MsgPack =
       MsgPack.fromVector(iterLoop(a.iterator, Vector.newBuilder))
-    }
   }
 
   implicit final def encodeVector[A: Encoder]: Encoder[Vector[A]] = new Encoder[Vector[A]] {
-    def apply(a: Vector[A]): MsgPack = {
+    def apply(a: Vector[A]): MsgPack =
       MsgPack.fromVector(iterLoop(a.iterator, Vector.newBuilder))
-    }
   }
 
   @tailrec private[this] def mapLoop[K, V](it: Iterator[(K, V)],
                                            acc: mutable.Builder[(MsgPack, MsgPack), Seq[(MsgPack, MsgPack)]])(
       implicit
       encodeK: Encoder[K],
-      encodeV: Encoder[V]): Seq[(MsgPack, MsgPack)] = {
+      encodeV: Encoder[V]): Seq[(MsgPack, MsgPack)] =
     if (!it.hasNext) acc.result()
     else {
       val (k, v) = it.next()
       mapLoop(it, acc += encodeK(k) -> encodeV(v))
     }
-  }
 
   implicit final def encodeMap[K: Encoder, V: Encoder]: Encoder[Map[K, V]] =
     new Encoder[Map[K, V]] {

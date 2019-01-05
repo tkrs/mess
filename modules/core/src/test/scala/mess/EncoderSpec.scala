@@ -11,7 +11,7 @@ class EncoderSpec extends FunSuite with MsgpackHelper {
 
   case class Qux(byte: Option[Int])
 
-  def check[A](tc: Seq[(A, MsgPack)])(implicit encodeA: Encoder[A]): Unit = {
+  def check[A](tc: Seq[(A, MsgPack)])(implicit encodeA: Encoder[A]): Unit =
     for ((p, expected) <- tc) {
       packer.clear()
       encodeA(p).pack(packer)
@@ -19,7 +19,6 @@ class EncoderSpec extends FunSuite with MsgpackHelper {
       packer.clear()
       assert(m === expected)
     }
-  }
 
   test("Encoder[Some[A]]") {
     check {
