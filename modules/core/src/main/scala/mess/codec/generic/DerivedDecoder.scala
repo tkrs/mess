@@ -4,7 +4,7 @@ import export._
 import mess.{Decoder, TypeMismatchError}
 import mess.ast.MsgPack
 import shapeless._
-import shapeless.labelled.{FieldType, field}
+import shapeless.labelled.{field, FieldType}
 
 trait DerivedDecoder[A] extends Decoder[A]
 
@@ -49,7 +49,7 @@ private[mess] trait LowPriorityDerivedDecoder {
       implicit
       witK: Witness.Aux[K],
       decodeL: Decoder[L],
-      decodeR: DerivedDecoder[R]): DerivedDecoder[FieldType[K, L] :+: R] = {
+      decodeR: DerivedDecoder[R]): DerivedDecoder[FieldType[K, L] :+: R] =
     new DerivedDecoder[FieldType[K, L] :+: R] {
       override def apply(m: MsgPack): Decoder.Result[FieldType[K, L] :+: R] = m match {
         case MsgPack.MMap(a) =>
@@ -61,7 +61,6 @@ private[mess] trait LowPriorityDerivedDecoder {
         case _ => Left(TypeMismatchError("FieldType[K, L] :+: R", m))
       }
     }
-  }
 
   implicit final def decodeGen[A, R](implicit
                                      gen: LabelledGeneric.Aux[A, R],

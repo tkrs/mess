@@ -306,9 +306,8 @@ object MsgPack {
     def asString: Option[String]                      = None
     def asMap: Option[Map[MsgPack, MsgPack]]          = Some(a.toMap)
     def asVector: Option[Vector[MsgPack]]             = None
-    def add(k: MsgPack, v: MsgPack): MsgPack = {
+    def add(k: MsgPack, v: MsgPack): MsgPack =
       this.copy(a += k -> v)
-    }
     def pack(acc: MessagePacker): Unit = {
       acc.packMapHeader(a.size)
       a.foreach {
@@ -369,21 +368,19 @@ object MsgPack {
 
   @tailrec private[this] def unpackArr(size: Int,
                                        acc: mutable.Builder[MsgPack, Vector[MsgPack]],
-                                       buffer: MessageUnpacker): Vector[MsgPack] = {
+                                       buffer: MessageUnpacker): Vector[MsgPack] =
     if (size == 0) acc.result()
     else unpackArr(size - 1, acc += unpack(buffer), buffer)
-  }
 
   @tailrec private[this] def unpackMap(size: Int,
                                        acc: mutable.HashMap[MsgPack, MsgPack],
-                                       buffer: MessageUnpacker): mutable.HashMap[MsgPack, MsgPack] = {
+                                       buffer: MessageUnpacker): mutable.HashMap[MsgPack, MsgPack] =
     if (size == 0) acc
     else {
       val k = unpack(buffer)
       val v = unpack(buffer)
       unpackMap(size - 1, acc += k -> v, buffer)
     }
-  }
 
   def pack(msgPack: MsgPack, config: MessagePack.PackerConfig): Array[Byte] = {
     val buffer = config.newBufferPacker()
@@ -399,7 +396,7 @@ object MsgPack {
     finally buffer.close()
   }
 
-  def unpack(buffer: MessageUnpacker): MsgPack = {
+  def unpack(buffer: MessageUnpacker): MsgPack =
     if (!buffer.hasNext) MsgPack.MEmpty
     else
       buffer.getNextFormat match {
@@ -454,7 +451,6 @@ object MsgPack {
         case MF.NEVER_USED =>
           throw sys.error("cannot unpack format: NEVER USED")
       }
-  }
 
   private[this] final val True  = MBool(true)
   private[this] final val False = MBool(false)

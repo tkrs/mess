@@ -158,14 +158,13 @@ object Decoder extends LowPriorityDecoder with TupleDecoder {
                                                      factoryA: Factory[A, C[A]]): Decoder[C[A]] =
     new Decoder[C[A]] {
       def apply(m: MsgPack): Result[C[A]] = {
-        @tailrec def loop(it: Iterator[MsgPack], b: mutable.Builder[A, C[A]]): Result[C[A]] = {
+        @tailrec def loop(it: Iterator[MsgPack], b: mutable.Builder[A, C[A]]): Result[C[A]] =
           if (!it.hasNext) Right(b.result())
           else
             decodeA(it.next()) match {
               case Right(aa) => loop(it, b += aa)
               case Left(e)   => Left(e)
             }
-        }
 
         if (m.isNil || m.isEmpty)
           Right(factoryA.newBuilder.result())
@@ -188,7 +187,7 @@ object Decoder extends LowPriorityDecoder with TupleDecoder {
                                                          factoryKV: Factory[(K, V), M[K, V]]): Decoder[M[K, V]] =
     new Decoder[M[K, V]] {
       def apply(m: MsgPack): Result[M[K, V]] = {
-        @tailrec def loop(it: Iterator[(MsgPack, MsgPack)], b: mutable.Builder[(K, V), M[K, V]]): Result[M[K, V]] = {
+        @tailrec def loop(it: Iterator[(MsgPack, MsgPack)], b: mutable.Builder[(K, V), M[K, V]]): Result[M[K, V]] =
           if (!it.hasNext) Right(b.result())
           else {
             val (k, v) = it.next()
@@ -201,7 +200,6 @@ object Decoder extends LowPriorityDecoder with TupleDecoder {
               case Left(e) => Left(e)
             }
           }
-        }
 
         if (m.isNil || m.isEmpty)
           Right(factoryKV.newBuilder.result())
