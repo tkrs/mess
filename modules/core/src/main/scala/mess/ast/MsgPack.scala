@@ -7,41 +7,28 @@ import org.msgpack.core.{MessagePack, MessagePacker, MessageUnpacker, MessageFor
 import scala.annotation.tailrec
 import scala.collection.mutable
 
-sealed trait MsgPack {
+sealed trait MsgPack extends Product with Serializable {
 
   def isNil: Boolean
-
   def isEmpty: Boolean
+
+  def asBoolean: Option[Boolean]
+  def asByteArray: Option[Array[Byte]]
+  def asExtension: Option[(Byte, Int, Array[Byte])]
+  def asByte: Option[Byte]
+  def asShort: Option[Short]
+  def asInt: Option[Int]
+  def asLong: Option[Long]
+  def asBigInt: Option[BigInt]
+  def asDouble: Option[Double]
+  def asFloat: Option[Float]
+  def asChar: Option[Char]
+  def asString: Option[String]
+  def asMap: Option[Map[MsgPack, MsgPack]]
+  def asVector: Option[Vector[MsgPack]]
 
   def pack(acc: MessagePacker): Unit
 
-  def asBoolean: Option[Boolean]
-
-  def asByteArray: Option[Array[Byte]]
-
-  def asExtension: Option[(Byte, Int, Array[Byte])]
-
-  def asByte: Option[Byte]
-
-  def asShort: Option[Short]
-
-  def asInt: Option[Int]
-
-  def asLong: Option[Long]
-
-  def asBigInt: Option[BigInt]
-
-  def asDouble: Option[Double]
-
-  def asFloat: Option[Float]
-
-  def asChar: Option[Char]
-
-  def asString: Option[String]
-
-  def asMap: Option[Map[MsgPack, MsgPack]]
-
-  def asVector: Option[Vector[MsgPack]]
 }
 
 object MsgPack {
