@@ -21,6 +21,7 @@ private[mess] trait LowPriorityDerivedDecoder {
   implicit final def decodeLabelledHList[K <: Symbol, H, T <: HList](
       implicit
       witK: Witness.Aux[K],
+      decodeK: mess.KeyDecoder[K],
       decodeH: Decoder[H],
       decodeT: DerivedDecoder[T]): DerivedDecoder[FieldType[K, H] :: T] =
     new DerivedDecoder[FieldType[K, H] :: T] {
@@ -28,7 +29,8 @@ private[mess] trait LowPriorityDerivedDecoder {
         case MsgPack.MMap(a) =>
           decodeT(m) match {
             case Right(t) =>
-              val v = a.getOrElse(MsgPack.MString(witK.value.name), MsgPack.MNil)
+              val key = decodeK(witK.value)
+              val v   = a.getOrElse(MsgPack.MString(key), MsgPack.MNil)
               decodeH(v) match {
                 case Right(h) => Right(field[K](h) :: t)
                 case Left(e)  => Left(e)
