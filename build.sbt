@@ -20,7 +20,7 @@ ThisBuild / libraryDependencies ++= Pkg.forTest(scalaVersion.value) ++ {
 ThisBuild / scalacOptions ++= compilerOptions ++ {
   CrossVersion.partialVersion(scalaVersion.value) match {
     case Some((2, 13)) => warnCompilerOptions.filterNot(_ == "-Xfatal-warnings") ++ Seq("-Ymacro-annotations")
-    case Some((2, 12)) => warnCompilerOptions :+ "-Yno-adapted-args"
+    case Some((2, 12)) => warnCompilerOptions ++ Seq("-Yno-adapted-args", "-Xfuture")
     case _             => Nil
   }
 }
@@ -29,9 +29,8 @@ lazy val compilerOptions = Seq(
   "-deprecation",
   "-encoding", "UTF-8",
   "-unchecked",
-  "-feature",
   "-language:_",
-  "-Xfuture",
+  "-feature"
 )
 
 lazy val warnCompilerOptions = Seq(
