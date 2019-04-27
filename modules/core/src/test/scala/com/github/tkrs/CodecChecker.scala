@@ -8,8 +8,8 @@ import mess.codec.generic.derived._
 import org.msgpack.core.MessagePack
 import org.msgpack.core.MessagePack.Code
 import org.scalacheck.{Arbitrary, Gen, Prop, Shrink}
-import org.scalatest.prop.Checkers
 import org.scalatest.{Assertion, FunSuite}
+import org.scalatestplus.scalacheck.Checkers
 
 class CodecChecker extends FunSuite with Checkers with MsgpackHelper {
   import MsgpackHelper._
