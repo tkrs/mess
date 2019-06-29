@@ -274,12 +274,14 @@ class DecoderSpec extends FunSuite with MsgpackHelper {
   test("Decoder[Map[A, Bar]]") {
     check {
       Seq(
-        (('a' to 'z').zip((0 to 14).map(a => Bar(a.toDouble))).toMap,
-         MsgPack.fromPairSeq(('a' to 'z').zip(0 to 14).map {
-           case (k, v) =>
-             MsgPack.fromString(k.toString) -> MsgPack.fromPairs(
-               MsgPack.fromString("double") -> MsgPack.fromDouble(v.toDouble))
-         }))
+        (
+          ('a' to 'z').zip((0 to 14).map(a => Bar(a.toDouble))).toMap,
+          MsgPack.fromPairSeq(('a' to 'z').zip(0 to 14).map {
+            case (k, v) =>
+              MsgPack.fromString(k.toString) -> MsgPack
+                .fromPairs(MsgPack.fromString("double") -> MsgPack.fromDouble(v.toDouble))
+          })
+        )
       )
     }
   }
@@ -295,7 +297,8 @@ class DecoderSpec extends FunSuite with MsgpackHelper {
 
   test("Decoder[Qux] failure") {
     assert(
-      decode[Qux](MsgPack.fromString(" ")) === Left(TypeMismatchError("FieldType[K, H] :: T", MsgPack.fromString(" "))))
+      decode[Qux](MsgPack.fromString(" ")) === Left(TypeMismatchError("FieldType[K, H] :: T", MsgPack.fromString(" ")))
+    )
     val a = decode[Qux](MsgPack.fromPairs(MsgPack.fromString("byte") -> MsgPack.fromString(" ")))
     assert(a === Left(TypeMismatchError("Int", MsgPack.fromString(" "))))
   }
@@ -303,12 +306,18 @@ class DecoderSpec extends FunSuite with MsgpackHelper {
   test("Decoder[Z]") {
     check {
       Seq[(Z, MsgPack)](
-        (Z0(1),
-         MsgPack.fromPairs(
-           MsgPack.fromString("Z0") -> MsgPack.fromPairs(MsgPack.fromString("a") -> MsgPack.fromByte(1.toByte)))),
-        (Z1(2),
-         MsgPack.fromPairs(
-           MsgPack.fromString("Z1") -> MsgPack.fromPairs(MsgPack.fromString("b") -> MsgPack.fromByte(2.toByte))))
+        (
+          Z0(1),
+          MsgPack.fromPairs(
+            MsgPack.fromString("Z0") -> MsgPack.fromPairs(MsgPack.fromString("a") -> MsgPack.fromByte(1.toByte))
+          )
+        ),
+        (
+          Z1(2),
+          MsgPack.fromPairs(
+            MsgPack.fromString("Z1") -> MsgPack.fromPairs(MsgPack.fromString("b") -> MsgPack.fromByte(2.toByte))
+          )
+        )
       )
     }
   }

@@ -88,7 +88,8 @@ object Encoder extends LowPriorityEncoder with TupleEncoder {
   }
 
   @tailrec private[this] def iterLoop[A](rem: Iterator[A], acc: mutable.Builder[MsgPack, Vector[MsgPack]])(
-      implicit A: Encoder[A]): Vector[MsgPack] =
+    implicit A: Encoder[A]
+  ): Vector[MsgPack] =
     if (!rem.hasNext) acc.result()
     else iterLoop(rem, acc += A(rem.next()))
 
@@ -112,11 +113,14 @@ object Encoder extends LowPriorityEncoder with TupleEncoder {
       MsgPack.fromVector(iterLoop(a.iterator, Vector.newBuilder))
   }
 
-  @tailrec private[this] def mapLoop[K, V](it: Iterator[(K, V)],
-                                           acc: mutable.Builder[(MsgPack, MsgPack), Seq[(MsgPack, MsgPack)]])(
-      implicit
-      encodeK: Encoder[K],
-      encodeV: Encoder[V]): Seq[(MsgPack, MsgPack)] =
+  @tailrec private[this] def mapLoop[K, V](
+    it: Iterator[(K, V)],
+    acc: mutable.Builder[(MsgPack, MsgPack), Seq[(MsgPack, MsgPack)]]
+  )(
+    implicit
+    encodeK: Encoder[K],
+    encodeV: Encoder[V]
+  ): Seq[(MsgPack, MsgPack)] =
     if (!it.hasNext) acc.result()
     else {
       val (k, v) = it.next()

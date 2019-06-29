@@ -33,7 +33,7 @@ sealed trait MsgPack extends Product with Serializable {
 
 object MsgPack {
 
-  private[mess] final case object MEmpty extends MsgPack {
+  final private[mess] case object MEmpty extends MsgPack {
     def isNil: Boolean                                = false
     def isEmpty: Boolean                              = true
     def pack(acc: MessagePacker): Unit                = ()
@@ -53,7 +53,7 @@ object MsgPack {
     def asVector: Option[Vector[MsgPack]]             = None
   }
 
-  private[mess] final case object MNil extends MsgPack {
+  final private[mess] case object MNil extends MsgPack {
     def isNil: Boolean                                = true
     def isEmpty: Boolean                              = false
     def pack(acc: MessagePacker): Unit                = acc.packNil()
@@ -73,7 +73,7 @@ object MsgPack {
     def asVector: Option[Vector[MsgPack]]             = None
   }
 
-  private[mess] final case class MBool(a: Boolean) extends MsgPack {
+  final private[mess] case class MBool(a: Boolean) extends MsgPack {
     def isNil: Boolean                                = false
     def isEmpty: Boolean                              = false
     def pack(acc: MessagePacker): Unit                = acc.packBoolean(a)
@@ -93,7 +93,7 @@ object MsgPack {
     def asVector: Option[Vector[MsgPack]]             = None
   }
 
-  private[mess] final case class MString(a: String) extends MsgPack {
+  final private[mess] case class MString(a: String) extends MsgPack {
     def isNil: Boolean                                = false
     def isEmpty: Boolean                              = false
     def pack(acc: MessagePacker): Unit                = acc.packString(a)
@@ -113,7 +113,7 @@ object MsgPack {
     def asVector: Option[Vector[MsgPack]]             = None
   }
 
-  private[mess] final case class MByte(a: Byte) extends MsgPack {
+  final private[mess] case class MByte(a: Byte) extends MsgPack {
     def isNil: Boolean                                = false
     def isEmpty: Boolean                              = false
     def pack(acc: MessagePacker): Unit                = acc.packByte(a)
@@ -133,7 +133,7 @@ object MsgPack {
     def asVector: Option[Vector[MsgPack]]             = None
   }
 
-  private[mess] final case class MShort(a: Short) extends MsgPack {
+  final private[mess] case class MShort(a: Short) extends MsgPack {
     def isNil: Boolean                                = false
     def isEmpty: Boolean                              = false
     def pack(acc: MessagePacker): Unit                = acc.packShort(a)
@@ -153,7 +153,7 @@ object MsgPack {
     def asVector: Option[Vector[MsgPack]]             = None
   }
 
-  private[mess] final case class MInt(a: Int) extends MsgPack {
+  final private[mess] case class MInt(a: Int) extends MsgPack {
     def isNil: Boolean                                = false
     def isEmpty: Boolean                              = false
     def pack(acc: MessagePacker): Unit                = acc.packInt(a)
@@ -173,7 +173,7 @@ object MsgPack {
     def asVector: Option[Vector[MsgPack]]             = None
   }
 
-  private[mess] final case class MLong(a: Long) extends MsgPack {
+  final private[mess] case class MLong(a: Long) extends MsgPack {
     def isNil: Boolean                                = false
     def isEmpty: Boolean                              = false
     def pack(acc: MessagePacker): Unit                = acc.packLong(a)
@@ -193,7 +193,7 @@ object MsgPack {
     def asVector: Option[Vector[MsgPack]]             = None
   }
 
-  private[mess] final case class MBigInt(a: BigInt) extends MsgPack {
+  final private[mess] case class MBigInt(a: BigInt) extends MsgPack {
     def isNil: Boolean                                = false
     def isEmpty: Boolean                              = false
     def pack(acc: MessagePacker): Unit                = acc.packBigInteger(a.bigInteger)
@@ -213,7 +213,7 @@ object MsgPack {
     def asVector: Option[Vector[MsgPack]]             = None
   }
 
-  private[mess] final case class MDouble(a: Double) extends MsgPack {
+  final private[mess] case class MDouble(a: Double) extends MsgPack {
     def isNil: Boolean                                = false
     def isEmpty: Boolean                              = false
     def pack(acc: MessagePacker): Unit                = acc.packDouble(a)
@@ -233,7 +233,7 @@ object MsgPack {
     def asVector: Option[Vector[MsgPack]]             = None
   }
 
-  private[mess] final case class MFloat(a: Float) extends MsgPack {
+  final private[mess] case class MFloat(a: Float) extends MsgPack {
     def isNil: Boolean                                = false
     def isEmpty: Boolean                              = false
     def pack(acc: MessagePacker): Unit                = acc.packFloat(a)
@@ -253,7 +253,7 @@ object MsgPack {
     def asVector: Option[Vector[MsgPack]]             = None
   }
 
-  private[mess] final case class MArray(a: Vector[MsgPack]) extends MsgPack {
+  final private[mess] case class MArray(a: Vector[MsgPack]) extends MsgPack {
     def isNil: Boolean   = false
     def isEmpty: Boolean = false
     def pack(acc: MessagePacker): Unit = {
@@ -276,7 +276,7 @@ object MsgPack {
     def asVector: Option[Vector[MsgPack]]             = Some(a)
   }
 
-  private[mess] final case class MMap(a: mutable.HashMap[MsgPack, MsgPack]) extends MsgPack {
+  final private[mess] case class MMap(a: mutable.HashMap[MsgPack, MsgPack]) extends MsgPack {
     def isNil: Boolean                                = false
     def isEmpty: Boolean                              = false
     def asBoolean: Option[Boolean]                    = None
@@ -306,7 +306,7 @@ object MsgPack {
     def iterator: Iterator[(MsgPack, MsgPack)] = a.iterator
   }
 
-  private[mess] final case class MExtension(typ: Byte, size: Int, a: Array[Byte]) extends MsgPack {
+  final private[mess] case class MExtension(typ: Byte, size: Int, a: Array[Byte]) extends MsgPack {
     def isNil: Boolean   = false
     def isEmpty: Boolean = false
     def pack(acc: MessagePacker): Unit = {
@@ -330,7 +330,7 @@ object MsgPack {
     def asVector: Option[Vector[MsgPack]]             = None
   }
 
-  private[mess] final case class MBin(a: Array[Byte]) extends MsgPack {
+  final private[mess] case class MBin(a: Array[Byte]) extends MsgPack {
     def isNil: Boolean   = false
     def isEmpty: Boolean = false
     def pack(acc: MessagePacker): Unit = {
@@ -353,15 +353,19 @@ object MsgPack {
     def asVector: Option[Vector[MsgPack]]             = None
   }
 
-  @tailrec private[this] def unpackArr(size: Int,
-                                       acc: mutable.Builder[MsgPack, Vector[MsgPack]],
-                                       buffer: MessageUnpacker): Vector[MsgPack] =
+  @tailrec private[this] def unpackArr(
+    size: Int,
+    acc: mutable.Builder[MsgPack, Vector[MsgPack]],
+    buffer: MessageUnpacker
+  ): Vector[MsgPack] =
     if (size == 0) acc.result()
     else unpackArr(size - 1, acc += unpack(buffer), buffer)
 
-  @tailrec private[this] def unpackMap(size: Int,
-                                       acc: mutable.HashMap[MsgPack, MsgPack],
-                                       buffer: MessageUnpacker): mutable.HashMap[MsgPack, MsgPack] =
+  @tailrec private[this] def unpackMap(
+    size: Int,
+    acc: mutable.HashMap[MsgPack, MsgPack],
+    buffer: MessageUnpacker
+  ): mutable.HashMap[MsgPack, MsgPack] =
     if (size == 0) acc
     else {
       val k = unpack(buffer)
@@ -439,8 +443,8 @@ object MsgPack {
           throw sys.error("cannot unpack format: NEVER USED")
       }
 
-  private[this] final val True  = MBool(true)
-  private[this] final val False = MBool(false)
+  final private[this] val True  = MBool(true)
+  final private[this] val False = MBool(false)
 
   def nil: MsgPack                                        = MNil
   def empty: MsgPack                                      = MEmpty

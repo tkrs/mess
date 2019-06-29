@@ -21,11 +21,12 @@ private[mess] trait LowPriorityDerivedEncoder {
     }
 
   implicit final def encodeLabelledHList[K <: Symbol, H, T <: HList](
-      implicit
-      witK: Witness.Aux[K],
-      encodeK: Encoder[K],
-      encodeH: Encoder[H],
-      encodeT: DerivedEncoder[T]): DerivedEncoder[FieldType[K, H] :: T] =
+    implicit
+    witK: Witness.Aux[K],
+    encodeK: Encoder[K],
+    encodeH: Encoder[H],
+    encodeT: DerivedEncoder[T]
+  ): DerivedEncoder[FieldType[K, H] :: T] =
     new DerivedEncoder[FieldType[K, H] :: T] {
       def apply(a: FieldType[K, H] :: T): MsgPack =
         encodeT(a.tail) match {
@@ -40,10 +41,11 @@ private[mess] trait LowPriorityDerivedEncoder {
     }
 
   implicit final def encodeLabelledCCons[K <: Symbol, L, R <: Coproduct](
-      implicit
-      witK: Witness.Aux[K],
-      encodeL: Encoder[L],
-      encodeR: DerivedEncoder[R]): DerivedEncoder[FieldType[K, L] :+: R] =
+    implicit
+    witK: Witness.Aux[K],
+    encodeL: Encoder[L],
+    encodeR: DerivedEncoder[R]
+  ): DerivedEncoder[FieldType[K, L] :+: R] =
     new DerivedEncoder[FieldType[K, L] :+: R] {
       def apply(a: FieldType[K, L] :+: R): MsgPack = a match {
         case Inl(h) => MsgPack.MMap(mutable.HashMap.empty += MsgPack.fromString(witK.value.name) -> encodeL(h))
@@ -51,9 +53,11 @@ private[mess] trait LowPriorityDerivedEncoder {
       }
     }
 
-  implicit final def encodeGen[A, R](implicit
-                                     gen: LabelledGeneric.Aux[A, R],
-                                     encodeR: Lazy[DerivedEncoder[R]]): DerivedEncoder[A] =
+  implicit final def encodeGen[A, R](
+    implicit
+    gen: LabelledGeneric.Aux[A, R],
+    encodeR: Lazy[DerivedEncoder[R]]
+  ): DerivedEncoder[A] =
     new DerivedEncoder[A] {
       def apply(a: A): MsgPack = encodeR.value(gen.to(a))
     }

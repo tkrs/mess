@@ -33,7 +33,10 @@ object Bench {
 
   def toBytes[A](a: A)(implicit encodeA: Encoder[A]): Array[Byte] = {
     val buffer = MessagePack.DEFAULT_PACKER_CONFIG.newBufferPacker()
-    try { encodeA.apply(a).pack(buffer); buffer.toByteArray } finally buffer.close()
+    try {
+      encodeA.apply(a).pack(buffer)
+      buffer.toByteArray
+    } finally buffer.close()
   }
   def fromBytes[A](bytes: Array[Byte])(implicit decodeA: Decoder[A]): A =
     decodeA.apply(MsgPack.unpack(bytes, MessagePack.DEFAULT_UNPACKER_CONFIG)) match {
@@ -42,11 +45,11 @@ object Bench {
 }
 
 final case class Foo(
-    hoge: Int,
-    bar: Long,
-    baz: String,
-    yoda: Boolean,
-    quux: Double
+  hoge: Int,
+  bar: Long,
+  baz: String,
+  yoda: Boolean,
+  quux: Double
 )
 object Foo {
   implicit val decodeFoo: Decoder[Foo] = derivedDecoder[Foo]
