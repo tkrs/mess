@@ -16,14 +16,15 @@ object Dependencies {
   }
 
   val Pkg = new {
-    lazy val shapeless     = "com.chuusai"     %% "shapeless"      % Ver.shapeless
-    lazy val exportHook    = "org.typelevel"   %% "export-hook"    % Ver.exportHook
-    lazy val scalacheck    = "org.scalacheck"  %% "scalacheck"     % Ver.scalacheck
-    lazy val msgpackJava   = "org.msgpack"     % "msgpack-core"    % Ver.msgpackJava
-    lazy val macroParadise = "org.scalamacros" % "paradise"        % Ver.macroParadise cross CrossVersion.patch
+    lazy val shapeless     = "com.chuusai" %% "shapeless" % Ver.shapeless
+    lazy val exportHook    = "org.typelevel" %% "export-hook" % Ver.exportHook
+    lazy val scalacheck    = "org.scalacheck" %% "scalacheck" % Ver.scalacheck
+    lazy val msgpackJava   = "org.msgpack" % "msgpack-core" % Ver.msgpackJava
+    lazy val macroParadise = ("org.scalamacros" % "paradise" % Ver.macroParadise).cross(CrossVersion.patch)
 
-    def scalatest(v: String) = "org.scalatest" %% "scalatest" % (if (v == Ver.`scala2.13`) Ver.scalatestSnap else Ver.scalatest)
+    def scalatest(v: String) =
+      "org.scalatest" %% "scalatest" % (if (v == Ver.`scala2.13`) Ver.scalatestSnap else Ver.scalatest)
     def scalaReflect(v: String) = "org.scala-lang" % "scala-reflect" % v % "provided"
-    def forTest(v: String) = Seq(scalatest(v), scalacheck).map(_ % "test")
+    def forTest(v: String)      = Seq(scalatest(v), scalacheck).map(_ % "test")
   }
 }

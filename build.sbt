@@ -5,7 +5,7 @@ ThisBuild / scalaVersion := Ver.`scala2.12`
 ThisBuild / crossScalaVersions := Seq(
   Ver.`scala2.11`,
   Ver.`scala2.12`,
-  Ver.`scala2.13`,
+  Ver.`scala2.13`
 )
 ThisBuild / resolvers ++= Seq(
   Resolver.sonatypeRepo("releases"),
@@ -14,7 +14,7 @@ ThisBuild / resolvers ++= Seq(
 ThisBuild / libraryDependencies ++= Pkg.forTest(scalaVersion.value) ++ {
   CrossVersion.partialVersion(scalaVersion.value) match {
     case Some((2, 13)) => Nil
-    case _ => Seq(compilerPlugin(Pkg.macroParadise))
+    case _             => Seq(compilerPlugin(Pkg.macroParadise))
   }
 }
 ThisBuild / scalacOptions ++= compilerOptions ++ {
@@ -27,7 +27,8 @@ ThisBuild / scalacOptions ++= compilerOptions ++ {
 
 lazy val compilerOptions = Seq(
   "-deprecation",
-  "-encoding", "UTF-8",
+  "-encoding",
+  "UTF-8",
   "-unchecked",
   "-language:_",
   "-feature"
@@ -39,10 +40,11 @@ lazy val warnCompilerOptions = Seq(
   "-Ywarn-extra-implicit",
   "-Ywarn-unused:_",
   "-Ywarn-dead-code",
-  "-Ywarn-numeric-widen",
+  "-Ywarn-numeric-widen"
 )
 
-lazy val mess = project.in(file("."))
+lazy val mess = project
+  .in(file("."))
   .settings(docSettings)
   .settings(publishSettings)
   .settings(noPublishSettings)
@@ -59,18 +61,20 @@ lazy val publishSettings = Seq(
   licenses := Seq("MIT License" -> url("http://www.opensource.org/licenses/mit-license.php")),
   publishMavenStyle := true,
   Test / publishArtifact := false,
-  pomIncludeRepository := { _ => false },
+  pomIncludeRepository := { _ =>
+    false
+  },
   publishTo := {
     val nexus = "https://oss.sonatype.org/"
     if (isSnapshot.value)
-      Some("snapshots" at nexus + "content/repositories/snapshots")
+      Some("snapshots".at(nexus + "content/repositories/snapshots"))
     else
-      Some("releases"  at nexus + "service/local/staging/deploy/maven2")
+      Some("releases".at(nexus + "service/local/staging/deploy/maven2"))
   },
   scmInfo := Some(
     ScmInfo(
       url("https://github.com/tkrs/mess"),
-      "scm:git:git@github.com:tkrs/mess.git",
+      "scm:git:git@github.com:tkrs/mess.git"
     )
   ),
   pomExtra :=
@@ -82,7 +86,7 @@ lazy val publishSettings = Seq(
       </developer>
     </developers>,
   pgpPassphrase := sys.env.get("PGP_PASSPHRASE").map(_.toCharArray),
-  pgpSecretRing := sys.env.get("PGP_SECRET_RING").fold(pgpSecretRing.value)(file),
+  pgpSecretRing := sys.env.get("PGP_SECRET_RING").fold(pgpSecretRing.value)(file)
 )
 
 lazy val noPublishSettings = Seq(
@@ -93,12 +97,12 @@ lazy val crossVersionSharedSources =
   Seq(Compile, Test).map { sc =>
     (sc / unmanagedSourceDirectories) ++= {
       (sc / unmanagedSourceDirectories).value.flatMap { dir: File =>
-        if(dir.getName != "scala") Seq(dir)
+        if (dir.getName != "scala") Seq(dir)
         else
           CrossVersion.partialVersion(scalaVersion.value) match {
             case Some((2, 13)) => Seq(new File(dir.getPath + "_2.13"))
             case Some((2, 12)) => Seq(new File(dir.getPath + "_2.12"))
-            case _ => Seq(new File(dir.getPath + "_2.11"))
+            case _             => Seq(new File(dir.getPath + "_2.11"))
           }
       }
     }
@@ -108,12 +112,13 @@ lazy val docSettings = Seq(
   Compile / doc / sources := {
     CrossVersion.partialVersion(scalaVersion.value) match {
       case Some((2, 13)) => Nil
-      case _ => (Compile / doc / sources).value
+      case _             => (Compile / doc / sources).value
     }
   }
 )
 
-lazy val core = project.in(file("modules/core"))
+lazy val core = project
+  .in(file("modules/core"))
   .settings(docSettings)
   .settings(publishSettings)
   .settings(crossVersionSharedSources)
