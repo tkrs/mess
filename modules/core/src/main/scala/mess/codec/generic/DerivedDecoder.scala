@@ -19,10 +19,11 @@ private[mess] trait LowPriorityDerivedDecoder {
     }
 
   implicit final def decodeLabelledHList[K <: Symbol, H, T <: HList](
-      implicit
-      witK: Witness.Aux[K],
-      decodeH: Decoder[H],
-      decodeT: DerivedDecoder[T]): DerivedDecoder[FieldType[K, H] :: T] =
+    implicit
+    witK: Witness.Aux[K],
+    decodeH: Decoder[H],
+    decodeT: DerivedDecoder[T]
+  ): DerivedDecoder[FieldType[K, H] :: T] =
     new DerivedDecoder[FieldType[K, H] :: T] {
       def apply(m: MsgPack): Decoder.Result[FieldType[K, H] :: T] = m match {
         case MsgPack.MMap(a) =>
@@ -46,10 +47,11 @@ private[mess] trait LowPriorityDerivedDecoder {
     }
 
   implicit final def decodeLabelledCCons[K <: Symbol, L, R <: Coproduct](
-      implicit
-      witK: Witness.Aux[K],
-      decodeL: Decoder[L],
-      decodeR: DerivedDecoder[R]): DerivedDecoder[FieldType[K, L] :+: R] =
+    implicit
+    witK: Witness.Aux[K],
+    decodeL: Decoder[L],
+    decodeR: DerivedDecoder[R]
+  ): DerivedDecoder[FieldType[K, L] :+: R] =
     new DerivedDecoder[FieldType[K, L] :+: R] {
       override def apply(m: MsgPack): Decoder.Result[FieldType[K, L] :+: R] = m match {
         case MsgPack.MMap(a) =>
@@ -62,9 +64,11 @@ private[mess] trait LowPriorityDerivedDecoder {
       }
     }
 
-  implicit final def decodeGen[A, R](implicit
-                                     gen: LabelledGeneric.Aux[A, R],
-                                     decodeR: Lazy[DerivedDecoder[R]]): DerivedDecoder[A] =
+  implicit final def decodeGen[A, R](
+    implicit
+    gen: LabelledGeneric.Aux[A, R],
+    decodeR: Lazy[DerivedDecoder[R]]
+  ): DerivedDecoder[A] =
     new DerivedDecoder[A] {
       def apply(a: MsgPack): Decoder.Result[A] = decodeR.value(a) match {
         case Right(v) => Right(gen.from(v))

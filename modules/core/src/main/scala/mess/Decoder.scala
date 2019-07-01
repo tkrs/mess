@@ -153,9 +153,11 @@ object Decoder extends LowPriorityDecoder with TupleDecoder {
           }
     }
 
-  @inline private[this] def decodeContainer[C[_], A](implicit
-                                                     decodeA: Decoder[A],
-                                                     factoryA: Factory[A, C[A]]): Decoder[C[A]] =
+  @inline private[this] def decodeContainer[C[_], A](
+    implicit
+    decodeA: Decoder[A],
+    factoryA: Factory[A, C[A]]
+  ): Decoder[C[A]] =
     new Decoder[C[A]] {
       def apply(m: MsgPack): Result[C[A]] = {
         @tailrec def loop(it: Iterator[MsgPack], b: mutable.Builder[A, C[A]]): Result[C[A]] =
@@ -181,10 +183,12 @@ object Decoder extends LowPriorityDecoder with TupleDecoder {
   implicit def decodeList[A: Decoder]: Decoder[List[A]]     = decodeContainer[List, A]
   implicit def decodeVector[A: Decoder]: Decoder[Vector[A]] = decodeContainer[Vector, A]
 
-  implicit def decodeMapLike[M[_, _] <: Map[K, V], K, V](implicit
-                                                         decodeK: Decoder[K],
-                                                         decodeV: Decoder[V],
-                                                         factoryKV: Factory[(K, V), M[K, V]]): Decoder[M[K, V]] =
+  implicit def decodeMapLike[M[_, _] <: Map[K, V], K, V](
+    implicit
+    decodeK: Decoder[K],
+    decodeV: Decoder[V],
+    factoryKV: Factory[(K, V), M[K, V]]
+  ): Decoder[M[K, V]] =
     new Decoder[M[K, V]] {
       def apply(m: MsgPack): Result[M[K, V]] = {
         @tailrec def loop(it: Iterator[(MsgPack, MsgPack)], b: mutable.Builder[(K, V), M[K, V]]): Result[M[K, V]] =

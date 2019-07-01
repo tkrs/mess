@@ -205,7 +205,8 @@ class CodecChecker extends FunSuite with Checkers with MsgpackHelper {
     Gen.oneOf(
       Arbitrary.arbitrary[String].map(X.apply),
       Arbitrary.arbitrary[(Int, Long)].map((Y.apply _).tupled)
-    ))
+    )
+  )
 
   test("ADT")(roundTrip[Z])
 }
