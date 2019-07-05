@@ -3,7 +3,6 @@ import Dependencies._
 ThisBuild / organization := "com.github.tkrs"
 ThisBuild / scalaVersion := Ver.`scala2.12`
 ThisBuild / crossScalaVersions := Seq(
-  Ver.`scala2.11`,
   Ver.`scala2.12`,
   Ver.`scala2.13`
 )
@@ -100,9 +99,8 @@ lazy val crossVersionSharedSources =
         if (dir.getName != "scala") Seq(dir)
         else
           CrossVersion.partialVersion(scalaVersion.value) match {
-            case Some((2, 13)) => Seq(new File(dir.getPath + "_2.13"))
-            case Some((2, 12)) => Seq(new File(dir.getPath + "_2.12"))
-            case _             => Seq(new File(dir.getPath + "_2.11"))
+            case Some((2, n)) if n >= 13 => Seq(new File(dir.getPath + "_2.13+"))
+            case _                       => Seq(new File(dir.getPath + "_2.12-"))
           }
       }
     }
