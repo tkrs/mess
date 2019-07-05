@@ -4,8 +4,6 @@ object Dependencies {
   val Ver = new {
     val `scala2.13`   = "2.13.0-RC1"
     val `scala2.12`   = "2.12.8"
-    val `scala2.11`   = "2.11.12"
-    val scalafmt      = "1.5.1"
     val shapeless     = "2.3.3"
     val exportHook    = "1.2.0"
     val scalacheck    = "1.14.0"
@@ -24,7 +22,7 @@ object Dependencies {
 
     def scalatest(v: String) =
       "org.scalatest" %% "scalatest" % (if (v == Ver.`scala2.13`) Ver.scalatestSnap else Ver.scalatest)
-    def scalaReflect(v: String) = "org.scala-lang" % "scala-reflect" % v % "provided"
-    def forTest(v: String)      = Seq(scalatest(v), scalacheck).map(_ % "test")
+    def scalaReflect(v: String) = "org.scala-lang" % "scala-reflect" % v % Provided
+    def forTest(v: String)      = Seq(scalatest(v), scalacheck).map(_ % Test)
   }
 }
