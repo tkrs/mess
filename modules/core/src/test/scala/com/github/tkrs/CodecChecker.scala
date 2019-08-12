@@ -4,7 +4,6 @@ import java.time.Instant
 
 import mess._
 import mess.ast.MsgPack
-import mess.codec.generic.derived._
 import org.msgpack.core.MessagePack
 import org.msgpack.core.MessagePack.Code
 import org.scalacheck.{Arbitrary, Gen, Prop, Shrink}

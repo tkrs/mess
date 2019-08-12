@@ -3,7 +3,6 @@ package mess.bench
 import java.util.concurrent.TimeUnit
 
 import mess.ast.MsgPack
-import mess.codec.generic._
 import mess.{Decoder, Encoder}
 import org.msgpack.core.MessagePack
 import org.openjdk.jmh.annotations._
@@ -52,8 +51,8 @@ final case class Foo(
   quux: Double
 )
 object Foo {
-  implicit val decodeFoo: Decoder[Foo] = derivedDecoder[Foo]
-  implicit val encodeFoo: Encoder[Foo] = derivedEncoder[Foo]
+  val decoder: Decoder[Foo] = Decoder[Foo]
+  val encoder: Encoder[Foo] = Encoder[Foo]
 
   def next(): Foo = Foo(
     9843720,
@@ -76,6 +75,14 @@ class GenericBench extends Bench {
   @Benchmark
   def encodeFoo(): Array[Byte] =
     MsgPack.pack(Encoder[Foo].apply(foo), MessagePack.DEFAULT_PACKER_CONFIG)
+
+  @Benchmark
+  def decodeFooCached(): Decoder.Result[Foo] =
+    Foo.decoder.apply(MsgPack.unpack(fooBytes, MessagePack.DEFAULT_UNPACKER_CONFIG))
+
+  @Benchmark
+  def encodeFooCached(): Array[Byte] =
+    MsgPack.pack(Foo.encoder.apply(foo), MessagePack.DEFAULT_PACKER_CONFIG)
 }
 
 class ContainerBench extends Bench {

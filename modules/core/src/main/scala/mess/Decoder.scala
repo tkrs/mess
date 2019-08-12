@@ -1,8 +1,9 @@
 package mess
 
-import export.imports
 import mess.ast.MsgPack
 import mess.internal.ScalaVersionSpecifics._
+import shapeless._
+import shapeless.labelled.{field, FieldType}
 
 import scala.annotation.tailrec
 import scala.collection.mutable
@@ -36,11 +37,9 @@ trait Decoder[A] extends Serializable { self =>
   }
 }
 
-object Decoder extends LowPriorityDecoder with TupleDecoder {
+object Decoder extends HighPriorityDecoder with TupleDecoder {
 
-  type Result[A] = Either[DecodingFailure, A]
-
-  @inline def apply[A](implicit A: Decoder[A]): Decoder[A] = A
+  def apply[A](implicit A: Decoder[A]): Decoder[A] = A
 
   def lift[A](a: A): Decoder[A] = new Decoder[A] {
     def apply(_m: MsgPack): Result[A] = Right(a)
@@ -49,6 +48,10 @@ object Decoder extends LowPriorityDecoder with TupleDecoder {
   def liftF[A](a: Result[A]): Decoder[A] = new Decoder[A] {
     def apply(_m: MsgPack): Result[A] = a
   }
+}
+
+trait HighPriorityDecoder extends LowPriorityDecoder {
+  type Result[A] = Either[DecodingFailure, A]
 
   implicit val decodeBoolean: Decoder[Boolean] = new Decoder[Boolean] {
     def apply(m: MsgPack): Result[Boolean] = m.asBoolean match {
@@ -216,5 +219,68 @@ object Decoder extends LowPriorityDecoder with TupleDecoder {
     }
 }
 
-@imports[Decoder]
-trait LowPriorityDecoder
+trait LowPriorityDecoder {
+
+  implicit final val decodeHNil: Decoder[HNil] =
+    new Decoder[HNil] {
+      def apply(a: MsgPack): Decoder.Result[HNil] = Right(HNil)
+    }
+
+  implicit final def decodeLabelledHList[K <: Symbol, H, T <: HList](
+    implicit
+    witK: Witness.Aux[K],
+    decodeH: Lazy[Decoder[H]],
+    decodeT: Lazy[Decoder[T]]
+  ): Decoder[FieldType[K, H] :: T] =
+    new Decoder[FieldType[K, H] :: T] {
+      def apply(m: MsgPack): Decoder.Result[FieldType[K, H] :: T] = m match {
+        case MsgPack.MMap(a) =>
+          decodeT.value(m) match {
+            case Right(t) =>
+              val v = a.getOrElse(MsgPack.MString(witK.value.name), MsgPack.MNil)
+              decodeH.value(v) match {
+                case Right(h) => Right(field[K](h) :: t)
+                case Left(e)  => Left(e)
+              }
+            case Left(e) => Left(e)
+          }
+        case _ => Left(TypeMismatchError("FieldType[K, H] :: T", m))
+      }
+    }
+
+  implicit final val decodeCNil: Decoder[CNil] =
+    new Decoder[CNil] {
+      def apply(m: MsgPack): Decoder.Result[CNil] =
+        Left(TypeMismatchError("CNil", m))
+    }
+
+  implicit final def decodeLabelledCCons[K <: Symbol, L, R <: Coproduct](
+    implicit
+    witK: Witness.Aux[K],
+    decodeL: Lazy[Decoder[L]],
+    decodeR: Lazy[Decoder[R]]
+  ): Decoder[FieldType[K, L] :+: R] =
+    new Decoder[FieldType[K, L] :+: R] {
+      def apply(m: MsgPack): Decoder.Result[FieldType[K, L] :+: R] = m match {
+        case MsgPack.MMap(a) =>
+          val v = a.getOrElse(MsgPack.fromString(witK.value.name), MsgPack.MNil)
+          decodeL.value.map(v => Inl(field[K](v))).apply(v) match {
+            case r @ Right(_) => r
+            case Left(_)      => decodeR.value.map(vv => Inr(vv)).apply(m)
+          }
+        case _ => Left(TypeMismatchError("FieldType[K, L] :+: R", m))
+      }
+    }
+
+  implicit final def decodeGen[A, R](
+    implicit
+    gen: LabelledGeneric.Aux[A, R],
+    decodeR: Lazy[Decoder[R]]
+  ): Decoder[A] =
+    new Decoder[A] {
+      def apply(a: MsgPack): Decoder.Result[A] = decodeR.value(a) match {
+        case Right(v) => Right(gen.from(v))
+        case Left(e)  => Left(e)
+      }
+    }
+}

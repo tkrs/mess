@@ -10,16 +10,11 @@ ThisBuild / resolvers ++= Seq(
   Resolver.sonatypeRepo("releases"),
   Resolver.sonatypeRepo("snapshots")
 )
-ThisBuild / libraryDependencies ++= Pkg.forTest(scalaVersion.value) ++ {
-  CrossVersion.partialVersion(scalaVersion.value) match {
-    case Some((2, 13)) => Nil
-    case _             => Seq(compilerPlugin(Pkg.macroParadise))
-  }
-}
+ThisBuild / libraryDependencies ++= Pkg.forTest(scalaVersion.value)
 ThisBuild / scalacOptions ++= compilerOptions ++ {
   CrossVersion.partialVersion(scalaVersion.value) match {
-    case Some((2, 13)) => warnCompilerOptions.filterNot(_ == "-Xfatal-warnings") ++ Seq("-Ymacro-annotations")
-    case Some((2, 12)) => warnCompilerOptions ++ Seq("-Yno-adapted-args", "-Xfuture")
+    case Some((2, 13)) => warnCompilerOptions.filterNot(_ == "-Xfatal-warnings")
+    case Some((2, 12)) => warnCompilerOptions ++ Seq("-Ypartial-unification", "-Yno-adapted-args")
     case _             => Nil
   }
 }
@@ -29,11 +24,12 @@ lazy val compilerOptions = Seq(
   "-encoding",
   "UTF-8",
   "-unchecked",
-  "-language:_",
+  "-language:higherKinds",
   "-feature"
 )
 
 lazy val warnCompilerOptions = Seq(
+  "-Xfuture",
   "-Xlint",
   "-Xfatal-warnings",
   "-Ywarn-extra-implicit",
@@ -128,9 +124,7 @@ lazy val core = project
   .settings(
     libraryDependencies ++= Seq(
       Pkg.msgpackJava,
-      Pkg.shapeless,
-      Pkg.exportHook,
-      Pkg.scalaReflect(scalaVersion.value)
+      Pkg.shapeless
     )
   )
 

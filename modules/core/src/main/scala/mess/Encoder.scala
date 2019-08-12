@@ -1,7 +1,8 @@
 package mess
 
-import export._
 import mess.ast.MsgPack
+import shapeless._
+import shapeless.labelled.FieldType
 
 import scala.annotation.tailrec
 import scala.collection.mutable
@@ -19,19 +20,23 @@ trait Encoder[A] extends Serializable { self =>
   }
 }
 
-object Encoder extends LowPriorityEncoder with TupleEncoder {
+object Encoder extends HighPriorityEncoder with TupleEncoder {
 
-  @inline def apply[A](implicit A: Encoder[A]): Encoder[A] = A
+  def apply[A](implicit A: Encoder[A]): Encoder[A] = A
 
   final def instance[A](fa: A => MsgPack): Encoder[A] = new Encoder[A] {
     def apply(a: A): MsgPack = fa(a)
   }
+}
+
+trait HighPriorityEncoder extends LowPriorityEncoder {
 
   implicit final val encodeBoolean: Encoder[Boolean] = new Encoder[Boolean] {
     def apply(a: Boolean): MsgPack = MsgPack.fromBoolean(a)
   }
 
-  implicit final val encodeBytes: Encoder[Array[Byte]] = Encoder.instance[Array[Byte]](MsgPack.fromBytes)
+  implicit final val encodeBytes: Encoder[Array[Byte]] =
+    Encoder.instance[Array[Byte]](MsgPack.fromBytes)
 
   implicit final val encodeByte: Encoder[Byte] = new Encoder[Byte] {
     def apply(a: Byte): MsgPack = MsgPack.fromByte(a)
@@ -134,5 +139,52 @@ object Encoder extends LowPriorityEncoder with TupleEncoder {
     }
 }
 
-@imports[Encoder]
-trait LowPriorityEncoder
+trait LowPriorityEncoder {
+
+  implicit final val encodeHNil: Encoder[HNil] =
+    new Encoder[HNil] {
+      def apply(a: HNil): MsgPack = MsgPack.MMap(mutable.HashMap.empty)
+    }
+
+  implicit final def encodeLabelledHList[K <: Symbol, H, T <: HList](
+    implicit
+    witK: Witness.Aux[K],
+    encodeK: Encoder[K],
+    encodeH: Encoder[H],
+    encodeT: Lazy[Encoder[T]]
+  ): Encoder[FieldType[K, H] :: T] =
+    new Encoder[FieldType[K, H] :: T] {
+      def apply(a: FieldType[K, H] :: T): MsgPack =
+        encodeT.value(a.tail) match {
+          case tt: MsgPack.MMap => tt.add(encodeK(witK.value), encodeH(a.head))
+          case tt               => tt
+        }
+    }
+
+  implicit final val encodeCNil: Encoder[CNil] =
+    new Encoder[CNil] {
+      def apply(a: CNil): MsgPack = sys.error("Cannot encode CNil")
+    }
+
+  implicit final def encodeLabelledCCons[K <: Symbol, L, R <: Coproduct](
+    implicit
+    witK: Witness.Aux[K],
+    encodeL: Encoder[L],
+    encodeR: Lazy[Encoder[R]]
+  ): Encoder[FieldType[K, L] :+: R] =
+    new Encoder[FieldType[K, L] :+: R] {
+      def apply(a: FieldType[K, L] :+: R): MsgPack = a match {
+        case Inl(h) => MsgPack.MMap(mutable.HashMap.empty += MsgPack.fromString(witK.value.name) -> encodeL(h))
+        case Inr(t) => encodeR.value(t)
+      }
+    }
+
+  implicit final def encodeGen[A, R](
+    implicit
+    gen: LabelledGeneric.Aux[A, R],
+    encodeR: Lazy[Encoder[R]]
+  ): Encoder[A] =
+    new Encoder[A] {
+      def apply(a: A): MsgPack = encodeR.value(gen.to(a))
+    }
+}

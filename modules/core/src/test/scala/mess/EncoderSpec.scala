@@ -178,7 +178,6 @@ class EncoderSpec extends FunSuite with MsgpackHelper {
   }
 
   test("Encoder[Map[A, Bar]]") {
-    import mess.codec.generic.derived._
     check {
       Seq(
         (
@@ -194,7 +193,6 @@ class EncoderSpec extends FunSuite with MsgpackHelper {
   }
 
   test("Encoder[Qux]") {
-    import mess.codec.generic.derived._
     check {
       Seq(
         (Qux(None), MsgPack.fromPairs(MsgPack.fromString("byte")    -> MsgPack.nil)),

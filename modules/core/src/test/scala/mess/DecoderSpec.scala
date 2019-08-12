@@ -2,7 +2,6 @@ package mess
 
 import mess.ast.MsgPack
 import org.scalatest.FunSuite
-import mess.codec.generic.derived._
 
 class DecoderSpec extends FunSuite with MsgpackHelper {
 
@@ -18,7 +17,7 @@ class DecoderSpec extends FunSuite with MsgpackHelper {
 
   def check[A: Decoder](tc: Seq[(A, MsgPack)]): Unit =
     for ((expected, p) <- tc) {
-      decode(p) match {
+      decode[A](p) match {
         case Right(v) =>
           assert(v === expected)
         case Left(e) =>
