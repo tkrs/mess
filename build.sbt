@@ -1,7 +1,7 @@
 import Dependencies._
 
 ThisBuild / organization := "com.github.tkrs"
-ThisBuild / scalaVersion := Ver.`scala2.12`
+ThisBuild / scalaVersion := Ver.`scala2.13`
 ThisBuild / crossScalaVersions := Seq(
   Ver.`scala2.12`,
   Ver.`scala2.13`
@@ -10,7 +10,7 @@ ThisBuild / resolvers ++= Seq(
   Resolver.sonatypeRepo("releases"),
   Resolver.sonatypeRepo("snapshots")
 )
-ThisBuild / libraryDependencies ++= Pkg.forTest(scalaVersion.value)
+ThisBuild / libraryDependencies ++= Seq(Pkg.scalatest, Pkg.scalacheck).map(_ % Test)
 ThisBuild / scalacOptions ++= compilerOptions ++ {
   CrossVersion.partialVersion(scalaVersion.value) match {
     case Some((2, 13)) => warnCompilerOptions.filterNot(_ == "-Xfatal-warnings")
