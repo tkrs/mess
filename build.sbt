@@ -13,8 +13,8 @@ ThisBuild / resolvers ++= Seq(
 ThisBuild / libraryDependencies ++= Seq(Pkg.scalatest, Pkg.scalacheck).map(_ % Test)
 ThisBuild / scalacOptions ++= compilerOptions ++ {
   CrossVersion.partialVersion(scalaVersion.value) match {
-    case Some((2, 13)) => warnCompilerOptions.filterNot(_ == "-Xfatal-warnings")
-    case Some((2, 12)) => warnCompilerOptions ++ Seq("-Ypartial-unification", "-Yno-adapted-args")
+    case Some((2, 13)) => warnCompilerOptions
+    case Some((2, 12)) => warnCompilerOptions ++ Seq("-Xfuture", "-Ypartial-unification", "-Yno-adapted-args")
     case _             => Nil
   }
 }
@@ -29,7 +29,6 @@ lazy val compilerOptions = Seq(
 )
 
 lazy val warnCompilerOptions = Seq(
-  "-Xfuture",
   "-Xlint",
   "-Xfatal-warnings",
   "-Ywarn-extra-implicit",
