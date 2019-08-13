@@ -17,12 +17,7 @@ class DecoderSpec extends FunSuite with MsgpackHelper {
 
   def check[A: Decoder](tc: Seq[(A, MsgPack)]): Unit =
     for ((expected, p) <- tc) {
-      decode[A](p) match {
-        case Right(v) =>
-          assert(v === expected)
-        case Left(e) =>
-          throw e
-      }
+      assert(decode[A](p).toTry.get === expected)
     }
 
   test("Decoder[Some[A]]") {
@@ -330,18 +325,18 @@ class DecoderSpec extends FunSuite with MsgpackHelper {
 
   test("map") {
     val decode = Decoder[String].map(_.toInt)
-    assert(decode(MsgPack.MString("30")).right.get === 30)
+    assert(decode(MsgPack.MString("30")) === Right(30))
   }
 
   test("mapF") {
     val decode = Decoder[String].mapF(a => Right(a.toInt))
-    assert(decode(MsgPack.MString("30")).right.get === 30)
+    assert(decode(MsgPack.MString("30")) === Right(30))
   }
 
   test("flatMap") {
     val decode = Decoder[String]
       .flatMap(a => Decoder.lift(a.toInt))
       .flatMap(a => Decoder.liftF(Right(a.toDouble)))
-    assert(decode(MsgPack.MString("30")).right.get === 30.0)
+    assert(decode(MsgPack.MString("30")) === Right(30.0))
   }
 }
