@@ -7,7 +7,7 @@ object Dependencies {
     val shapeless   = "2.3.3"
     val scalacheck  = "1.14.0"
     val scalatest   = "3.0.8"
-    val msgpackJava = "0.8.16"
+    val msgpackJava = "0.8.17"
   }
 
   val Pkg = new {
@@ -16,6 +16,6 @@ object Dependencies {
     lazy val scalacheck  = "org.scalacheck" %% "scalacheck"  % Ver.scalacheck
     lazy val msgpackJava = "org.msgpack"    % "msgpack-core" % Ver.msgpackJava
 
-    def forTest = Seq(scalatest, scalacheck).map(_ % Test)
+    lazy val forTest = Seq(scalatest, scalacheck).map(_ % Test)
   }
 }
