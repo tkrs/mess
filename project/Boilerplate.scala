@@ -90,14 +90,12 @@ object Boilerplate {
       block"""
       |package mess
       |
-      |import mess.ast.MsgPack
-      |
       |trait TupleEncoder {
         -
         -  implicit def encodeTuple$arity[${`A..N`}](implicit ${`a:F[A]..n:F[N]`("Encoder")}): Encoder[${`(A..N)`}] =
         -    new Encoder[${`(A..N)`}] {
-        -      def apply(xs: ${`(A..N)`}): MsgPack =
-        -        MsgPack.MArray(Vector($expr))
+        -      def apply(xs: ${`(A..N)`}): Fmt =
+        -        Fmt.MArray(Vector($expr))
         -    }
       |}
       """
@@ -118,14 +116,12 @@ object Boilerplate {
       block"""
       |package mess
       |
-      |import mess.ast.MsgPack
-      |
       |trait TupleDecoder {
         -
         -  implicit def decodeTuple$arity[${`A..N`}](implicit ${`a:F[A]..n:F[N]`("Decoder")}): Decoder[${`(A..N)`}] =
         -    new Decoder[${`(A..N)`}] {
-        -      def apply(ma: MsgPack): Decoder.Result[${`(A..N)`}] = ma match {
-        -        case MsgPack.MArray(xs) if xs.size == $arity =>
+        -      def apply(ma: Fmt): Decoder.Result[${`(A..N)`}] = ma match {
+        -        case xs: Fmt.MArray if xs.size == $arity =>
         -          $expr
         -        case _ =>
         -          Left(TypeMismatchError("(${`A..N`})", ma))
