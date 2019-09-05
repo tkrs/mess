@@ -3,7 +3,6 @@ package com.github.tkrs
 import java.time.Instant
 
 import mess._
-import mess.ast.MsgPack
 import org.msgpack.core.MessagePack
 import org.msgpack.core.MessagePack.Code
 import org.scalacheck.{Arbitrary, Gen, Prop, Shrink}
@@ -36,7 +35,7 @@ class CodecChecker extends FunSuite with Checkers with MsgpackHelper {
       ast.pack(packer)
       val bytes    = packer.toByteArray
       val unpacker = MessagePack.DEFAULT_UNPACKER_CONFIG.newUnpacker(bytes)
-      val actual   = decode(MsgPack.unpack(unpacker)).toTry.get
+      val actual   = decode(Fmt.unpack(unpacker)).toTry.get
       packer.clear()
       actual === a
     }))
@@ -114,7 +113,7 @@ class CodecChecker extends FunSuite with Checkers with MsgpackHelper {
   } yield Instant.ofEpochSecond(seconds, nanos))
 
   implicit val encodeInstantAsFluentdEventTime: Encoder[Instant] = new Encoder[Instant] {
-    def apply(a: Instant): MsgPack = {
+    def apply(a: Instant): Fmt = {
       val s = a.getEpochSecond
       val n = a.getNano.toLong
 
@@ -123,14 +122,14 @@ class CodecChecker extends FunSuite with Checkers with MsgpackHelper {
       val fn: Long => Byte        = f(n, _)
 
       val arr = Array(fs(24L), fs(16L), fs(8L), fs(0L), fn(24L), fn(16L), fn(8L), fn(0L))
-      MsgPack.extension(Code.EXT8, 8, arr)
+      Fmt.extension(Code.EXT8, 8, arr)
     }
   }
 
   implicit val decodeInstantAsFluentdEventTime: Decoder[Instant] = new Decoder[Instant] {
-    def apply(a: MsgPack): Decoder.Result[Instant] =
-      a.asExtension match {
-        case Some((Code.EXT8, _, arr)) =>
+    def apply(a: Fmt): Decoder.Result[Instant] =
+      a match {
+        case Fmt.MExtension(Code.EXT8, _, arr) =>
           val f: (Int, Long) => Long = (i, j) => (arr(i) & 0xff).toLong << j
 
           val seconds = f(0, 24L) | f(1, 16L) | f(2, 8L) | f(3, 0L)
@@ -150,7 +149,7 @@ class CodecChecker extends FunSuite with Checkers with MsgpackHelper {
     locally {
       val in       = x"81 a1 61 c0"
       val unpacker = MessagePack.DEFAULT_UNPACKER_CONFIG.newUnpacker(in)
-      val value    = Decoder[Hoge].apply(MsgPack.unpack(unpacker))
+      val value    = Decoder[Hoge].apply(Fmt.unpack(unpacker))
       assert(value === Right(Hoge(None)))
     }
 
@@ -158,19 +157,19 @@ class CodecChecker extends FunSuite with Checkers with MsgpackHelper {
 
     locally {
       val unpacker = MessagePack.DEFAULT_UNPACKER_CONFIG.newUnpacker(in)
-      val value    = Decoder[Option[Map[String, String]]].apply(MsgPack.unpack(unpacker))
+      val value    = Decoder[Option[Map[String, String]]].apply(Fmt.unpack(unpacker))
       assert(value === Right(None))
     }
 
     locally {
       val unpacker = MessagePack.DEFAULT_UNPACKER_CONFIG.newUnpacker(in)
-      val value    = Decoder[Map[String, String]].apply(MsgPack.unpack(unpacker))
+      val value    = Decoder[Map[String, String]].apply(Fmt.unpack(unpacker))
       assert(value === Right(Map.empty))
     }
 
     locally {
       val unpacker = MessagePack.DEFAULT_UNPACKER_CONFIG.newUnpacker(in)
-      val value    = Decoder[Vector[String]].apply(MsgPack.unpack(unpacker))
+      val value    = Decoder[Vector[String]].apply(Fmt.unpack(unpacker))
       assert(value === Right(Vector.empty))
     }
   }
@@ -180,19 +179,19 @@ class CodecChecker extends FunSuite with Checkers with MsgpackHelper {
 
     locally {
       val unpacker = MessagePack.DEFAULT_UNPACKER_CONFIG.newUnpacker(in)
-      val value    = Decoder[Vector[String]].apply(MsgPack.unpack(unpacker))
+      val value    = Decoder[Vector[String]].apply(Fmt.unpack(unpacker))
       assert(value === Right(Vector.empty))
     }
 
     locally {
       val unpacker = MessagePack.DEFAULT_UNPACKER_CONFIG.newUnpacker(in)
-      val value    = Decoder[Map[String, String]].apply(MsgPack.unpack(unpacker))
+      val value    = Decoder[Map[String, String]].apply(Fmt.unpack(unpacker))
       assert(value === Right(Map.empty))
     }
 
     locally {
       val unpacker = MessagePack.DEFAULT_UNPACKER_CONFIG.newUnpacker(in)
-      val value    = Decoder[Option[Hoge]].apply(MsgPack.unpack(unpacker))
+      val value    = Decoder[Option[Hoge]].apply(Fmt.unpack(unpacker))
       assert(value === Right(None))
     }
   }

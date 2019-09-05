@@ -18,6 +18,7 @@ ThisBuild / scalacOptions ++= compilerOptions ++ {
     case _             => Nil
   }
 }
+ThisBuild / scalafmtOnCompile := true
 
 lazy val compilerOptions = Seq(
   "-deprecation",
