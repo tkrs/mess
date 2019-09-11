@@ -24,6 +24,7 @@ cache:
 install:
 - pip install --user codecov
 script:
+- gpg --version
 - |
   if [[ "$TRAVIS_JDK_VERSION" = "openjdk8" && "$TRAVIS_SCALA_VERSION" = 2.12.* ]]; then
     sbt ++$TRAVIS_SCALA_VERSION clean coverage scalafmtCheckAll scalafmtSbtCheck test "examples/run" coverageReport coverageOff && codecov
@@ -32,7 +33,7 @@ script:
   fi
 - |
   if [[ "$TRAVIS_JDK_VERSION" = "openjdk8" && $(cat version.sbt) =~ "-SNAPSHOT" ]]; then
-    export PGP_SECRET_RING="${HOME}/.gnupg/secring.gpg"
+    export PGP_SECRET_RING="${HOME}/.gnupg/pubring.kbx"
     mkdir -p $(dirname "${PGP_SECRET_RING}")
     echo $GPG_KEY | base64 --decode > "${PGP_SECRET_RING}"
     if [ "$TRAVIS_BRANCH" = "master" ]; then
