@@ -10,10 +10,10 @@ import sbt._
   * @author Kevin Wright
   */
 object Boilerplate {
-
   import scala.StringContext._
 
   implicit class BlockHelper(val sc: StringContext) extends AnyVal {
+
     def block(args: Any*): String = {
       val interpolated = sc.standardInterpolator(treatEscapes, args)
       val rawLines     = interpolated.split('\n')
@@ -53,6 +53,7 @@ object Boilerplate {
     def file(root: File): File
     def content(tv: TemplateVals): String
     def range = 1 to maxArity
+
     def body: String = {
       val headerLines = header.split('\n')
       val rawContents = range.map { n =>
@@ -82,6 +83,7 @@ object Boilerplate {
 
   object GenTupleEncoder extends Template {
     def file(root: File) = root / "mess" / "TupleEncoder.scala"
+
     def content(tv: TemplateVals) = {
       import tv._
 
@@ -104,6 +106,7 @@ object Boilerplate {
 
   object GenTupleDecoder extends Template {
     def file(root: File) = root / "mess" / "TupleDecoder.scala"
+
     def content(tv: TemplateVals) = {
       import tv._
 
