@@ -14,6 +14,7 @@ trait Decoder[A] extends Serializable { self =>
   def apply(m: Fmt): Decoder.Result[A]
 
   final def map[B](f: A => B): Decoder[B] = new Decoder[B] {
+
     def apply(m: Fmt): Decoder.Result[B] =
       self(m) match {
         case Right(v) => Right(f(v))
@@ -22,6 +23,7 @@ trait Decoder[A] extends Serializable { self =>
   }
 
   final def mapF[B](f: A => Decoder.Result[B]): Decoder[B] = new Decoder[B] {
+
     def apply(m: Fmt): Decoder.Result[B] =
       self(m) match {
         case Right(v) => f(v)
@@ -30,6 +32,7 @@ trait Decoder[A] extends Serializable { self =>
   }
 
   final def flatMap[B](f: A => Decoder[B]): Decoder[B] = new Decoder[B] {
+
     def apply(m: Fmt): Decoder.Result[B] =
       self(m) match {
         case Right(v) => f(v).apply(m)
@@ -39,7 +42,6 @@ trait Decoder[A] extends Serializable { self =>
 }
 
 object Decoder extends Decoder1 with TupleDecoder {
-
   def apply[A](implicit A: Decoder[A]): Decoder[A] = A
 
   def lift[A](a: A): Decoder[A] = new Decoder[A] {
@@ -59,6 +61,7 @@ trait Decoder1 extends Decoder2 {
   }
 
   implicit val decodeBoolean: Decoder[Boolean] = new Decoder[Boolean] {
+
     def apply(m: Fmt): Result[Boolean] = m match {
       case a: Fmt.MBool => Right(a.value)
       case _            => Left(TypeMismatchError("Boolean", m))
@@ -66,6 +69,7 @@ trait Decoder1 extends Decoder2 {
   }
 
   implicit val decodeBytes: Decoder[Array[Byte]] = new Decoder[Array[Byte]] {
+
     def apply(m: Fmt): Result[Array[Byte]] = m match {
       case a: Fmt.MExtension => Right(a.value)
       case a: Fmt.MBin       => Right(a.value)
@@ -75,6 +79,7 @@ trait Decoder1 extends Decoder2 {
   }
 
   implicit val decodeByte: Decoder[Byte] = new Decoder[Byte] {
+
     def apply(m: Fmt): Result[Byte] = m match {
       case a: Fmt.MNumber => Right(a.asByte)
       case _              => Left(TypeMismatchError("Byte", m))
@@ -82,6 +87,7 @@ trait Decoder1 extends Decoder2 {
   }
 
   implicit val decodeShort: Decoder[Short] = new Decoder[Short] {
+
     def apply(m: Fmt): Result[Short] = m match {
       case a: Fmt.MNumber => Right(a.asShort)
       case _              => Left(TypeMismatchError("Short", m))
@@ -89,6 +95,7 @@ trait Decoder1 extends Decoder2 {
   }
 
   implicit val decodeInt: Decoder[Int] = new Decoder[Int] {
+
     def apply(m: Fmt): Result[Int] = m match {
       case a: Fmt.MNumber => Right(a.asInt)
       case _              => Left(TypeMismatchError("Int", m))
@@ -96,6 +103,7 @@ trait Decoder1 extends Decoder2 {
   }
 
   implicit val decodeLong: Decoder[Long] = new Decoder[Long] {
+
     def apply(m: Fmt): Result[Long] = m match {
       case a: Fmt.MNumber => Right(a.asLong)
       case _              => Left(TypeMismatchError("Long", m))
@@ -103,6 +111,7 @@ trait Decoder1 extends Decoder2 {
   }
 
   implicit val decodeBigInt: Decoder[BigInt] = new Decoder[BigInt] {
+
     def apply(m: Fmt): Result[BigInt] = m match {
       case a: Fmt.MNumber => Right(a.asBigInt)
       case _              => Left(TypeMismatchError("BigInt", m))
@@ -110,6 +119,7 @@ trait Decoder1 extends Decoder2 {
   }
 
   implicit val decodeDouble: Decoder[Double] = new Decoder[Double] {
+
     def apply(m: Fmt): Result[Double] = m match {
       case a: Fmt.MNumber => Right(a.asDouble)
       case _              => Left(TypeMismatchError("Double", m))
@@ -117,6 +127,7 @@ trait Decoder1 extends Decoder2 {
   }
 
   implicit val decodeFloat: Decoder[Float] = new Decoder[Float] {
+
     def apply(m: Fmt): Result[Float] = m match {
       case a: Fmt.MNumber => Right(a.asFloat)
       case _              => Left(TypeMismatchError("Float", m))
@@ -124,6 +135,7 @@ trait Decoder1 extends Decoder2 {
   }
 
   implicit val decodeChar: Decoder[Char] = new Decoder[Char] {
+
     def apply(m: Fmt): Result[Char] = m match {
       case Fmt.MString(a) if a.length == 1 => Right(a.head)
       case _                               => Left(TypeMismatchError("Char", m))
@@ -131,6 +143,7 @@ trait Decoder1 extends Decoder2 {
   }
 
   implicit val decodeString: Decoder[String] = new Decoder[String] {
+
     def apply(m: Fmt): Result[String] = m match {
       case Fmt.MString(a) => Right(a)
       case _              => Left(TypeMismatchError("String", m))
@@ -139,6 +152,7 @@ trait Decoder1 extends Decoder2 {
 
   implicit def decodeSome[A](implicit decodeA: Decoder[A]): Decoder[Some[A]] =
     new Decoder[Some[A]] {
+
       def apply(m: Fmt): Result[Some[A]] =
         decodeA(m) match {
           case Right(v) => Right(Some(v))
@@ -153,6 +167,7 @@ trait Decoder1 extends Decoder2 {
 
   implicit def decodeOption[A](implicit A: Decoder[A]): Decoder[Option[A]] =
     new Decoder[Option[A]] {
+
       def apply(m: Fmt): Result[Option[A]] =
         if (m == Fmt.MNil || m == Fmt.MUnit)
           Right(None)
@@ -169,6 +184,7 @@ trait Decoder1 extends Decoder2 {
     factoryA: Factory[A, C[A]]
   ): Decoder[C[A]] =
     new Decoder[C[A]] {
+
       def apply(m: Fmt): Result[C[A]] = {
         @tailrec def loop(it: Iterator[Fmt], b: mutable.Builder[A, C[A]]): Result[C[A]] =
           if (!it.hasNext) Right(b.result())
@@ -200,6 +216,7 @@ trait Decoder1 extends Decoder2 {
     factoryKV: Factory[(K, V), M[K, V]]
   ): Decoder[M[K, V]] =
     new Decoder[M[K, V]] {
+
       def apply(m: Fmt): Result[M[K, V]] = {
         @tailrec def loop(it: Iterator[(Fmt, Fmt)], b: mutable.Builder[(K, V), M[K, V]]): Result[M[K, V]] =
           if (!it.hasNext) Right(b.result())
@@ -240,6 +257,7 @@ trait Decoder2 {
     decodeT: Lazy[Decoder[T]]
   ): Decoder[FieldType[K, H] :: T] =
     new Decoder[FieldType[K, H] :: T] {
+
       def apply(m: Fmt): Decoder.Result[FieldType[K, H] :: T] = m match {
         case a: Fmt.MMap =>
           decodeT.value(m) match {
@@ -257,6 +275,7 @@ trait Decoder2 {
 
   implicit final val decodeCNil: Decoder[CNil] =
     new Decoder[CNil] {
+
       def apply(m: Fmt): Decoder.Result[CNil] =
         Left(TypeMismatchError("CNil", m))
     }
@@ -268,6 +287,7 @@ trait Decoder2 {
     decodeR: Lazy[Decoder[R]]
   ): Decoder[FieldType[K, L] :+: R] =
     new Decoder[FieldType[K, L] :+: R] {
+
       def apply(m: Fmt): Decoder.Result[FieldType[K, L] :+: R] = m match {
         case a: Fmt.MMap =>
           val v = a.get(Fmt.fromString(witK.value.name)).getOrElse(Fmt.MNil)
@@ -285,6 +305,7 @@ trait Decoder2 {
     decodeR: Lazy[Decoder[R]]
   ): Decoder[A] =
     new Decoder[A] {
+
       def apply(a: Fmt): Decoder.Result[A] = decodeR.value(a) match {
         case Right(v) => Right(gen.from(v))
         case Left(e)  => Left(e)

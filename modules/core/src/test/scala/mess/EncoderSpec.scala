@@ -4,7 +4,6 @@ import org.scalatest.FunSuite
 import org.msgpack.core.MessagePack
 
 class EncoderSpec extends FunSuite with MsgpackHelper {
-
   case class Bar(double: Double)
   case class Foo(int: Int, str: String, bar: Bar)
 

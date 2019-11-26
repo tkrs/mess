@@ -3,7 +3,6 @@ package mess
 import org.scalatest.FunSuite
 
 class DecoderSpec extends FunSuite with MsgpackHelper {
-
   case class Bar(double: Double)
   case class Foo(int: Int, str: String, bar: Bar)
   case class Qux(byte: Option[Int])

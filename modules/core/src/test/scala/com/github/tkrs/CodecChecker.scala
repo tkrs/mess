@@ -15,6 +15,7 @@ class CodecChecker extends FunSuite with Checkers with MsgpackHelper {
   implicit val arbBigInt: Arbitrary[BigInt] = Arbitrary(gen.genBigInt)
 
   case class User[F[_]](int: Int, friends: F[User[F]])
+
   object User {
 
     private def fix(depth: Int, i: Int, acc: User[List]): User[List] =
@@ -113,6 +114,7 @@ class CodecChecker extends FunSuite with Checkers with MsgpackHelper {
   } yield Instant.ofEpochSecond(seconds, nanos))
 
   implicit val encodeInstantAsFluentdEventTime: Encoder[Instant] = new Encoder[Instant] {
+
     def apply(a: Instant): Fmt = {
       val s = a.getEpochSecond
       val n = a.getNano.toLong
@@ -127,6 +129,7 @@ class CodecChecker extends FunSuite with Checkers with MsgpackHelper {
   }
 
   implicit val decodeInstantAsFluentdEventTime: Decoder[Instant] = new Decoder[Instant] {
+
     def apply(a: Fmt): Decoder.Result[Instant] =
       a match {
         case Fmt.MExtension(Code.EXT8, _, arr) =>
@@ -145,7 +148,6 @@ class CodecChecker extends FunSuite with Checkers with MsgpackHelper {
   case class Hoge(a: Option[Int])
 
   test("null should be converted to the empty value of the corresponding data types") {
-
     locally {
       val in       = x"81 a1 61 c0"
       val unpacker = MessagePack.DEFAULT_UNPACKER_CONFIG.newUnpacker(in)

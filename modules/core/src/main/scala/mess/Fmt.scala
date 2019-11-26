@@ -24,16 +24,20 @@ object Fmt {
 
   case object MNil extends Fmt {
     def isNil: Boolean = true
+
     def pack(buffer: MessagePacker): Unit =
       buffer.packNil()
   }
 
   sealed abstract class MBool(val value: Boolean) extends Fmt {
     def isNil: Boolean = false
+
     def pack(buffer: MessagePacker): Unit =
       buffer.packBoolean(value)
   }
+
   object MBool {
+
     def apply(value: Boolean): MBool =
       if (value) True else False
 
@@ -54,6 +58,7 @@ object Fmt {
   }
 
   final case class MByte(value: Byte) extends MNumber {
+
     def pack(buffer: MessagePacker): Unit =
       buffer.packByte(value)
     def asByte: Byte     = value
@@ -64,7 +69,9 @@ object Fmt {
     def asFloat: Float   = value.toFloat
     def asDouble: Double = value.toDouble
   }
+
   final case class MShort(value: Short) extends MNumber {
+
     def pack(buffer: MessagePacker): Unit =
       buffer.packShort(value)
     def asByte: Byte     = value.toByte
@@ -75,7 +82,9 @@ object Fmt {
     def asFloat: Float   = value.toFloat
     def asDouble: Double = value.toDouble
   }
+
   final case class MInt(value: Int) extends MNumber {
+
     def pack(buffer: MessagePacker): Unit =
       buffer.packInt(value)
     def asByte: Byte     = value.toByte
@@ -86,7 +95,9 @@ object Fmt {
     def asFloat: Float   = value.toFloat
     def asDouble: Double = value.toDouble
   }
+
   final case class MLong(value: Long) extends MNumber {
+
     def pack(buffer: MessagePacker): Unit =
       buffer.packLong(value)
     def asByte: Byte     = value.toByte
@@ -97,7 +108,9 @@ object Fmt {
     def asFloat: Float   = value.toFloat
     def asDouble: Double = value.toDouble
   }
+
   final case class MBigInt(value: BigInt) extends MNumber {
+
     def pack(buffer: MessagePacker): Unit =
       buffer.packBigInteger(value.bigInteger)
     def asByte: Byte     = value.toByte
@@ -108,7 +121,9 @@ object Fmt {
     def asFloat: Float   = value.toFloat
     def asDouble: Double = value.toDouble
   }
+
   final case class MFloat(value: Float) extends MNumber {
+
     def pack(buffer: MessagePacker): Unit =
       buffer.packFloat(value)
     def asByte: Byte     = value.toByte
@@ -119,7 +134,9 @@ object Fmt {
     def asFloat: Float   = value
     def asDouble: Double = value.toDouble
   }
+
   final case class MDouble(value: Double) extends MNumber {
+
     def pack(buffer: MessagePacker): Unit =
       buffer.packDouble(value)
     def asByte: Byte     = value.toByte
@@ -140,8 +157,10 @@ object Fmt {
     def pack(buffer: MessagePacker): Unit =
       buffer.packString(value)
   }
+
   final case class MBin(value: Array[Byte]) extends Fmt {
     def isNil: Boolean = false
+
     def pack(buffer: MessagePacker): Unit = {
       val a = value
       buffer.packBinaryHeader(a.length)
@@ -151,6 +170,7 @@ object Fmt {
 
   final case class MExtension(typ: Byte, size: Int, value: Array[Byte]) extends Fmt {
     def isNil: Boolean = false
+
     def pack(buffer: MessagePacker): Unit = {
       buffer.packExtensionTypeHeader(typ, size)
       buffer.writePayload(value)
@@ -174,10 +194,13 @@ object Fmt {
   }
 
   object MMap {
+
     def apply(value: immutable.Map[Fmt, Fmt]): MMap =
       Impl(value)
+
     def from(entries: (Fmt, Fmt)*): MMap =
       Impl(immutable.Map(entries: _*))
+
     private[mess] def newBuilder: MMap =
       BuilderImpl(Map.newBuilder)
 
@@ -186,12 +209,16 @@ object Fmt {
       def isEmpty: Boolean           = value.isEmpty
       def get(key: Fmt): Option[Fmt] = value.get(key)
       def +(entry: (Fmt, Fmt)): MMap = Impl(value + entry)
+
       def ++(other: MMap): MMap =
         if (other.isEmpty) this else Impl(other.value ++ value)
+
       def map(f: ((Fmt, Fmt)) => (Fmt, Fmt)): MMap =
         if (value.isEmpty) this else Impl(value.map(f))
+
       def foreach(f: ((Fmt, Fmt)) => Unit): Unit =
         value.foreach(f)
+
       def flatMap(f: ((Fmt, Fmt)) => MMap): MMap = {
         val it = value.iterator
         @tailrec def go(acc: MMap): MMap =
@@ -223,6 +250,7 @@ object Fmt {
         underlying += entry
         this
       }
+
       def ++(other: MMap): MMap =
         if (other.isEmpty) this
         else {
@@ -232,8 +260,10 @@ object Fmt {
 
       def map(f: ((Fmt, Fmt)) => (Fmt, Fmt)): MMap =
         if (value.isEmpty) this else Impl(value.map(f))
+
       def foreach(f: ((Fmt, Fmt)) => Unit): Unit =
         value.foreach(f)
+
       def flatMap(f: ((Fmt, Fmt)) => MMap): MMap = {
         val it = value.iterator
         @tailrec def go(acc: MMap): MMap =
@@ -274,26 +304,35 @@ object Fmt {
     final private case class Impl(value: Vector[Fmt]) extends MArray {
       def apply(key: Int): Fmt = value(key)
       def isEmpty: Boolean     = value.isEmpty
+
       def get(key: Int): Option[Fmt] =
         if (value.size >= key || 0 > key) None else Some(value(key))
+
       def +(entry: Fmt): MArray =
         MArray(value :+ entry)
+
       def ++(other: MArray): MArray =
         if (other.isEmpty) this else MArray(value ++ other.value)
+
       def map(f: Fmt => Fmt): MArray =
         if (value.isEmpty) this else MArray(value.map(f))
+
       def foreach(f: Fmt => Unit): Unit =
         value.foreach(f)
+
       def flatMap(f: Fmt => MArray): MArray = {
         val it = value.iterator
         @tailrec def go(acc: MArray): MArray =
           if (!it.hasNext) acc else go(acc ++ f(it.next()))
         if (value.isEmpty) this else go(MArray(Vector.empty))
       }
+
       def iterator: Iterator[Fmt] =
         value.iterator
+
       def :+(elem: Fmt): MArray =
         MArray(value.:+(elem))
+
       def +:(elem: Fmt): MArray =
         MArray(value.+:(elem))
 

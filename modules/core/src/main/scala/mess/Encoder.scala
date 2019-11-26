@@ -20,7 +20,6 @@ trait Encoder[A] extends Serializable { self =>
 }
 
 object Encoder extends Encoder1 with TupleEncoder {
-
   def apply[A](implicit A: Encoder[A]): Encoder[A] = A
 
   final def instance[A](fa: A => Fmt): Encoder[A] = new Encoder[A] {
@@ -78,6 +77,7 @@ trait Encoder1 extends Encoder2 {
   }
 
   implicit final def encodeOption[A](implicit A: Encoder[A]): Encoder[Option[A]] = new Encoder[Option[A]] {
+
     def apply(a: Option[A]): Fmt = a match {
       case Some(v) => A(v)
       case None    => Fmt.MNil
@@ -98,21 +98,25 @@ trait Encoder1 extends Encoder2 {
     else iterLoop(rem, acc += A(rem.next()))
 
   implicit final def encodeSeq[A: Encoder]: Encoder[Seq[A]] = new Encoder[Seq[A]] {
+
     def apply(a: Seq[A]): Fmt =
       Fmt.fromVector(iterLoop(a.iterator, Vector.newBuilder))
   }
 
   implicit final def encodeSet[A: Encoder]: Encoder[Set[A]] = new Encoder[Set[A]] {
+
     def apply(a: Set[A]): Fmt =
       Fmt.fromVector(iterLoop(a.iterator, Vector.newBuilder))
   }
 
   implicit final def encodeList[A: Encoder]: Encoder[List[A]] = new Encoder[List[A]] {
+
     def apply(a: List[A]): Fmt =
       Fmt.fromVector(iterLoop(a.iterator, Vector.newBuilder))
   }
 
   implicit final def encodeVector[A: Encoder]: Encoder[Vector[A]] = new Encoder[Vector[A]] {
+
     def apply(a: Vector[A]): Fmt =
       Fmt.fromVector(iterLoop(a.iterator, Vector.newBuilder))
   }
@@ -133,6 +137,7 @@ trait Encoder1 extends Encoder2 {
 
   implicit final def encodeMap[K: Encoder, V: Encoder]: Encoder[Map[K, V]] =
     new Encoder[Map[K, V]] {
+
       def apply(a: Map[K, V]): Fmt =
         Fmt.fromEntries(mapLoop(a.iterator, Seq.newBuilder): _*)
     }
@@ -153,6 +158,7 @@ trait Encoder2 {
     encodeT: Lazy[Encoder[T]]
   ): Encoder[FieldType[K, H] :: T] =
     new Encoder[FieldType[K, H] :: T] {
+
       def apply(a: FieldType[K, H] :: T): Fmt =
         encodeT.value(a.tail) match {
           case tt: Fmt.MMap => tt + (encodeK(witK.value) -> encodeH(a.head))
@@ -172,6 +178,7 @@ trait Encoder2 {
     encodeR: Lazy[Encoder[R]]
   ): Encoder[FieldType[K, L] :+: R] =
     new Encoder[FieldType[K, L] :+: R] {
+
       def apply(a: FieldType[K, L] :+: R): Fmt = a match {
         case Inl(h) => Fmt.fromEntries(Fmt.fromString(witK.value.name) -> encodeL(h))
         case Inr(t) => encodeR.value(t)

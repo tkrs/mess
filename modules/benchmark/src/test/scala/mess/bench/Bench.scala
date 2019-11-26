@@ -27,6 +27,7 @@ import org.openjdk.jmh.annotations._
   )
 )
 abstract class Bench
+
 object Bench {
 
   def toBytes[A](a: A)(implicit encodeA: Encoder[A]): Array[Byte] = {
@@ -36,6 +37,7 @@ object Bench {
       buffer.toByteArray
     } finally buffer.close()
   }
+
   def fromBytes[A](bytes: Array[Byte])(implicit decodeA: Decoder[A]): A =
     decodeA.apply(Fmt.unpack(bytes, MessagePack.DEFAULT_UNPACKER_CONFIG)) match {
       case Right(v) => v; case Left(e) => throw e
@@ -49,6 +51,7 @@ final case class Foo(
   yoda: Boolean,
   quux: Double
 )
+
 object Foo {
   val decoder: Decoder[Foo] = Decoder[Foo]
   val encoder: Encoder[Foo] = Encoder[Foo]
@@ -63,7 +66,6 @@ object Foo {
 }
 
 class GenericBench extends Bench {
-
   private[this] val foo      = Foo.next()
   private[this] val fooBytes = Bench.toBytes(foo)
 

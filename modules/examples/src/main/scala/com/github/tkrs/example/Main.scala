@@ -8,7 +8,6 @@ final case class Foo(age: Int, name: String)
 final case class Bar(foos: List[Foo])
 
 object Main extends App {
-
   val bar = Bar(Foo(2305, "Archimedes") :: Foo(411, "Johannes Kepler") :: Nil)
 
   val packed = Fmt.pack(Encoder[Bar].apply(bar), DEFAULT_PACKER_CONFIG)
