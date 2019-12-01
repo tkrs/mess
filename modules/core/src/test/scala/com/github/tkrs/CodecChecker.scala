@@ -6,10 +6,11 @@ import mess._
 import org.msgpack.core.MessagePack
 import org.msgpack.core.MessagePack.Code
 import org.scalacheck.{Arbitrary, Gen, Prop, Shrink}
-import org.scalatest.{Assertion, FunSuite}
+import org.scalatest.Assertion
 import org.scalatestplus.scalacheck.Checkers
+import org.scalatest.funsuite.AnyFunSuite
 
-class CodecChecker extends FunSuite with Checkers with MsgpackHelper {
+class CodecChecker extends AnyFunSuite with Checkers with MsgpackHelper {
   import MsgpackHelper._
 
   implicit val arbBigInt: Arbitrary[BigInt] = Arbitrary(gen.genBigInt)
