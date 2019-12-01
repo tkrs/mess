@@ -1,15 +1,36 @@
-package mess
+package mess.codec
 
+import mess.codec.semiauto._
+import mess.{Fmt, MsgpackHelper}
 import org.scalatest.funsuite.AnyFunSuite
 
 class DecoderSpec extends AnyFunSuite with MsgpackHelper {
   case class Bar(double: Double)
-  case class Foo(int: Int, str: String, bar: Bar)
+
+  object Bar {
+    implicit val decode: Decoder[Bar] = derivedDecoder[Bar]
+  }
+
   case class Qux(byte: Option[Int])
 
   sealed trait Z
+
   case class Z0(a: Int) extends Z
+
+  object Z0 {
+    implicit val decode: Decoder[Z0] = derivedDecoder[Z0]
+  }
   case class Z1(b: Int) extends Z
+
+  object Z1 {
+    implicit val decode: Decoder[Z1] = derivedDecoder[Z1]
+  }
+
+  object Qux {
+    import mess.codec.semiauto._
+
+    implicit val decode: Decoder[Qux] = derivedDecoder[Qux]
+  }
 
   def decode[A](msg: Fmt)(implicit A: Decoder[A]): Either[Throwable, A] = A(msg)
 
@@ -296,6 +317,8 @@ class DecoderSpec extends AnyFunSuite with MsgpackHelper {
   }
 
   test("Decoder[Z]") {
+    import mess.codec.auto._
+
     check {
       Seq[(Z, Fmt)](
         (
@@ -315,6 +338,8 @@ class DecoderSpec extends AnyFunSuite with MsgpackHelper {
   }
 
   test("Decoder[Z] failure") {
+    import mess.codec.auto._
+
     val a = decode[Z](Fmt.fromString(" "))
     assert(a === Left(TypeMismatchError("FieldType[K, L] :+: R", Fmt.fromString(" "))))
     val b = decode[Z](Fmt.fromEntries(Fmt.fromString("Z2") -> Fmt.fromInt(1)))

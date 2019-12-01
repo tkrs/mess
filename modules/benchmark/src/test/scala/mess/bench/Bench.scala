@@ -2,7 +2,8 @@ package mess.bench
 
 import java.util.concurrent.TimeUnit
 
-import mess.{Decoder, Encoder, Fmt}
+import mess.Fmt
+import mess.codec.{Decoder, DecodingFailure, Encoder}
 import org.msgpack.core.MessagePack
 import org.openjdk.jmh.annotations._
 
@@ -40,7 +41,8 @@ object Bench {
 
   def fromBytes[A](bytes: Array[Byte])(implicit decodeA: Decoder[A]): A =
     decodeA.apply(Fmt.unpack(bytes, MessagePack.DEFAULT_UNPACKER_CONFIG)) match {
-      case Right(v) => v; case Left(e) => throw e
+      case Right(v) => v;
+      case Left(e)  => throw e
     }
 }
 
@@ -53,8 +55,10 @@ final case class Foo(
 )
 
 object Foo {
-  val decoder: Decoder[Foo] = Decoder[Foo]
-  val encoder: Encoder[Foo] = Encoder[Foo]
+  import mess.codec.semiauto._
+
+  implicit val decoder: Decoder[Foo] = derivedDecoder[Foo]
+  implicit val encoder: Encoder[Foo] = derivedEncoder[Foo]
 
   def next(): Foo = Foo(
     9843720,
@@ -70,20 +74,12 @@ class GenericBench extends Bench {
   private[this] val fooBytes = Bench.toBytes(foo)
 
   @Benchmark
-  def decodeFoo(): Decoder.Result[Foo] =
+  def decodeFoo(): Either[DecodingFailure, Foo] =
     Decoder[Foo].apply(Fmt.unpack(fooBytes, MessagePack.DEFAULT_UNPACKER_CONFIG))
 
   @Benchmark
   def encodeFoo(): Array[Byte] =
     Fmt.pack(Encoder[Foo].apply(foo), MessagePack.DEFAULT_PACKER_CONFIG)
-
-  @Benchmark
-  def decodeFooCached(): Decoder.Result[Foo] =
-    Foo.decoder.apply(Fmt.unpack(fooBytes, MessagePack.DEFAULT_UNPACKER_CONFIG))
-
-  @Benchmark
-  def encodeFooCached(): Array[Byte] =
-    Fmt.pack(Foo.encoder.apply(foo), MessagePack.DEFAULT_PACKER_CONFIG)
 }
 
 class ContainerBench extends Bench {
@@ -111,7 +107,7 @@ class ContainerBench extends Bench {
   }
 
   @Benchmark
-  def decodeMap(): Decoder.Result[Map[Long, Double]] =
+  def decodeMap(): Either[DecodingFailure, Map[Long, Double]] =
     Decoder[Map[Long, Double]].apply(Fmt.unpack(mapBytes, MessagePack.DEFAULT_UNPACKER_CONFIG))
 
   @Benchmark
@@ -119,7 +115,7 @@ class ContainerBench extends Bench {
     Fmt.pack(Encoder[Map[Long, Double]].apply(map), MessagePack.DEFAULT_PACKER_CONFIG)
 
   @Benchmark
-  def decodeSeq(): Decoder.Result[Seq[Long]] =
+  def decodeSeq(): Either[DecodingFailure, Seq[Long]] =
     Decoder[Seq[Long]].apply(Fmt.unpack(seqBytes, MessagePack.DEFAULT_UNPACKER_CONFIG))
 
   @Benchmark
@@ -127,7 +123,7 @@ class ContainerBench extends Bench {
     Fmt.pack(Encoder[Seq[Long]].apply(seq), MessagePack.DEFAULT_PACKER_CONFIG)
 
   @Benchmark
-  def decodeList(): Decoder.Result[List[Long]] =
+  def decodeList(): Either[DecodingFailure, List[Long]] =
     Decoder[List[Long]].apply(Fmt.unpack(seqBytes, MessagePack.DEFAULT_UNPACKER_CONFIG))
 
   @Benchmark
@@ -135,7 +131,7 @@ class ContainerBench extends Bench {
     Fmt.pack(Encoder[List[Long]].apply(list), MessagePack.DEFAULT_PACKER_CONFIG)
 
   @Benchmark
-  def decodeVector(): Decoder.Result[Vector[Long]] =
+  def decodeVector(): Either[DecodingFailure, Vector[Long]] =
     Decoder[Vector[Long]].apply(Fmt.unpack(seqBytes, MessagePack.DEFAULT_UNPACKER_CONFIG))
 
   @Benchmark
@@ -143,7 +139,7 @@ class ContainerBench extends Bench {
     Fmt.pack(Encoder[Vector[Long]].apply(vec), MessagePack.DEFAULT_PACKER_CONFIG)
 
   @Benchmark
-  def decodeSet(): Decoder.Result[Set[Long]] =
+  def decodeSet(): Either[DecodingFailure, Set[Long]] =
     Decoder[Set[Long]].apply(Fmt.unpack(seqBytes, MessagePack.DEFAULT_UNPACKER_CONFIG))
 
   @Benchmark

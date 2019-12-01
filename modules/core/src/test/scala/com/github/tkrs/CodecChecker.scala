@@ -3,12 +3,14 @@ package com.github.tkrs
 import java.time.Instant
 
 import mess._
+import mess.codec.semiauto._
+import mess.codec.{Decoder, Encoder, TypeMismatchError}
 import org.msgpack.core.MessagePack
 import org.msgpack.core.MessagePack.Code
 import org.scalacheck.{Arbitrary, Gen, Prop, Shrink}
-import org.scalatest.Assertion
-import org.scalatestplus.scalacheck.Checkers
+import org.scalatest._
 import org.scalatest.funsuite.AnyFunSuite
+import org.scalatestplus.scalacheck.Checkers
 
 class CodecChecker extends AnyFunSuite with Checkers with MsgpackHelper {
   import MsgpackHelper._
@@ -18,6 +20,8 @@ class CodecChecker extends AnyFunSuite with Checkers with MsgpackHelper {
   case class User[F[_]](int: Int, friends: F[User[F]])
 
   object User {
+    implicit val encode: Encoder[User[List]] = derivedEncoder[User[List]]
+    implicit val decode: Decoder[User[List]] = derivedDecoder[User[List]]
 
     private def fix(depth: Int, i: Int, acc: User[List]): User[List] =
       if (depth == 0) acc
@@ -84,7 +88,9 @@ class CodecChecker extends AnyFunSuite with Checkers with MsgpackHelper {
   test("Set[Double]")(roundTrip[Set[Double]])
   test("Set[BigInt]")(roundTrip[Set[BigInt]])
   test("Set[String]")(roundTrip[Set[String]])
-  test("User[List]")(roundTrip[User[List]])
+  test("User[List]") {
+    roundTrip[User[List]]
+  }
   test("Tuple1")(roundTrip[Tuple1[Int]])
   test("Tuple2")(roundTrip[Tuple2[Int, Int]])
   test("Tuple3")(roundTrip[Tuple3[Int, Int, Long]])
@@ -114,45 +120,47 @@ class CodecChecker extends AnyFunSuite with Checkers with MsgpackHelper {
     nanos   <- Gen.choose(0L, 999000000L)
   } yield Instant.ofEpochSecond(seconds, nanos))
 
-  implicit val encodeInstantAsFluentdEventTime: Encoder[Instant] = new Encoder[Instant] {
+  implicit val encodeInstantAsFluentdEventTime: Encoder[Instant] = a => {
+    val s = a.getEpochSecond
+    val n = a.getNano.toLong
 
-    def apply(a: Instant): Fmt = {
-      val s = a.getEpochSecond
-      val n = a.getNano.toLong
+    val f: (Long, Long) => Byte = (v, m) => (v >>> m).toByte
+    val fs: Long => Byte        = f(s, _)
+    val fn: Long => Byte        = f(n, _)
 
-      val f: (Long, Long) => Byte = (v, m) => (v >>> m).toByte
-      val fs: Long => Byte        = f(s, _)
-      val fn: Long => Byte        = f(n, _)
-
-      val arr = Array(fs(24L), fs(16L), fs(8L), fs(0L), fn(24L), fn(16L), fn(8L), fn(0L))
-      Fmt.extension(Code.EXT8, 8, arr)
-    }
+    val arr = Array(fs(24L), fs(16L), fs(8L), fs(0L), fn(24L), fn(16L), fn(8L), fn(0L))
+    Fmt.extension(Code.EXT8, 8, arr)
   }
 
-  implicit val decodeInstantAsFluentdEventTime: Decoder[Instant] = new Decoder[Instant] {
+  implicit val decodeInstantAsFluentdEventTime: Decoder[Instant] = {
+    case Fmt.MExtension(Code.EXT8, _, arr) =>
+      val f: (Int, Long) => Long = (i, j) => (arr(i) & 0xff).toLong << j
 
-    def apply(a: Fmt): Decoder.Result[Instant] =
-      a match {
-        case Fmt.MExtension(Code.EXT8, _, arr) =>
-          val f: (Int, Long) => Long = (i, j) => (arr(i) & 0xff).toLong << j
-
-          val seconds = f(0, 24L) | f(1, 16L) | f(2, 8L) | f(3, 0L)
-          val nanos   = f(4, 24L) | f(5, 16L) | f(6, 8L) | f(7, 0L)
-          Right(Instant.ofEpochSecond(seconds, nanos))
-        case _ =>
-          Left(TypeMismatchError("Instant", a))
-      }
+      val seconds = f(0, 24L) | f(1, 16L) | f(2, 8L) | f(3, 0L)
+      val nanos   = f(4, 24L) | f(5, 16L) | f(6, 8L) | f(7, 0L)
+      Right(Instant.ofEpochSecond(seconds, nanos))
+    case a =>
+      Left(TypeMismatchError("Instant", a))
   }
 
   test("Instant(Extension)")(roundTrip[Instant])
 
   case class Hoge(a: Option[Int])
 
+  object Hoge {
+    import mess.codec.semiauto._
+
+    implicit val encode: Encoder[Hoge] = derivedEncoder[Hoge]
+    implicit val decode: Decoder[Hoge] = derivedDecoder[Hoge]
+  }
+
   test("null should be converted to the empty value of the corresponding data types") {
     locally {
       val in       = x"81 a1 61 c0"
       val unpacker = MessagePack.DEFAULT_UNPACKER_CONFIG.newUnpacker(in)
-      val value    = Decoder[Hoge].apply(Fmt.unpack(unpacker))
+      val formated = Fmt.unpack(unpacker)
+      info(formated.toString)
+      val value = Decoder[Hoge].apply(formated)
       assert(value === Right(Hoge(None)))
     }
 
@@ -200,8 +208,20 @@ class CodecChecker extends AnyFunSuite with Checkers with MsgpackHelper {
   }
 
   sealed trait Z
+
   case class Y(int: Int, long: Long) extends Z
-  case class X(string: String)       extends Z
+
+  object Y {
+    implicit val decode: Decoder[Y] = derivedDecoder[Y]
+    implicit val encode: Encoder[Y] = derivedEncoder[Y]
+  }
+
+  case class X(string: String) extends Z
+
+  object X {
+    implicit val decode: Decoder[X] = derivedDecoder[X]
+    implicit val encode: Encoder[X] = derivedEncoder[X]
+  }
 
   implicit val arbZ: Arbitrary[Z] = Arbitrary(
     Gen.oneOf(
@@ -210,5 +230,9 @@ class CodecChecker extends AnyFunSuite with Checkers with MsgpackHelper {
     )
   )
 
-  test("ADT")(roundTrip[Z])
+  test("ADT") {
+    import mess.codec.auto._
+
+    roundTrip[Z]
+  }
 }

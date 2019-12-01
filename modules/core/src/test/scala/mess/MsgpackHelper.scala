@@ -4,7 +4,8 @@ import org.msgpack.core.{MessageBufferPacker, MessagePack}
 import org.scalatest._
 import org.scalatest.matchers.should.Matchers
 
-trait MsgpackHelper extends Matchers with BeforeAndAfterEach { self: Suite =>
+trait MsgpackHelper extends Matchers with BeforeAndAfterEach {
+  self: Suite =>
 
   var packer: MessageBufferPacker = _
 
