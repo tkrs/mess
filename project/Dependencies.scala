@@ -8,7 +8,7 @@ object Dependencies {
     val shapeless   = "2.3.3"
     val scalacheck  = "1.14.1"
     val scalatest   = "3.0.8"
-    val msgpackJava = "0.8.17"
+    val msgpackJava = "0.8.20"
   }
 
   val Pkg = new {
