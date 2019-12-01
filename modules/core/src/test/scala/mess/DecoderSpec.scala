@@ -1,8 +1,8 @@
 package mess
 
-import org.scalatest.FunSuite
+import org.scalatest.funsuite.AnyFunSuite
 
-class DecoderSpec extends FunSuite with MsgpackHelper {
+class DecoderSpec extends AnyFunSuite with MsgpackHelper {
   case class Bar(double: Double)
   case class Foo(int: Int, str: String, bar: Bar)
   case class Qux(byte: Option[Int])
