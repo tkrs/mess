@@ -82,7 +82,7 @@ object Boilerplate {
    */
 
   object GenTupleEncoder extends Template {
-    def file(root: File) = root / "mess" / "TupleEncoder.scala"
+    def file(root: File) = root / "mess" / "codec" / "TupleEncoder.scala"
 
     def content(tv: TemplateVals) = {
       import tv._
@@ -90,7 +90,9 @@ object Boilerplate {
       val expr = synVals.zipWithIndex.map { case (f, i) => s"$f(xs._${i + 1})" }.mkString(",")
 
       block"""
-      |package mess
+      |package mess.codec
+      |
+      |import _root_.mess.Fmt
       |
       |trait TupleEncoder {
         -
@@ -105,7 +107,7 @@ object Boilerplate {
   }
 
   object GenTupleDecoder extends Template {
-    def file(root: File) = root / "mess" / "TupleDecoder.scala"
+    def file(root: File) = root / "mess" / "codec" / "TupleDecoder.scala"
 
     def content(tv: TemplateVals) = {
       import tv._
@@ -117,13 +119,15 @@ object Boilerplate {
       val expr   = synVals.zipWithIndex.foldRight(s"Right($result)") { case ((l, i), r) => g(l, i, r) }
 
       block"""
-      |package mess
+      |package mess.codec
+      |
+      |import _root_.mess.Fmt
       |
       |trait TupleDecoder {
         -
         -  implicit def decodeTuple$arity[${`A..N`}](implicit ${`a:F[A]..n:F[N]`("Decoder")}): Decoder[${`(A..N)`}] =
         -    new Decoder[${`(A..N)`}] {
-        -      def apply(ma: Fmt): Decoder.Result[${`(A..N)`}] = ma match {
+        -      def apply(ma: Fmt): Either[DecodingFailure, ${`(A..N)`}] = ma match {
         -        case xs: Fmt.MArray if xs.size == $arity =>
         -          $expr
         -        case _ =>

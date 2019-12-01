@@ -1,13 +1,26 @@
-package mess
+package mess.codec
 
+import mess.{Fmt, MsgpackHelper}
 import org.msgpack.core.MessagePack
 import org.scalatest.funsuite.AnyFunSuite
 
 class EncoderSpec extends AnyFunSuite with MsgpackHelper {
   case class Bar(double: Double)
+
+  object Bar {
+    implicit val encode: Encoder[Bar] = semiauto.derivedEncoder[Bar]
+  }
   case class Foo(int: Int, str: String, bar: Bar)
 
+  object Foo {
+    implicit val encode: Encoder[Foo] = semiauto.derivedEncoder[Foo]
+  }
+
   case class Qux(byte: Option[Int])
+
+  object Qux {
+    implicit val encode: Encoder[Qux] = semiauto.derivedEncoder[Qux]
+  }
 
   def check[A](tc: Seq[(A, Fmt)])(implicit encodeA: Encoder[A]): Unit =
     for ((p, expected) <- tc) {
