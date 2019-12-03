@@ -16,7 +16,6 @@ sealed trait Fmt extends Serializable {
 }
 
 object Fmt {
-
   case object MUnit extends Fmt {
     def isNil: Boolean                    = false
     def pack(buffer: MessagePacker): Unit = ()
@@ -37,7 +36,6 @@ object Fmt {
   }
 
   object MBool {
-
     def apply(value: Boolean): MBool =
       if (value) True else False
 
@@ -58,7 +56,6 @@ object Fmt {
   }
 
   final case class MByte(value: Byte) extends MNumber {
-
     def pack(buffer: MessagePacker): Unit =
       buffer.packByte(value)
     def asByte: Byte     = value
@@ -71,7 +68,6 @@ object Fmt {
   }
 
   final case class MShort(value: Short) extends MNumber {
-
     def pack(buffer: MessagePacker): Unit =
       buffer.packShort(value)
     def asByte: Byte     = value.toByte
@@ -84,7 +80,6 @@ object Fmt {
   }
 
   final case class MInt(value: Int) extends MNumber {
-
     def pack(buffer: MessagePacker): Unit =
       buffer.packInt(value)
     def asByte: Byte     = value.toByte
@@ -97,7 +92,6 @@ object Fmt {
   }
 
   final case class MLong(value: Long) extends MNumber {
-
     def pack(buffer: MessagePacker): Unit =
       buffer.packLong(value)
     def asByte: Byte     = value.toByte
@@ -110,7 +104,6 @@ object Fmt {
   }
 
   final case class MBigInt(value: BigInt) extends MNumber {
-
     def pack(buffer: MessagePacker): Unit =
       buffer.packBigInteger(value.bigInteger)
     def asByte: Byte     = value.toByte
@@ -123,7 +116,6 @@ object Fmt {
   }
 
   final case class MFloat(value: Float) extends MNumber {
-
     def pack(buffer: MessagePacker): Unit =
       buffer.packFloat(value)
     def asByte: Byte     = value.toByte
@@ -136,7 +128,6 @@ object Fmt {
   }
 
   final case class MDouble(value: Double) extends MNumber {
-
     def pack(buffer: MessagePacker): Unit =
       buffer.packDouble(value)
     def asByte: Byte     = value.toByte

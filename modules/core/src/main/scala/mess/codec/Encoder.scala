@@ -14,7 +14,6 @@ trait Encoder[A] extends Serializable { self =>
 }
 
 object Encoder extends Encoder1 with TupleEncoder {
-
   trait AsArray[A] extends Encoder[A] {
     def applyToArray(a: A): Fmt.MArray
 

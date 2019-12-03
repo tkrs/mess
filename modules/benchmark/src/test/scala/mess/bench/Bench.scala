@@ -30,7 +30,6 @@ import org.openjdk.jmh.annotations._
 abstract class Bench
 
 object Bench {
-
   def toBytes[A](a: A)(implicit encodeA: Encoder[A]): Array[Byte] = {
     val buffer = MessagePack.DEFAULT_PACKER_CONFIG.newBufferPacker()
     try {
@@ -83,7 +82,6 @@ class GenericBench extends Bench {
 }
 
 class ContainerBench extends Bench {
-
   @Param(Array("5", "10", "50", "100", "1000"))
   var size: Int = _
 

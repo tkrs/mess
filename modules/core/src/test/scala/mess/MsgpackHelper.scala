@@ -17,9 +17,7 @@ trait MsgpackHelper extends Matchers with BeforeAndAfterEach {
 }
 
 object MsgpackHelper {
-
   implicit class BinHelper(val sc: StringContext) extends AnyVal {
-
     def x(): Array[Byte] = {
       val strings = sc.parts.iterator
 

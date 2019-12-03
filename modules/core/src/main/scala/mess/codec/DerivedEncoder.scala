@@ -9,7 +9,6 @@ trait DerivedEncoder[A] extends Encoder.AsMap[A]
 object DerivedEncoder extends DerivedEncoder1
 
 trait DerivedEncoder1 extends DerivedEncoder2 {
-
   implicit final def encodeGen[A, R](
     implicit
     gen: LabelledGeneric.Aux[A, R],
@@ -19,7 +18,6 @@ trait DerivedEncoder1 extends DerivedEncoder2 {
 }
 
 trait DerivedEncoder2 extends DerivedEncoder3 {
-
   implicit final val encodeHNil: DerivedEncoder[HNil] =
     _ => Fmt.MMap.newBuilder
 
@@ -34,7 +32,6 @@ trait DerivedEncoder2 extends DerivedEncoder3 {
 }
 
 trait DerivedEncoder3 {
-
   implicit final val encodeCNil: DerivedEncoder[CNil] =
     _ => sys.error("Cannot encode CNil")
 
