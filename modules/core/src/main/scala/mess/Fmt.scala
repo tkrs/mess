@@ -190,6 +190,7 @@ object Fmt {
     def ++(other: MMap): MMap
     def map(f: ((Fmt, Fmt)) => (Fmt, Fmt)): MMap
     def flatMap(f: ((Fmt, Fmt)) => MMap): MMap
+    final def filter(f: ((Fmt, Fmt)) => Boolean): MMap = MMap(value.filter(f))
     def iterator: Iterator[(Fmt, Fmt)]
   }
 
@@ -293,6 +294,7 @@ object Fmt {
     def ++(other: MArray): MArray
     def map(f: Fmt => Fmt): MArray
     def flatMap(f: Fmt => MArray): MArray
+    final def filter(f: Fmt => Boolean): MArray = MArray(value.filter(f))
     def iterator: Iterator[Fmt]
     def size: Int
   }
