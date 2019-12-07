@@ -43,7 +43,7 @@ object Decoder extends Decoder1 with TupleDecoder {
   def liftF[A](a: Either[DecodingFailure, A]): Decoder[A] = _ => a
 }
 
-trait Decoder1 {
+private[codec] trait Decoder1 {
   implicit val decodeFmt: Decoder[Fmt] = Right(_)
 
   implicit val decodeBoolean: Decoder[Boolean] = {
