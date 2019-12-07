@@ -9,7 +9,6 @@ trait DerivedDecoder[A] extends Decoder[A]
 object DerivedDecoder extends DerivedDecoder1
 
 trait DerivedDecoder1 extends DerivedDecoder2 {
-
   implicit final def decodeGen[A, R](
     implicit
     gen: LabelledGeneric.Aux[A, R],
@@ -46,7 +45,6 @@ trait DerivedDecoder2 extends DerivedDecoder3 {
 }
 
 trait DerivedDecoder3 {
-
   implicit final val decodeCNil: DerivedDecoder[CNil] =
     m => Left(TypeMismatchError("CNil", m))
 
