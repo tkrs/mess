@@ -194,6 +194,7 @@ object Fmt {
   }
 
   object MMap {
+    val empty: MMap = MMap(Map.empty)
 
     def apply(value: immutable.Map[Fmt, Fmt]): MMap =
       Impl(value)
@@ -297,6 +298,8 @@ object Fmt {
   }
 
   object MArray {
+    val empty: MArray = Impl(Vector.empty)
+
     def apply(value: Vector[Fmt]): MArray         = Impl(value)
     def unapplySeq(arg: MArray): Option[Seq[Fmt]] = Some(arg.value)
     def from(values: Fmt*): MArray                = Impl(values.toVector)

@@ -4,7 +4,7 @@ import mess.Fmt
 import shapeless._
 import shapeless.labelled._
 
-trait DerivedEncoder[A] extends Encoder[A]
+trait DerivedEncoder[A] extends Encoder.AsMap[A]
 
 object DerivedEncoder extends DerivedEncoder1
 
@@ -15,7 +15,7 @@ trait DerivedEncoder1 extends DerivedEncoder2 {
     gen: LabelledGeneric.Aux[A, R],
     encodeR: Lazy[DerivedEncoder[R]]
   ): DerivedEncoder[A] =
-    a => encodeR.value(gen.to(a))
+    a => encodeR.value.applyToMap(gen.to(a))
 }
 
 trait DerivedEncoder2 extends DerivedEncoder3 {
@@ -30,11 +30,7 @@ trait DerivedEncoder2 extends DerivedEncoder3 {
     encodeH: Encoder[H],
     encodeT: Lazy[DerivedEncoder[T]]
   ): DerivedEncoder[FieldType[K, H] :: T] =
-    a =>
-      encodeT.value(a.tail) match {
-        case tt: Fmt.MMap => tt + (encodeK(witK.value) -> encodeH(a.head))
-        case tt           => tt
-      }
+    a => encodeT.value.applyToMap(a.tail) + (encodeK(witK.value) -> encodeH(a.head))
 }
 
 trait DerivedEncoder3 {
@@ -48,7 +44,7 @@ trait DerivedEncoder3 {
     encodeL: Lazy[DerivedEncoder[L]],
     encodeR: Lazy[DerivedEncoder[R]]
   ): DerivedEncoder[FieldType[K, L] :+: R] = {
-    case Inl(h) => Fmt.fromEntries(Fmt.fromString(witK.value.name) -> encodeL.value(h))
-    case Inr(t) => encodeR.value(t)
+    case Inl(h) => Fmt.MMap(Map(Fmt.fromString(witK.value.name) -> encodeL.value(h)))
+    case Inr(t) => encodeR.value.applyToMap(t)
   }
 }

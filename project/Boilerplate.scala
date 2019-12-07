@@ -87,20 +87,17 @@ object Boilerplate {
     def content(tv: TemplateVals) = {
       import tv._
 
-      val expr = synVals.zipWithIndex.map { case (f, i) => s"$f(xs._${i + 1})" }.mkString(",")
+      val arg  = "xs"
+      val expr = synVals.zipWithIndex.map { case (f, i) => s"$f($arg._${i + 1})" }.mkString(",")
 
       block"""
       |package mess.codec
       |
       |import _root_.mess.Fmt
       |
-      |trait TupleEncoder {
-        -
-        -  implicit def encodeTuple$arity[${`A..N`}](implicit ${`a:F[A]..n:F[N]`("Encoder")}): Encoder[${`(A..N)`}] =
-        -    new Encoder[${`(A..N)`}] {
-        -      def apply(xs: ${`(A..N)`}): Fmt =
-        -        Fmt.MArray(Vector($expr))
-        -    }
+      |private[codec] trait TupleEncoder {
+        -  implicit def encodeTuple$arity[${`A..N`}](implicit ${`a:F[A]..n:F[N]`("Encoder")}): Encoder.AsArray[${`(A..N)`}] =
+        -    $arg => Fmt.MArray(Vector($expr))
       |}
       """
     }
@@ -123,17 +120,11 @@ object Boilerplate {
       |
       |import _root_.mess.Fmt
       |
-      |trait TupleDecoder {
-        -
-        -  implicit def decodeTuple$arity[${`A..N`}](implicit ${`a:F[A]..n:F[N]`("Decoder")}): Decoder[${`(A..N)`}] =
-        -    new Decoder[${`(A..N)`}] {
-        -      def apply(ma: Fmt): Either[DecodingFailure, ${`(A..N)`}] = ma match {
-        -        case xs: Fmt.MArray if xs.size == $arity =>
-        -          $expr
-        -        case _ =>
-        -          Left(TypeMismatchError("(${`A..N`})", ma))
-        -      }
-        -    }
+      |private[codec] trait TupleDecoder {
+        -  implicit def decodeTuple$arity[${`A..N`}](implicit ${`a:F[A]..n:F[N]`("Decoder")}): Decoder[${`(A..N)`}] = {
+        -    case xs: Fmt.MArray if xs.size == $arity => $expr
+        -    case m => Left(TypeMismatchError("(${`A..N`})", m))
+        -  }
       |}
       """
     }
