@@ -16,13 +16,17 @@ trait Encoder[A] extends Serializable { self =>
 object Encoder extends Encoder1 with TupleEncoder {
 
   trait AsArray[A] extends Encoder[A] {
-    final def apply(a: A): Fmt = applyToArray(a)
     def applyToArray(a: A): Fmt.MArray
+
+    final def apply(a: A): Fmt                                  = applyToArray(a)
+    final def mapArray(f: Fmt.MArray => Fmt.MArray): AsArray[A] = a => f(applyToArray(a))
   }
 
   trait AsMap[A] extends Encoder[A] {
-    final def apply(a: A): Fmt = applyToMap(a)
     def applyToMap(a: A): Fmt.MMap
+
+    final def apply(a: A): Fmt                          = applyToMap(a)
+    final def mapMap(f: Fmt.MMap => Fmt.MMap): AsMap[A] = a => f(applyToMap(a))
   }
 
   def apply[A](implicit A: Encoder[A]): Encoder[A]                   = A
