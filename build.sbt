@@ -77,9 +77,7 @@ lazy val publishSettings = Seq(
         <name>Takeru Sato</name>
         <url>https://github.com/tkrs</url>
       </developer>
-    </developers>,
-  pgpPassphrase := sys.env.get("PGP_PASSPHRASE").map(_.toCharArray),
-  pgpSecretRing := sys.env.get("PGP_SECRET_RING").fold(pgpSecretRing.value)(file)
+    </developers>
 )
 
 lazy val noPublishSettings = Seq(
