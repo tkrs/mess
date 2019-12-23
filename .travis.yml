@@ -1,6 +1,7 @@
 language: scala
-dist: xenial
-sudo: false
+dist: bionic
+services:
+- docker
 scala:
 - 2.12.11
 - 2.13.2
@@ -25,6 +26,7 @@ cache:
 install:
 - pip install --user codecov
 script:
+- gpg --version
 - |
   if [[ "${COV:-""}" = "true" ]]; then
     sbt ++$TRAVIS_SCALA_VERSION clean coverage scalafmtCheckAll scalafmtSbtCheck test "examples/run" coverageReport coverageOff && codecov
