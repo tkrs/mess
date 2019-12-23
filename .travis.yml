@@ -1,8 +1,6 @@
 language: scala
 dist: xenial
 sudo: false
-services:
-- docker
 scala:
 - 2.12.10
 - 2.13.1
