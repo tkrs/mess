@@ -11,11 +11,10 @@ ThisBuild / resolvers ++= Seq(
   Resolver.sonatypeRepo("snapshots")
 )
 ThisBuild / libraryDependencies ++= Seq(Pkg.scalatest, Pkg.scalacheck).map(_ % Test)
-ThisBuild / scalacOptions ++= compilerOptions ++ {
+ThisBuild / scalacOptions ++= compilerOptions ++ warnCompilerOptions ++ {
   CrossVersion.partialVersion(scalaVersion.value) match {
-    case Some((2, 13)) => warnCompilerOptions
-    case Some((2, 12)) => warnCompilerOptions ++ Seq("-Xfuture", "-Ypartial-unification", "-Yno-adapted-args")
-    case _             => Nil
+    case Some((2, n)) if n >= 13 => Nil
+    case _                       => Seq("-Xfuture", "-Ypartial-unification", "-Yno-adapted-args")
   }
 }
 ThisBuild / scalafmtOnCompile := true
@@ -40,7 +39,6 @@ lazy val warnCompilerOptions = Seq(
 
 lazy val mess = project
   .in(file("."))
-  .settings(docSettings)
   .settings(publishSettings)
   .settings(noPublishSettings)
   .settings(Compile / console / scalacOptions --= warnCompilerOptions)
@@ -98,18 +96,8 @@ lazy val crossVersionSharedSources =
     }
   }
 
-lazy val docSettings = Seq(
-  Compile / doc / sources := {
-    CrossVersion.partialVersion(scalaVersion.value) match {
-      case Some((2, 13)) => Nil
-      case _             => (Compile / doc / sources).value
-    }
-  }
-)
-
 lazy val core = project
   .in(file("modules/core"))
-  .settings(docSettings)
   .settings(publishSettings)
   .settings(crossVersionSharedSources)
   .settings(
@@ -125,7 +113,6 @@ lazy val core = project
   )
 
 lazy val examples = (project in file("modules/examples"))
-  .settings(docSettings)
   .settings(publishSettings)
   .settings(noPublishSettings)
   .settings(
@@ -138,7 +125,6 @@ lazy val examples = (project in file("modules/examples"))
   .dependsOn(core)
 
 lazy val benchmark = (project in file("modules/benchmark"))
-  .settings(docSettings)
   .settings(publishSettings)
   .settings(noPublishSettings)
   .settings(
