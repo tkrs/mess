@@ -16,7 +16,7 @@ object Boilerplate {
     def block(args: Any*): String = {
       val interpolated = sc.standardInterpolator(treatEscapes, args)
       val rawLines     = interpolated.split('\n')
-      val trimmedLines = rawLines.map { _.dropWhile(_.isWhitespace) }
+      val trimmedLines = rawLines.map(_.dropWhile(_.isWhitespace))
       trimmedLines.mkString("\n")
     }
   }
@@ -55,12 +55,10 @@ object Boilerplate {
 
     def body: String = {
       val headerLines = header.split('\n')
-      val rawContents = range.map { n =>
-        content(new TemplateVals(n)).split('\n').filterNot(_.isEmpty)
-      }
-      val preBody   = rawContents.head.takeWhile(_.startsWith("|")).map(_.tail)
-      val instances = rawContents.flatMap { _.filter(_.startsWith("-")).map(_.tail) }
-      val postBody  = rawContents.head.dropWhile(_.startsWith("|")).dropWhile(_.startsWith("-")).map(_.tail)
+      val rawContents = range.map(n => content(new TemplateVals(n)).split('\n').filterNot(_.isEmpty))
+      val preBody     = rawContents.head.takeWhile(_.startsWith("|")).map(_.tail)
+      val instances   = rawContents.flatMap(_.filter(_.startsWith("-")).map(_.tail))
+      val postBody    = rawContents.head.dropWhile(_.startsWith("|")).dropWhile(_.startsWith("-")).map(_.tail)
       (headerLines ++ preBody ++ instances ++ postBody).mkString("\n")
     }
   }

@@ -36,7 +36,7 @@ class CodecChecker extends AnyFunSuite with Checkers with MsgpackHelper {
   }
 
   def roundTrip[A: Arbitrary: Shrink](implicit encode: Encoder[A], decode: Decoder[A]): Assertion =
-    check(Prop.forAll({ a: A =>
+    check(Prop.forAll { a: A =>
       val ast = encode(a)
       ast.pack(packer)
       val bytes    = packer.toByteArray
@@ -44,7 +44,7 @@ class CodecChecker extends AnyFunSuite with Checkers with MsgpackHelper {
       val actual   = decode(Fmt.unpack(unpacker)).toTry.get
       packer.clear()
       actual === a
-    }))
+    })
 
   // format: off
   test("Boolean")(roundTrip[Boolean])
