@@ -9,8 +9,7 @@ trait DerivedDecoder[A] extends Decoder[A]
 object DerivedDecoder extends DerivedDecoder1
 
 trait DerivedDecoder1 extends DerivedDecoder2 {
-  implicit final def decodeGen[A, R](
-    implicit
+  implicit final def decodeGen[A, R](implicit
     gen: LabelledGeneric.Aux[A, R],
     decodeR: Lazy[DerivedDecoder[R]]
   ): DerivedDecoder[A] =
@@ -24,8 +23,7 @@ trait DerivedDecoder1 extends DerivedDecoder2 {
 trait DerivedDecoder2 extends DerivedDecoder3 {
   implicit final val decodeHNil: DerivedDecoder[HNil] = _ => Right(HNil)
 
-  implicit final def decodeLabelledHList[K <: Symbol, H, T <: HList](
-    implicit
+  implicit final def decodeLabelledHList[K <: Symbol, H, T <: HList](implicit
     witK: Witness.Aux[K],
     decodeH: Decoder[H],
     decodeT: Lazy[DerivedDecoder[T]]
@@ -48,8 +46,7 @@ trait DerivedDecoder3 {
   implicit final val decodeCNil: DerivedDecoder[CNil] =
     m => Left(TypeMismatchError("CNil", m))
 
-  implicit final def decodeLabelledCoproduct[K <: Symbol, L, R <: Coproduct](
-    implicit
+  implicit final def decodeLabelledCoproduct[K <: Symbol, L, R <: Coproduct](implicit
     witK: Witness.Aux[K],
     decodeL: Lazy[DerivedDecoder[L]],
     decodeR: Lazy[DerivedDecoder[R]]

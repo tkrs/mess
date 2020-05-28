@@ -59,13 +59,14 @@ object Foo {
   implicit val decoder: Decoder[Foo] = derivedDecoder[Foo]
   implicit val encoder: Encoder[Foo] = derivedEncoder[Foo]
 
-  def next(): Foo = Foo(
-    9843720,
-    97693437922040L,
-    "abcdefghijklmnopqrstmvwxyz",
-    true,
-    0.2387430
-  )
+  def next(): Foo =
+    Foo(
+      9843720,
+      97693437922040L,
+      "abcdefghijklmnopqrstmvwxyz",
+      true,
+      0.2387430
+    )
 }
 
 class GenericBench extends Bench {

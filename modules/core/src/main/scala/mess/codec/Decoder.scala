@@ -123,8 +123,7 @@ private[codec] trait Decoder1 {
           case Left(e)  => Left(e)
         }
 
-  @inline private[this] def decodeContainer[C[_], A](
-    implicit
+  @inline private[this] def decodeContainer[C[_], A](implicit
     decodeA: Decoder[A],
     factoryA: Factory[A, C[A]]
   ): Decoder[C[A]] =
@@ -154,32 +153,35 @@ private[codec] trait Decoder1 {
 
   implicit def decodeVector[A: Decoder]: Decoder[Vector[A]] = decodeContainer[Vector, A]
 
-  implicit def decodeMapLike[M[_, _] <: Map[K, V], K, V](
-    implicit
+  implicit def decodeMapLike[M[_, _] <: Map[K, V], K, V](implicit
     decodeK: Decoder[K],
     decodeV: Decoder[V],
     factoryKV: Factory[(K, V), M[K, V]]
-  ): Decoder[M[K, V]] = m => {
-    @tailrec def loop(it: Iterator[(Fmt, Fmt)], b: mutable.Builder[(K, V), M[K, V]]): Either[DecodingFailure, M[K, V]] =
-      if (!it.hasNext) Right(b.result())
-      else {
-        val (k, v) = it.next()
-        decodeK(k) match {
-          case Right(kk) =>
-            decodeV(v) match {
-              case Right(vv) => loop(it, b += kk -> vv)
-              case Left(e)   => Left(e)
-            }
-          case Left(e) => Left(e)
+  ): Decoder[M[K, V]] =
+    m => {
+      @tailrec def loop(
+        it: Iterator[(Fmt, Fmt)],
+        b: mutable.Builder[(K, V), M[K, V]]
+      ): Either[DecodingFailure, M[K, V]] =
+        if (!it.hasNext) Right(b.result())
+        else {
+          val (k, v) = it.next()
+          decodeK(k) match {
+            case Right(kk) =>
+              decodeV(v) match {
+                case Right(vv) => loop(it, b += kk -> vv)
+                case Left(e)   => Left(e)
+              }
+            case Left(e) => Left(e)
+          }
         }
-      }
 
-    if (m == Fmt.MNil || m == Fmt.MUnit)
-      Right(factoryKV.newBuilder.result())
-    else
-      m match {
-        case m: Fmt.MMap => loop(m.iterator, factoryKV.newBuilder)
-        case _           => Left(TypeMismatchError(s"M[K, V]", m))
-      }
-  }
+      if (m == Fmt.MNil || m == Fmt.MUnit)
+        Right(factoryKV.newBuilder.result())
+      else
+        m match {
+          case m: Fmt.MMap => loop(m.iterator, factoryKV.newBuilder)
+          case _           => Left(TypeMismatchError(s"M[K, V]", m))
+        }
+    }
 }
