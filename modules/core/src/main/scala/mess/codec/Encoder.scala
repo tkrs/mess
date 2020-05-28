@@ -60,8 +60,8 @@ private[codec] trait Encoder1 {
 
   implicit final val encodeNone: Encoder[None.type] = _ => Fmt.nil
 
-  @tailrec private[this] def buildVector[A](rem: Iterator[A], acc: mutable.Builder[Fmt, Vector[Fmt]])(
-    implicit A: Encoder[A]
+  @tailrec private[this] def buildVector[A](rem: Iterator[A], acc: mutable.Builder[Fmt, Vector[Fmt]])(implicit
+    A: Encoder[A]
   ): Vector[Fmt] =
     if (!rem.hasNext) acc.result()
     else buildVector(rem, acc += A(rem.next()))
@@ -81,8 +81,7 @@ private[codec] trait Encoder1 {
   @tailrec private[this] def buildMap[K, V](
     it: Iterator[(K, V)],
     acc: mutable.Builder[(Fmt, Fmt), Map[Fmt, Fmt]]
-  )(
-    implicit
+  )(implicit
     encodeK: Encoder[K],
     encodeV: Encoder[V]
   ): Map[Fmt, Fmt] =

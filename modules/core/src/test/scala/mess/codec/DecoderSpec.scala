@@ -35,9 +35,8 @@ class DecoderSpec extends AnyFunSuite with MsgpackHelper {
   def decode[A](msg: Fmt)(implicit A: Decoder[A]): Either[Throwable, A] = A(msg)
 
   def check[A: Decoder](tc: Seq[(A, Fmt)]): Unit =
-    for ((expected, p) <- tc) {
+    for ((expected, p) <- tc)
       assert(decode[A](p).toTry.get === expected)
-    }
 
   test("Decoder[Some[A]]") {
     check {
@@ -271,9 +270,12 @@ class DecoderSpec extends AnyFunSuite with MsgpackHelper {
   test("Decoder[Map[A, B]]") {
     check {
       Seq(
-        (('a' to 'z').zip(0 to 14).toMap, Fmt.fromEntries(('a' to 'z').zip(0 to 14).map {
-          case (k, v) => Fmt.fromString(k.toString) -> Fmt.fromByte(v.toByte)
-        }: _*)),
+        (
+          ('a' to 'z').zip(0 to 14).toMap,
+          Fmt.fromEntries(('a' to 'z').zip(0 to 14).map {
+            case (k, v) => Fmt.fromString(k.toString) -> Fmt.fromByte(v.toByte)
+          }: _*)
+        ),
         (Map.empty[Char, Int], Fmt.unit)
       )
     }
@@ -302,7 +304,7 @@ class DecoderSpec extends AnyFunSuite with MsgpackHelper {
   test("Decoder[Qux]") {
     check {
       Seq(
-        (Qux(None), Fmt.fromEntries(Fmt.fromString("byte")    -> Fmt.nil)),
+        (Qux(None), Fmt.fromEntries(Fmt.fromString("byte") -> Fmt.nil)),
         (Qux(Some(1)), Fmt.fromEntries(Fmt.fromString("byte") -> Fmt.fromByte(1.toByte)))
       )
     }

@@ -13,7 +13,7 @@ object Dependencies {
 
   val Pkg = new {
     lazy val shapeless   = "com.chuusai"       %% "shapeless"       % Ver.shapeless
-    lazy val msgpackJava = "org.msgpack"       % "msgpack-core"     % Ver.msgpackJava
+    lazy val msgpackJava = "org.msgpack"        % "msgpack-core"    % Ver.msgpackJava
     lazy val scalatest   = "org.scalatest"     %% "scalatest"       % Ver.scalatest
     lazy val scalacheck  = "org.scalatestplus" %% "scalacheck-1-14" % Ver.scalatestplus
   }

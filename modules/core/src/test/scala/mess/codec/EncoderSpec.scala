@@ -71,8 +71,8 @@ class EncoderSpec extends AnyFunSuite with MsgpackHelper {
     check {
       Seq(
         (0.toByte, Fmt.fromByte(0.toByte)),
-        ((-32).toByte, Fmt.fromByte((-32).toByte)),
-        ((-33).toByte, Fmt.fromByte((-33).toByte)),
+        (-32.toByte, Fmt.fromByte(-32.toByte)),
+        (-33.toByte, Fmt.fromByte(-33.toByte)),
         (Byte.MaxValue, Fmt.fromByte(Byte.MaxValue)),
         (Byte.MinValue, Fmt.fromByte(Byte.MinValue))
       )
@@ -180,9 +180,12 @@ class EncoderSpec extends AnyFunSuite with MsgpackHelper {
   test("Encoder[Map[A, B]]") {
     check {
       Seq(
-        (('a' to 'z').zip(0 to 14).toMap, Fmt.fromEntries(('a' to 'z').zip(0 to 14).map {
-          case (k, v) => Fmt.fromString(k.toString) -> Fmt.fromByte(v.toByte)
-        }: _*)),
+        (
+          ('a' to 'z').zip(0 to 14).toMap,
+          Fmt.fromEntries(('a' to 'z').zip(0 to 14).map {
+            case (k, v) => Fmt.fromString(k.toString) -> Fmt.fromByte(v.toByte)
+          }: _*)
+        ),
         (Map.empty[Char, Int], Fmt.fromEntries())
       )
     }
@@ -206,7 +209,7 @@ class EncoderSpec extends AnyFunSuite with MsgpackHelper {
   test("Encoder[Qux]") {
     check {
       Seq(
-        (Qux(None), Fmt.fromEntries(Fmt.fromString("byte")    -> Fmt.nil)),
+        (Qux(None), Fmt.fromEntries(Fmt.fromString("byte") -> Fmt.nil)),
         (Qux(Some(1)), Fmt.fromEntries(Fmt.fromString("byte") -> Fmt.fromByte(1.toByte)))
       )
     }

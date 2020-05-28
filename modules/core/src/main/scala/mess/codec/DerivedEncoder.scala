@@ -9,8 +9,7 @@ trait DerivedEncoder[A] extends Encoder.AsMap[A]
 object DerivedEncoder extends DerivedEncoder1
 
 trait DerivedEncoder1 extends DerivedEncoder2 {
-  implicit final def encodeGen[A, R](
-    implicit
+  implicit final def encodeGen[A, R](implicit
     gen: LabelledGeneric.Aux[A, R],
     encodeR: Lazy[DerivedEncoder[R]]
   ): DerivedEncoder[A] =
@@ -21,8 +20,7 @@ trait DerivedEncoder2 extends DerivedEncoder3 {
   implicit final val encodeHNil: DerivedEncoder[HNil] =
     _ => Fmt.MMap.newBuilder
 
-  implicit final def encodeLabelledHList[K <: Symbol, H, T <: HList](
-    implicit
+  implicit final def encodeLabelledHList[K <: Symbol, H, T <: HList](implicit
     witK: Witness.Aux[K],
     encodeK: Encoder[K],
     encodeH: Encoder[H],
@@ -35,8 +33,7 @@ trait DerivedEncoder3 {
   implicit final val encodeCNil: DerivedEncoder[CNil] =
     _ => sys.error("Cannot encode CNil")
 
-  implicit final def encodeLabelledCCons[K <: Symbol, L, R <: Coproduct](
-    implicit
+  implicit final def encodeLabelledCCons[K <: Symbol, L, R <: Coproduct](implicit
     witK: Witness.Aux[K],
     encodeL: Lazy[DerivedEncoder[L]],
     encodeR: Lazy[DerivedEncoder[R]]
