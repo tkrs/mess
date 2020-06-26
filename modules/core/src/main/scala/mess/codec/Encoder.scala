@@ -36,6 +36,7 @@ object Encoder extends Encoder1 with TupleEncoder {
 }
 
 private[codec] trait Encoder1 {
+  implicit final val encodeFmt: Encoder[Fmt]           = identity(_)
   implicit final val encodeBoolean: Encoder[Boolean]   = Fmt.fromBoolean(_)
   implicit final val encodeBytes: Encoder[Array[Byte]] = Fmt.fromBytes(_)
   implicit final val encodeByte: Encoder[Byte]         = Fmt.fromByte(_)
