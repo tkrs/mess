@@ -24,7 +24,7 @@ object MsgpackHelper {
       def toByte(s: String): Byte = BigInt(s, 16).toByte
 
       if (strings.isEmpty) Array.emptyByteArray
-      else strings.next.split(" ").map(toByte)
+      else strings.next().split(" ").map(toByte)
     }
   }
 }
