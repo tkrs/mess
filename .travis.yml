@@ -20,9 +20,9 @@ install:
 script:
 - |
   if [[ "${COV:-""}" = "true" ]]; then
-    sbt ++$TRAVIS_SCALA_VERSION clean coverage scalafmtCheckAll scalafmtSbtCheck test "examples/run" coverageReport coverageOff && codecov
+    sbt ++$TRAVIS_SCALA_VERSION clean coverage scalafmtCheckAll scalafmtSbtCheck "scalafix --check" test "examples/run" coverageReport coverageOff && codecov
   else
-    sbt ++$TRAVIS_SCALA_VERSION clean scalafmtCheckAll scalafmtSbtCheck test "examples/run"
+    sbt ++$TRAVIS_SCALA_VERSION clean scalafmtCheckAll scalafmtSbtCheck "scalafix --check" test "examples/run"
   fi
 - |
   if [[ $(cat version.sbt) =~ "-SNAPSHOT" ]]; then

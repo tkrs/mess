@@ -1,7 +1,8 @@
 package com.github.tkrs.example
 
 import mess.Fmt
-import mess.codec.{Decoder, Encoder}
+import mess.codec.Decoder
+import mess.codec.Encoder
 import mess.codec.semiauto._
 import org.msgpack.core.MessagePack._
 

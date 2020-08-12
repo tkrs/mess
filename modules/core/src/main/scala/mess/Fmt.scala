@@ -5,10 +5,15 @@ import java.nio.charset.Charset
 import java.nio.charset.StandardCharsets.UTF_8
 
 import mess.internal.ScalaVersionSpecifics._
-import org.msgpack.core.{MessagePack, MessagePacker, MessageUnpacker, MessageFormat => MF}
+import org.msgpack.core.MessagePack
+import org.msgpack.core.MessagePacker
+import org.msgpack.core.MessageUnpacker
+import org.msgpack.core.{MessageFormat => MF}
 
 import scala.annotation.tailrec
-import scala.collection.{immutable, mutable, Iterator}
+import scala.collection.Iterator
+import scala.collection.immutable
+import scala.collection.mutable
 
 sealed trait Fmt extends Serializable {
   def isNil: Boolean

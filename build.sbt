@@ -10,7 +10,7 @@ ThisBuild / resolvers ++= Seq(
   Resolver.sonatypeRepo("releases"),
   Resolver.sonatypeRepo("snapshots")
 )
-ThisBuild / libraryDependencies ++= Seq(Pkg.scalatest, Pkg.scalacheck).map(_ % Test)
+ThisBuild / libraryDependencies ++= Seq(Scalatest, Scalacheck).map(_ % Test)
 ThisBuild / scalacOptions ++= compilerOptions ++ warnCompilerOptions ++ {
   CrossVersion.partialVersion(scalaVersion.value) match {
     case Some((2, n)) if n >= 13 => Nil
@@ -18,6 +18,9 @@ ThisBuild / scalacOptions ++= compilerOptions ++ warnCompilerOptions ++ {
   }
 }
 ThisBuild / scalafmtOnCompile := true
+ThisBuild / scalafixDependencies += OrganizeImports
+ThisBuild / semanticdbEnabled := true
+ThisBuild / semanticdbVersion := scalafixSemanticdb.revision
 
 lazy val compilerOptions = Seq(
   "-deprecation",
@@ -107,8 +110,8 @@ lazy val core = project
   .settings(Compile / sourceGenerators += (Compile / sourceManaged).map(Boilerplate.gen).taskValue)
   .settings(
     libraryDependencies ++= Seq(
-      Pkg.msgpackJava,
-      Pkg.shapeless
+      MsgpackJava,
+      Shapeless
     )
   )
 
