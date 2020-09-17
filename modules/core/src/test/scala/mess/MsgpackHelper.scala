@@ -1,18 +1,16 @@
 package mess
 
 import org.msgpack.core.{MessageBufferPacker, MessagePack}
-import org.scalatest._
-import org.scalatest.matchers.should.Matchers
+import munit.FunSuite
 
-trait MsgpackHelper extends Matchers with BeforeAndAfterEach {
-  self: Suite =>
+trait MsgpackHelper extends FunSuite {
 
   var packer: MessageBufferPacker = _
 
-  override def beforeEach(): Unit =
+  override def beforeEach(context: BeforeEach): Unit =
     packer = MessagePack.DEFAULT_PACKER_CONFIG.newBufferPacker()
 
-  override def afterEach(): Unit =
+  override def afterEach(context: AfterEach): Unit =
     packer.close()
 }
 
