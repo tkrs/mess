@@ -10,7 +10,8 @@ ThisBuild / resolvers ++= Seq(
   Resolver.sonatypeRepo("releases"),
   Resolver.sonatypeRepo("snapshots")
 )
-ThisBuild / libraryDependencies ++= Seq(Scalatest, Scalacheck).map(_ % Test)
+ThisBuild / libraryDependencies ++= Seq(MunitScalacheck).map(_ % Test)
+ThisBuild / testFrameworks += new TestFramework("munit.Framework")
 ThisBuild / scalacOptions ++= compilerOptions ++ warnCompilerOptions ++ {
   CrossVersion.partialVersion(scalaVersion.value) match {
     case Some((2, n)) if n >= 13 => Nil
