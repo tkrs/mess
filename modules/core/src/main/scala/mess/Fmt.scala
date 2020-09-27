@@ -228,10 +228,9 @@ object Fmt {
       def pack(acc: MessagePacker): Unit = {
         val a = value
         acc.packMapHeader(a.size)
-        a.foreach {
-          case (k, v) =>
-            k.pack(acc)
-            v.pack(acc)
+        a.foreach { case (k, v) =>
+          k.pack(acc)
+          v.pack(acc)
         }
       }
     }
@@ -273,10 +272,9 @@ object Fmt {
       def pack(acc: MessagePacker): Unit = {
         val a = value
         acc.packMapHeader(a.size)
-        a.foreach {
-          case (k, v) =>
-            k.pack(acc)
-            v.pack(acc)
+        a.foreach { case (k, v) =>
+          k.pack(acc)
+          v.pack(acc)
         }
       }
     }
