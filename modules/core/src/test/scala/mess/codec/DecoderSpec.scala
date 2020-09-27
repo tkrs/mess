@@ -211,8 +211,8 @@ class DecoderSpec extends MsgpackHelper {
     Seq(
       (
         ('a' to 'z').zip(0 to 14).toMap,
-        Fmt.fromEntries(('a' to 'z').zip(0 to 14).map {
-          case (k, v) => Fmt.fromString(k.toString) -> Fmt.fromByte(v.toByte)
+        Fmt.fromEntries(('a' to 'z').zip(0 to 14).map { case (k, v) =>
+          Fmt.fromString(k.toString) -> Fmt.fromByte(v.toByte)
         }: _*)
       ),
       (Map.empty[Char, Int], Fmt.unit)
@@ -227,10 +227,9 @@ class DecoderSpec extends MsgpackHelper {
     Seq(
       (
         ('a' to 'z').zip((0 to 14).map(a => Bar(a.toDouble))).toMap,
-        Fmt.fromEntries(('a' to 'z').zip(0 to 14).map {
-          case (k, v) =>
-            Fmt.fromString(k.toString) -> Fmt
-              .fromEntries(Fmt.fromString("double") -> Fmt.fromDouble(v.toDouble))
+        Fmt.fromEntries(('a' to 'z').zip(0 to 14).map { case (k, v) =>
+          Fmt.fromString(k.toString) -> Fmt
+            .fromEntries(Fmt.fromString("double") -> Fmt.fromDouble(v.toDouble))
         }: _*)
       )
     )
