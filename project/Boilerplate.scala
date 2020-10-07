@@ -1,7 +1,6 @@
 import sbt._
 
-/**
-  * Generate a range of boilerplate classes that would be tedious to write and maintain by hand.
+/** Generate a range of boilerplate classes that would be tedious to write and maintain by hand.
   *
   * Copied, with some modifications, from
   * [[https://github.com/milessabin/shapeless/blob/master/project/Boilerplate.scala Shapeless]].
