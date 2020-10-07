@@ -8,7 +8,7 @@ object Dependencies {
     val organizeImports = "0.4.2"
 
     val shapeless   = "2.3.3"
-    val msgpackJava = "0.8.20"
+    val msgpackJava = "0.8.21"
 
     val munit = "0.7.13"
   }
