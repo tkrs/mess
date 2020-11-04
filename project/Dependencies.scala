@@ -10,7 +10,7 @@ object Dependencies {
     val shapeless   = "2.3.3"
     val msgpackJava = "0.8.21"
 
-    val munit = "0.7.15"
+    val munit = "0.7.16"
   }
 
   lazy val OrganizeImports = "com.github.liancheng" %% "organize-imports" % Ver.organizeImports
