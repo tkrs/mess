@@ -1,6 +1,7 @@
 package mess.codec
 
-import mess.{Fmt, MsgpackHelper}
+import mess.Fmt
+import mess.MsgpackHelper
 import org.msgpack.core.MessagePack
 
 class EncoderSpec extends MsgpackHelper {

@@ -1,7 +1,8 @@
 package mess.codec
 
+import mess.Fmt
+import mess.MsgpackHelper
 import mess.codec.semiauto._
-import mess.{Fmt, MsgpackHelper}
 
 class DecoderSpec extends MsgpackHelper {
   case class Bar(double: Double)
