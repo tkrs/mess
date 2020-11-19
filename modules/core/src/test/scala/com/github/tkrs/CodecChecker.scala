@@ -3,11 +3,16 @@ package com.github.tkrs
 import java.time.Instant
 
 import mess._
+import mess.codec.Decoder
+import mess.codec.Encoder
+import mess.codec.TypeMismatchError
 import mess.codec.semiauto._
-import mess.codec.{Decoder, Encoder, TypeMismatchError}
 import org.msgpack.core.MessagePack
 import org.msgpack.core.MessagePack.Code
-import org.scalacheck.{Arbitrary, Gen, Prop, Shrink}
+import org.scalacheck.Arbitrary
+import org.scalacheck.Gen
+import org.scalacheck.Prop
+import org.scalacheck.Shrink
 
 class CodecChecker extends MsgpackHelper {
   import MsgpackHelper._
