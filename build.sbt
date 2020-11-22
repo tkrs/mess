@@ -23,6 +23,7 @@ lazy val mess = project
         libraryDependencies ++= Seq(MunitScalacheck).map(_ % Test),
         testFrameworks += new TestFramework("munit.Framework"),
         scalafmtOnCompile := true,
+        scalafixOnCompile := true,
         scalafixDependencies += OrganizeImports,
         semanticdbEnabled := true,
         semanticdbVersion := scalafixSemanticdb.revision,
@@ -109,7 +110,7 @@ lazy val compilerOptions = Seq(
 
 lazy val warnCompilerOptions = Seq(
   "-Xlint",
-  // "-Xfatal-warnings",
+  "-Xfatal-warnings",
   "-Ywarn-extra-implicit",
   "-Ywarn-unused:_",
   "-Ywarn-dead-code",
