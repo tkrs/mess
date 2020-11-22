@@ -13,6 +13,7 @@ jobs:
         with:
           java-version: openjdk@1.11
       - run: sbt coverage +test coverageReport
+      - run: sbt +examples/run
       - uses: codecov/codecov-action@v1
         with:
           token: ${{ secrets.CODECOV_TOKEN }} # not required for public repos
