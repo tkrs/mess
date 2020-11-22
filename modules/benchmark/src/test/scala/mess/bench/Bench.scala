@@ -3,7 +3,9 @@ package mess.bench
 import java.util.concurrent.TimeUnit
 
 import mess.Fmt
-import mess.codec.{Decoder, DecodingFailure, Encoder}
+import mess.codec.Decoder
+import mess.codec.DecodingFailure
+import mess.codec.Encoder
 import org.msgpack.core.MessagePack
 import org.openjdk.jmh.annotations._
 

@@ -5,12 +5,12 @@ object Dependencies {
     val `scala2.13` = "2.13.3"
     val `scala2.12` = "2.12.12"
 
-    val organizeImports = "0.4.3"
+    val organizeImports = "0.4.4"
 
     val shapeless   = "2.3.3"
     val msgpackJava = "0.8.21"
 
-    val munit = "0.7.17"
+    val munit = "0.7.18"
   }
 
   lazy val OrganizeImports = "com.github.liancheng" %% "organize-imports" % Ver.organizeImports

@@ -1,7 +1,8 @@
 package mess
 
-import org.msgpack.core.{MessageBufferPacker, MessagePack}
 import munit.FunSuite
+import org.msgpack.core.MessageBufferPacker
+import org.msgpack.core.MessagePack
 
 trait MsgpackHelper extends FunSuite {
 
