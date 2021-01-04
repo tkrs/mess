@@ -364,7 +364,7 @@ object Fmt {
     loop(buffer.unpackMapHeader(), factory.newBuilder)
   }
 
-  def pack(msgPack: Fmt, config: MessagePack.PackerConfig): Array[Byte] = {
+  def pack(msgPack: Fmt, config: MessagePack.PackerConfig = MessagePack.DEFAULT_PACKER_CONFIG): Array[Byte] = {
     val buffer = config.newBufferPacker()
     try {
       msgPack.pack(buffer)
@@ -372,7 +372,7 @@ object Fmt {
     } finally buffer.close()
   }
 
-  def unpack(bytes: Array[Byte], config: MessagePack.UnpackerConfig): Fmt = {
+  def unpack(bytes: Array[Byte], config: MessagePack.UnpackerConfig = MessagePack.DEFAULT_UNPACKER_CONFIG): Fmt = {
     val buffer = config.newUnpacker(bytes)
     try unpack(buffer)
     finally buffer.close()
