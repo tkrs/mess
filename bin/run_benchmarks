@@ -2,17 +2,10 @@
 
 set -euo pipefail
 
-if ! type jenv > /dev/null 2>&1; then exit 1; fi
-
-cd $(dirname $(pwd)/..)
+cwd=$(cd $(dirname "${0}") && pwd)
 
 date=`date +%FT%T`
 
-for jv in "${@}"; do
-  for sv in "2.12.10" "2.13.1"; do
-    eval "$(jenv sh-shell $jv)"
-    java -version
-    # sbt ++$sv clean
-    sbt ++$sv clean "benchmark/jmh:run -prof gc -rf json -rff benchmark-$jv-$sv-$date.json .*GenericBench.*"
-  done
+for sv in "2.12.12" "2.13.3"; do
+  sbt ++$sv clean "benchmark/jmh:run -prof gc -rf json -rff $cwd/../benchmark-$sv-$date.json .*GenericBench.*"
 done
