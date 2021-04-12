@@ -2,15 +2,15 @@ import sbt._
 
 object Dependencies {
   val Ver = new {
-    val `scala2.13` = "2.13.3"
+    val `scala2.13` = "2.13.5"
     val `scala2.12` = "2.12.13"
 
     val organizeImports = "0.5.0"
 
-    val shapeless   = "2.3.3"
+    val shapeless   = "2.3.4"
     val msgpackJava = "0.8.22"
 
-    val munit = "0.7.22"
+    val munit = "0.7.23"
   }
 
   lazy val OrganizeImports = "com.github.liancheng" %% "organize-imports" % Ver.organizeImports
