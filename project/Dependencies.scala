@@ -2,6 +2,7 @@ import sbt._
 
 object Dependencies {
   val Ver = new {
+    val scala3      = "3.0.0-RC2"
     val `scala2.13` = "2.13.5"
     val `scala2.12` = "2.12.12"
 
@@ -15,7 +16,7 @@ object Dependencies {
 
   lazy val OrganizeImports = "com.github.liancheng" %% "organize-imports" % Ver.organizeImports
 
-  lazy val Shapeless       = "com.chuusai"   %% "shapeless"        % Ver.shapeless
+  lazy val Shapeless       = ("com.chuusai"  %% "shapeless"        % Ver.shapeless).cross(CrossVersion.for3Use2_13)
   lazy val MsgpackJava     = "org.msgpack"    % "msgpack-core"     % Ver.msgpackJava
   lazy val MunitScalacheck = "org.scalameta" %% "munit-scalacheck" % Ver.munit
 }
