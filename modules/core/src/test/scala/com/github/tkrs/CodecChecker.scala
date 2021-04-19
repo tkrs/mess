@@ -38,7 +38,7 @@ class CodecChecker extends MsgpackHelper {
   }
 
   def roundTrip[A: Arbitrary: Shrink](implicit encode: Encoder[A], decode: Decoder[A]) =
-    Prop.forAll { a: A =>
+    Prop.forAll { (a: A) =>
       val ast = encode(a)
       ast.pack(packer)
       val bytes    = packer.toByteArray
@@ -90,9 +90,7 @@ class CodecChecker extends MsgpackHelper {
   test("Set[Double]")(roundTrip[Set[Double]])
   test("Set[BigInt]")(roundTrip[Set[BigInt]])
   test("Set[String]")(roundTrip[Set[String]])
-  test("User[List]") {
-    roundTrip[User[List]]
-  }
+  test("User[List]")(roundTrip[User[List]])
   test("Tuple1")(roundTrip[Tuple1[Int]])
   test("Tuple2")(roundTrip[Tuple2[Int, Int]])
   test("Tuple3")(roundTrip[Tuple3[Int, Int, Long]])

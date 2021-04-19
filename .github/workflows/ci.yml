@@ -6,20 +6,37 @@ on:
   pull_request:
 jobs:
   build:
+    strategy:
+      matrix:
+        scala:
+          [2.12.12, 2.13.5]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
       - uses: olafurpg/setup-scala@v13
         with:
           java-version: openjdk@1.11
-      - run: sbt coverage +test coverageReport
-      - run: sbt +examples/run
+      - run: sbt ++${{ matrix.scala }} coverage test coverageReport
+      - run: sbt ++${{ matrix.scala }} examples/run
       - uses: codecov/codecov-action@v2
         with:
           token: ${{ secrets.CODECOV_TOKEN }} # not required for public repos
           flags: unittests
           fail_ci_if_error: true
           verbose: true
+  build3:
+    strategy:
+      matrix:
+        scala:
+          [3.0.2]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: olafurpg/setup-scala@v13
+        with:
+          java-version: openjdk@1.11
+      - run: sbt ++${{ matrix.scala }} test
+      - run: sbt ++${{ matrix.scala }} examples/run
   scalafmt:
     runs-on: ubuntu-latest
     steps:

@@ -29,7 +29,7 @@ private[codec] trait DerivedDecoderOps {
           }
         case Left(e) => Left(e)
       }
-    case m => Left(TypeMismatchError("FieldType[K, H] :: T", m))
+    case m => Left(TypeMismatchError("Product", m))
   }
 
   @inline final def decodeLabelledCoproductInternal[K <: Symbol, L, R <: Coproduct](implicit
@@ -43,6 +43,6 @@ private[codec] trait DerivedDecoderOps {
         case r @ Right(_) => r
         case Left(_)      => decodeR.map(vv => Inr(vv)).apply(m)
       }
-    case m => Left(TypeMismatchError("FieldType[K, L] :+: R", m))
+    case m => Left(TypeMismatchError("Sum", m))
   }
 }
