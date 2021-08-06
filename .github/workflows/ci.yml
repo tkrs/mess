@@ -14,7 +14,7 @@ jobs:
           java-version: openjdk@1.11
       - run: sbt coverage +test coverageReport
       - run: sbt +examples/run
-      - uses: codecov/codecov-action@v1
+      - uses: codecov/codecov-action@v2.0.2
         with:
           token: ${{ secrets.CODECOV_TOKEN }} # not required for public repos
           flags: unittests
