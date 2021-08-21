@@ -8,8 +8,8 @@ lazy val mess = project
     inThisBuild(
       Seq(
         organization := "com.github.tkrs",
-        homepage := Some(url("https://github.com/tkrs/mess")),
-        licenses := Seq("MIT License" -> url("http://www.opensource.org/licenses/mit-license.php")),
+        homepage     := Some(url("https://github.com/tkrs/mess")),
+        licenses     := Seq("MIT License" -> url("http://www.opensource.org/licenses/mit-license.php")),
         developers := List(
           Developer(
             "tkrs",
@@ -18,7 +18,7 @@ lazy val mess = project
             url("https://github.com/tkrs")
           )
         ),
-        scalaVersion := Ver.`scala2.13`,
+        scalaVersion       := Ver.`scala2.13`,
         crossScalaVersions := Seq(Ver.`scala2.12`, Ver.`scala2.13`),
         libraryDependencies ++= Seq(MunitScalacheck).map(_ % Test),
         testFrameworks += new TestFramework("munit.Framework"),
@@ -27,7 +27,7 @@ lazy val mess = project
         scalafixDependencies += OrganizeImports,
         semanticdbEnabled := true,
         semanticdbVersion := scalafixSemanticdb.revision,
-        fork := true
+        fork              := true
       )
     )
   )
@@ -42,7 +42,7 @@ lazy val core = project
   .settings(crossVersionSharedSources)
   .settings(
     description := "mess core",
-    moduleName := "mess-core"
+    moduleName  := "mess-core"
   )
   .settings(Compile / sourceGenerators += (Compile / sourceManaged).map(Boilerplate.gen).taskValue)
   .settings(
@@ -55,7 +55,7 @@ lazy val examples = (project
   .settings(publish / skip := true)
   .settings(
     description := "mess examples",
-    moduleName := "mess-examples"
+    moduleName  := "mess-examples"
   )
   .settings(
     coverageEnabled := false
@@ -68,7 +68,7 @@ lazy val benchmark = (project
   .settings(publish / skip := true)
   .settings(
     description := "mess benchmark",
-    moduleName := "mess-benchmark"
+    moduleName  := "mess-benchmark"
   )
   .settings(
     coverageEnabled := false
