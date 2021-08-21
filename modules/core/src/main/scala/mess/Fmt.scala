@@ -3,6 +3,7 @@ package mess
 import java.math.BigInteger
 import java.nio.charset.Charset
 import java.nio.charset.StandardCharsets.UTF_8
+import java.time.Instant
 
 import mess.internal.ScalaVersionSpecifics._
 import org.msgpack.core.MessagePack
@@ -162,6 +163,13 @@ object Fmt {
       buffer.packBinaryHeader(a.length)
       buffer.writePayload(a)
     }
+  }
+
+  final case class MTimestamp(timestamp: Instant) extends Fmt {
+    def isNil: Boolean = false
+
+    def pack(buffer: MessagePacker): Unit =
+      buffer.packTimestamp(timestamp)
   }
 
   final case class MExtension(typ: Byte, size: Int, value: Array[Byte]) extends Fmt {
@@ -426,10 +434,13 @@ object Fmt {
           val size = buffer.unpackBinaryHeader()
           Fmt.MBin(buffer.readPayload(size))
         case MF.EXT8 | MF.EXT16 | MF.EXT32 | MF.FIXEXT1 | MF.FIXEXT2 | MF.FIXEXT4 | MF.FIXEXT8 | MF.FIXEXT16 =>
-          val ext   = buffer.unpackExtensionTypeHeader()
-          val bytes = Array.ofDim[Byte](ext.getLength)
-          buffer.readPayload(bytes)
-          Fmt.MExtension(ext.getType, ext.getLength, bytes)
+          val ext = buffer.unpackExtensionTypeHeader()
+          if (ext.isTimestampType()) MTimestamp(buffer.unpackTimestamp())
+          else {
+            val bytes = Array.ofDim[Byte](ext.getLength)
+            buffer.readPayload(bytes)
+            Fmt.MExtension(ext.getType, ext.getLength, bytes)
+          }
         case MF.NEVER_USED =>
           sys.error("cannot unpack format: NEVER USED")
       }
@@ -451,6 +462,7 @@ object Fmt {
   def fromLsit(value: List[Fmt]): Fmt                          = MArray(value.toVector)
   def fromSeq(value: Seq[Fmt]): Fmt                            = MArray(value.toVector)
   def fromValues(value: Fmt*): Fmt                             = MArray(value.toVector)
-  def fromBytes(x: Array[Byte]): Fmt                           = MBin(x)
+  def fromBytes(value: Array[Byte]): Fmt                       = MBin(value)
+  def fromInstant(value: Instant): Fmt                         = MTimestamp(value)
   def extension(typ: Byte, size: Int, bytes: Array[Byte]): Fmt = MExtension(typ, size, bytes)
 }

@@ -1,5 +1,7 @@
 package mess.codec
 
+import java.time.Instant
+
 import mess.Fmt
 
 import scala.annotation.tailrec
@@ -49,6 +51,7 @@ private[codec] trait Encoder1 {
   implicit final val encodeFloat: Encoder[Float]       = Fmt.fromFloat(_)
   implicit final val encodeChar: Encoder[Char]         = a => Fmt.fromString(a.toString)
   implicit final val encodeString: Encoder[String]     = Fmt.fromString(_)
+  implicit final val encodeTimestamp: Encoder[Instant] = Fmt.fromInstant(_)
 
   implicit final def encodeSymbol[K <: Symbol]: Encoder[K] = a => Fmt.fromString(a.name)
 
