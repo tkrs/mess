@@ -27,12 +27,13 @@ object Encoder extends Encoder1 with TupleEncoder {
     final def apply(a: A): Fmt                          = applyToMap(a)
     final def mapMap(f: Fmt.MMap => Fmt.MMap): AsMap[A] = a => f(applyToMap(a))
   }
+  object AsMap extends MirrorEncoder
 
   def apply[A](implicit A: Encoder[A]): Encoder[A]                   = A
   def asMap[A](implicit A: Encoder.AsMap[A]): Encoder.AsMap[A]       = A
   def asArray[A](implicit A: Encoder.AsArray[A]): Encoder.AsArray[A] = A
 
-  final def instance[A](fa: A => Fmt): Encoder[A] = a => fa(a)
+  final def instance[A](fa: A => Fmt): Encoder[A] = fa(_)
 }
 
 private[codec] trait Encoder1 {
@@ -61,7 +62,7 @@ private[codec] trait Encoder1 {
 
   implicit final val encodeNone: Encoder[None.type] = _ => Fmt.nil
 
-  @tailrec private[this] def buildVector[A](rem: Iterator[A], acc: mutable.Builder[Fmt, Vector[Fmt]])(implicit
+  @tailrec private def buildVector[A](rem: Iterator[A], acc: mutable.Builder[Fmt, Vector[Fmt]])(implicit
     A: Encoder[A]
   ): Vector[Fmt] =
     if (!rem.hasNext) acc.result()
@@ -79,10 +80,7 @@ private[codec] trait Encoder1 {
   implicit final def encodeVector[A: Encoder]: Encoder.AsArray[Vector[A]] =
     a => Fmt.MArray(buildVector(a.iterator, Vector.newBuilder))
 
-  @tailrec private[this] def buildMap[K, V](
-    it: Iterator[(K, V)],
-    acc: mutable.Builder[(Fmt, Fmt), Map[Fmt, Fmt]]
-  )(implicit
+  @tailrec private def buildMap[K, V](it: Iterator[(K, V)], acc: mutable.Builder[(Fmt, Fmt), Map[Fmt, Fmt]])(implicit
     encodeK: Encoder[K],
     encodeV: Encoder[V]
   ): Map[Fmt, Fmt] =

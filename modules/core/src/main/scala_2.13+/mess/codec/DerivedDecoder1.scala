@@ -22,7 +22,7 @@ private[codec] trait DerivedDecoder2 extends DerivedDecoder3 { self: DerivedDeco
 
 private[codec] trait DerivedDecoder3 { self: DerivedDecoderOps =>
   implicit final val decodeCNil: DerivedDecoder[CNil] =
-    m => Left(TypeMismatchError("CNil", m))
+    m => Left(TypeMismatchError("Sum", m))
 
   implicit final def decodeLabelledCoproduct[K <: Symbol, L, R <: Coproduct](implicit
     witK: Witness.Aux[K],
