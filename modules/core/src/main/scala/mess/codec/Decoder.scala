@@ -1,6 +1,7 @@
 package mess.codec
 
 import java.nio.charset.StandardCharsets.UTF_8
+import java.time.Instant
 
 import mess.Fmt
 import mess.internal.ScalaVersionSpecifics._
@@ -100,6 +101,11 @@ private[codec] trait Decoder1 {
   implicit val decodeString: Decoder[String] = {
     case Fmt.MString(a) => Right(a)
     case m              => Left(TypeMismatchError("String", m))
+  }
+
+  implicit val decodeTimestamp: Decoder[Instant] = {
+    case Fmt.MTimestamp(a) => Right(a)
+    case m                 => Left(TypeMismatchError("Timestamp", m))
   }
 
   implicit def decodeSome[A](implicit decodeA: Decoder[A]): Decoder[Some[A]] =

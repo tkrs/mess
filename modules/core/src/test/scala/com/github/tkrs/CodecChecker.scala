@@ -5,10 +5,8 @@ import java.time.Instant
 import mess._
 import mess.codec.Decoder
 import mess.codec.Encoder
-import mess.codec.TypeMismatchError
 import mess.codec.semiauto._
 import org.msgpack.core.MessagePack
-import org.msgpack.core.MessagePack.Code
 import org.scalacheck.Arbitrary
 import org.scalacheck.Gen
 import org.scalacheck.Prop
@@ -37,6 +35,11 @@ class CodecChecker extends MsgpackHelper {
     implicit val arbFix: Arbitrary[User[List]] = Arbitrary(genFix)
   }
 
+  implicit val arbInstant: Arbitrary[Instant] = Arbitrary(for {
+    seconds <- Gen.choose(0L, System.currentTimeMillis() / 1000)
+    nanos   <- Gen.choose(0L, 999000000L)
+  } yield Instant.ofEpochSecond(seconds, nanos))
+
   def roundTrip[A: Arbitrary: Shrink](implicit encode: Encoder[A], decode: Decoder[A]) =
     Prop.forAll { (a: A) =>
       val ast = encode(a)
@@ -59,6 +62,7 @@ class CodecChecker extends MsgpackHelper {
   test("Double")(roundTrip[Double])
   test("String")(roundTrip[String])
   test("BigInt")(roundTrip[BigInt])
+  test("Timestamp")(roundTrip[Instant])
   test("Map[String, Int]")(roundTrip[Map[String, Int]])
   test("Map[String, Long]")(roundTrip[Map[String, Long]])
   test("Map[String, Float]")(roundTrip[Map[String, Float]])
@@ -114,36 +118,6 @@ class CodecChecker extends MsgpackHelper {
   test("Tuple21")(roundTrip[Tuple21[Int, Int, Long, String, BigInt, Double, Float, Long, Int, Byte, Short, Boolean, Int, String, Int, Int, Int, Int, Int, Int, Int]])
   test("Tuple22")(roundTrip[Tuple22[Int, Int, Long, String, BigInt, Double, Float, Long, Int, Byte, Short, Boolean, Int, String, List[String], Int, Int, Int, Int, Int, Int, Int]])
   // format: on
-
-  implicit val arbInstant: Arbitrary[Instant] = Arbitrary(for {
-    seconds <- Gen.choose(0L, System.currentTimeMillis() / 1000)
-    nanos   <- Gen.choose(0L, 999000000L)
-  } yield Instant.ofEpochSecond(seconds, nanos))
-
-  implicit val encodeInstantAsFluentdEventTime: Encoder[Instant] = a => {
-    val s = a.getEpochSecond
-    val n = a.getNano.toLong
-
-    val f: (Long, Long) => Byte = (v, m) => (v >>> m).toByte
-    val fs: Long => Byte        = f(s, _)
-    val fn: Long => Byte        = f(n, _)
-
-    val arr = Array(fs(24L), fs(16L), fs(8L), fs(0L), fn(24L), fn(16L), fn(8L), fn(0L))
-    Fmt.extension(Code.EXT8, 8, arr)
-  }
-
-  implicit val decodeInstantAsFluentdEventTime: Decoder[Instant] = {
-    case Fmt.MExtension(Code.EXT8, _, arr) =>
-      val f: (Int, Long) => Long = (i, j) => (arr(i) & 0xff).toLong << j
-
-      val seconds = f(0, 24L) | f(1, 16L) | f(2, 8L) | f(3, 0L)
-      val nanos   = f(4, 24L) | f(5, 16L) | f(6, 8L) | f(7, 0L)
-      Right(Instant.ofEpochSecond(seconds, nanos))
-    case a =>
-      Left(TypeMismatchError("Instant", a))
-  }
-
-  test("Instant(Extension)")(roundTrip[Instant])
 
   case class Hoge(a: Option[Int])
 
