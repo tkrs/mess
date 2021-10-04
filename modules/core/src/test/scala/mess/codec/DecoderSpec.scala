@@ -245,7 +245,7 @@ class DecoderSpec extends MsgpackHelper {
   test("Decoder[Qux] failure") {
     assertEquals(
       decode[Qux](Fmt.fromString(" ")),
-      Left(TypeMismatchError("FieldType[K, H] :: T", Fmt.fromString(" ")))
+      Left(TypeMismatchError("Product", Fmt.fromString(" ")))
     )
     val a = decode[Qux](Fmt.fromEntries(Fmt.fromString("byte") -> Fmt.fromString(" ")))
     assertEquals(a, Left(TypeMismatchError("Int", Fmt.fromString(" "))))
@@ -274,9 +274,9 @@ class DecoderSpec extends MsgpackHelper {
     import mess.codec.auto._
 
     val a = decode[Z](Fmt.fromString(" "))
-    assertEquals(a, Left(TypeMismatchError("FieldType[K, L] :+: R", Fmt.fromString(" "))))
+    assertEquals(a, Left(TypeMismatchError("Sum", Fmt.fromString(" "))))
     val b = decode[Z](Fmt.fromEntries(Fmt.fromString("Z2") -> Fmt.fromInt(1)))
-    assertEquals(b, Left(TypeMismatchError("CNil", Fmt.fromEntries(Fmt.fromString("Z2") -> Fmt.fromInt(1)))))
+    assertEquals(b, Left(TypeMismatchError("Sum", Fmt.fromEntries(Fmt.fromString("Z2") -> Fmt.fromInt(1)))))
   }
 
   test("map") {

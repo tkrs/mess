@@ -1,6 +1,7 @@
 package mess.codec
 
 import java.nio.charset.StandardCharsets.UTF_8
+import java.time.Instant
 
 import mess.Fmt
 import mess.internal.ScalaVersionSpecifics._
@@ -8,8 +9,7 @@ import mess.internal.ScalaVersionSpecifics._
 import scala.annotation.tailrec
 import scala.collection.mutable
 
-trait Decoder[A] extends Serializable {
-  self =>
+trait Decoder[A] extends Serializable { self =>
 
   def apply(m: Fmt): Either[DecodingFailure, A]
 
@@ -35,7 +35,7 @@ trait Decoder[A] extends Serializable {
       }
 }
 
-object Decoder extends Decoder1 with TupleDecoder {
+object Decoder extends Decoder1 with MirrorDecoder with TupleDecoder {
   def apply[A](implicit A: Decoder[A]): Decoder[A] = A
 
   def lift[A](a: A): Decoder[A] = _ => Right(a)
@@ -103,6 +103,11 @@ private[codec] trait Decoder1 {
     case m              => Left(TypeMismatchError("String", m))
   }
 
+  implicit val decodeTimestamp: Decoder[Instant] = {
+    case Fmt.MTimestamp(a) => Right(a)
+    case m                 => Left(TypeMismatchError("Timestamp", m))
+  }
+
   implicit def decodeSome[A](implicit decodeA: Decoder[A]): Decoder[Some[A]] =
     m =>
       decodeA(m) match {
@@ -153,16 +158,16 @@ private[codec] trait Decoder1 {
 
   implicit def decodeVector[A: Decoder]: Decoder[Vector[A]] = decodeContainer[Vector, A]
 
-  implicit def decodeMapLike[M[_, _] <: Map[K, V], K, V](implicit
+  implicit def decodeMap[K, V](implicit
     decodeK: Decoder[K],
     decodeV: Decoder[V],
-    factoryKV: Factory[(K, V), M[K, V]]
-  ): Decoder[M[K, V]] =
+    factoryKV: Factory[(K, V), Map[K, V]]
+  ): Decoder[Map[K, V]] =
     m => {
       @tailrec def loop(
         it: Iterator[(Fmt, Fmt)],
-        b: mutable.Builder[(K, V), M[K, V]]
-      ): Either[DecodingFailure, M[K, V]] =
+        b: mutable.Builder[(K, V), Map[K, V]]
+      ): Either[DecodingFailure, Map[K, V]] =
         if (!it.hasNext) Right(b.result())
         else {
           val (k, v) = it.next()

@@ -5,8 +5,10 @@ import sbt._
   * Copied, with some modifications, from
   * [[https://github.com/milessabin/shapeless/blob/master/project/Boilerplate.scala Shapeless]].
   *
-  * @author Miles Sabin
-  * @author Kevin Wright
+  * @author
+  *   Miles Sabin
+  * @author
+  *   Kevin Wright
   */
 object Boilerplate {
   import scala.StringContext._

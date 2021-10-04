@@ -8,8 +8,8 @@ lazy val mess = project
     inThisBuild(
       Seq(
         organization := "com.github.tkrs",
-        homepage := Some(url("https://github.com/tkrs/mess")),
-        licenses := Seq("MIT License" -> url("http://www.opensource.org/licenses/mit-license.php")),
+        homepage     := Some(url("https://github.com/tkrs/mess")),
+        licenses     := Seq("MIT License" -> url("http://www.opensource.org/licenses/mit-license.php")),
         developers := List(
           Developer(
             "tkrs",
@@ -18,8 +18,8 @@ lazy val mess = project
             url("https://github.com/tkrs")
           )
         ),
-        scalaVersion := Ver.`scala2.13`,
-        crossScalaVersions := Seq(Ver.`scala2.12`, Ver.`scala2.13`),
+        scalaVersion       := Ver.`scala2.13`,
+        crossScalaVersions := Seq(Ver.`scala2.12`, Ver.`scala2.13`, Ver.scala3),
         libraryDependencies ++= Seq(MunitScalacheck).map(_ % Test),
         testFrameworks += new TestFramework("munit.Framework"),
         scalafmtOnCompile := true,
@@ -27,7 +27,7 @@ lazy val mess = project
         scalafixDependencies += OrganizeImports,
         semanticdbEnabled := true,
         semanticdbVersion := scalafixSemanticdb.revision,
-        fork := true
+        fork              := true
       )
     )
   )
@@ -42,11 +42,16 @@ lazy val core = project
   .settings(crossVersionSharedSources)
   .settings(
     description := "mess core",
-    moduleName := "mess-core"
+    moduleName  := "mess-core"
   )
   .settings(Compile / sourceGenerators += (Compile / sourceManaged).map(Boilerplate.gen).taskValue)
   .settings(
-    libraryDependencies ++= Seq(MsgpackJava, Shapeless)
+    libraryDependencies ++= {
+      CrossVersion.partialVersion(scalaVersion.value) match {
+        case Some((3, _)) => Seq(MsgpackJava)
+        case _            => Seq(MsgpackJava, Shapeless)
+      }
+    }
   )
 
 lazy val examples = (project
@@ -55,7 +60,7 @@ lazy val examples = (project
   .settings(publish / skip := true)
   .settings(
     description := "mess examples",
-    moduleName := "mess-examples"
+    moduleName  := "mess-examples"
   )
   .settings(
     coverageEnabled := false
@@ -68,7 +73,7 @@ lazy val benchmark = (project
   .settings(publish / skip := true)
   .settings(
     description := "mess benchmark",
-    moduleName := "mess-benchmark"
+    moduleName  := "mess-benchmark"
   )
   .settings(
     coverageEnabled := false
@@ -79,8 +84,17 @@ lazy val benchmark = (project
 lazy val sharedSettings = Seq(
   scalacOptions ++= compilerOptions ++ warnCompilerOptions ++ {
     CrossVersion.partialVersion(scalaVersion.value) match {
-      case Some((2, n)) if n >= 13 => Nil
-      case _                       => Seq("-Xfuture", "-Ypartial-unification", "-Yno-adapted-args")
+      case Some((3, _)) => Nil // Seq("-source:3.0-migration")
+      case Some((2, n)) if n >= 13 =>
+        Seq("-Xfatal-warnings",
+            "-Xlint",
+            "-Ywarn-unused",
+            "-Ywarn-extra-implicit",
+            "-Ywarn-dead-code",
+            "-Ywarn-numeric-widen"
+        )
+
+      case _ => Seq("-Xfuture", "-Ypartial-unification", "-Yno-adapted-args")
     }
   }
 )
@@ -92,8 +106,12 @@ lazy val crossVersionSharedSources =
         if (dir.getName != "scala") Seq(dir)
         else
           CrossVersion.partialVersion(scalaVersion.value) match {
-            case Some((2, n)) if n >= 13 => Seq(new File(dir.getPath + "_2.13+"))
-            case _                       => Seq(new File(dir.getPath + "_2.12-"))
+            case Some((3, n)) =>
+              Seq(new File(dir.getPath + "_3"))
+            case Some((2, n)) if n >= 13 =>
+              Seq(new File(dir.getPath + "_2"), new File(dir.getPath + "_2.13+"))
+            case s =>
+              Seq(new File(dir.getPath + "_2"), new File(dir.getPath + "_2.12-"))
           }
       }
     }
@@ -109,10 +127,5 @@ lazy val compilerOptions = Seq(
 )
 
 lazy val warnCompilerOptions = Seq(
-  "-Xlint",
-  "-Xfatal-warnings",
-  "-Ywarn-extra-implicit",
-  "-Ywarn-unused:_",
-  "-Ywarn-dead-code",
-  "-Ywarn-numeric-widen"
+  "-Xfatal-warnings"
 )
