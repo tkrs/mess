@@ -6,6 +6,6 @@ cwd=$(cd $(dirname "${0}") && pwd)
 
 date=`date +%FT%T`
 
-for sv in "2.12.12" "2.13.3"; do
+for sv in "2.12.12" "2.13.5" "3.0.2"; do
   sbt ++$sv clean "benchmark/jmh:run -prof gc -rf json -rff $cwd/../benchmark-$sv-$date.json ${@}"
 done
