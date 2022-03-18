@@ -95,7 +95,9 @@ object Boilerplate {
       |import _root_.mess.Fmt
       |
       |private[codec] trait TupleEncoder {
-        -  implicit def encodeTuple$arity[${`A..N`}](implicit ${`a:F[A]..n:F[N]`("Encoder")}): Encoder.AsArray[${`(A..N)`}] =
+        -  implicit def encodeTuple$arity[${`A..N`}](implicit ${`a:F[A]..n:F[N]`(
+          "Encoder"
+        )}): Encoder.AsArray[${`(A..N)`}] =
         -    $arg => Fmt.MArray(Vector($expr))
       |}
       """
