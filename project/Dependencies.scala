@@ -2,14 +2,14 @@ import sbt._
 
 object Dependencies {
   val Ver = new {
-    val scala3      = "3.0.2"
+    val scala3      = "3.1.1"
     val `scala2.13` = "2.13.6"
     val `scala2.12` = "2.12.15"
 
     val organizeImports = "0.5.0"
 
-    val shapeless   = "2.3.7"
-    val msgpackJava = "0.9.0"
+    val shapeless   = "2.3.8"
+    val msgpackJava = "0.9.1"
 
     val munit = "0.7.29"
   }
