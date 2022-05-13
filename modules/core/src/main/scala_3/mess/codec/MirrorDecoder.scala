@@ -47,7 +47,7 @@ private[codec] trait MirrorDecoder:
                   Some(k0)
 
             k match
-              case Some((k: Fmt.MString, v: Fmt)) =>
+              case Some(k: Fmt.MString, v: Fmt) =>
                 val ord = names.indexOf(k.value)
                 if (ord < 0) Left(TypeMismatchError("Sum", m))
                 else

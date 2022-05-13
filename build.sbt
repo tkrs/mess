@@ -48,14 +48,14 @@ lazy val core = project
   .settings(
     libraryDependencies ++= {
       CrossVersion.partialVersion(scalaVersion.value) match {
-        case Some((3, _)) => Seq(MsgpackJava)
-        case _            => Seq(MsgpackJava, Shapeless)
+        case Some(3, _) => Seq(MsgpackJava)
+        case _          => Seq(MsgpackJava, Shapeless)
       }
     }
   )
 
-lazy val examples = (project
-  .in(file("modules/examples")))
+lazy val examples = project
+  .in(file("modules/examples"))
   .settings(sharedSettings)
   .settings(publish / skip := true)
   .settings(
@@ -67,8 +67,8 @@ lazy val examples = (project
   )
   .dependsOn(core)
 
-lazy val benchmark = (project
-  .in(file("modules/benchmark")))
+lazy val benchmark = project
+  .in(file("modules/benchmark"))
   .settings(sharedSettings)
   .settings(publish / skip := true)
   .settings(
@@ -84,8 +84,8 @@ lazy val benchmark = (project
 lazy val sharedSettings = Seq(
   scalacOptions ++= compilerOptions ++ warnCompilerOptions ++ {
     CrossVersion.partialVersion(scalaVersion.value) match {
-      case Some((3, _)) => Nil // Seq("-source:3.0-migration")
-      case Some((2, n)) if n >= 13 =>
+      case Some(3, _) => Nil // Seq("-source:3.0-migration")
+      case Some(2, n) if n >= 13 =>
         Seq("-Xfatal-warnings",
             "-Xlint",
             "-Ywarn-unused",
@@ -101,14 +101,14 @@ lazy val sharedSettings = Seq(
 
 lazy val crossVersionSharedSources =
   Seq(Compile, Test).map { sc =>
-    (sc / unmanagedSourceDirectories) ++= {
+    sc / unmanagedSourceDirectories ++= {
       (sc / unmanagedSourceDirectories).value.flatMap { dir: File =>
         if (dir.getName != "scala") Seq(dir)
         else
           CrossVersion.partialVersion(scalaVersion.value) match {
-            case Some((3, n)) =>
+            case Some(3, n) =>
               Seq(new File(dir.getPath + "_3"))
-            case Some((2, n)) if n >= 13 =>
+            case Some(2, n) if n >= 13 =>
               Seq(new File(dir.getPath + "_2"), new File(dir.getPath + "_2.13+"))
             case s =>
               Seq(new File(dir.getPath + "_2"), new File(dir.getPath + "_2.12-"))

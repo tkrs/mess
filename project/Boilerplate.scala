@@ -41,13 +41,13 @@ object Boilerplate {
   class TemplateVals(val arity: Int) {
     val synTypes     = (0 until arity).map(n => (n + 'A').toChar)
     val synVals      = (0 until arity).map(n => (n + 'a').toChar)
-    val synTypedVals = (synVals.zip(synTypes)).map { case (v, t) => v + ":" + t }
+    val synTypedVals = synVals.zip(synTypes).map { case (v, t) => v + ":" + t }
 
     val `A..N`                      = synTypes.mkString(", ")
     val `a..n`                      = synVals.mkString(", ")
     val `(A..N)`                    = if (arity == 1) "Tuple1[A]" else synTypes.mkString("(", ", ", ")")
     val `(a..n)`                    = if (arity == 1) "Tuple1(a)" else synVals.mkString("(", ", ", ")")
-    def `a:F[A]..n:F[N]`(f: String) = (synVals.zip(synTypes)).map { case (v, t) => s"$v: $f[$t]" }.mkString(", ")
+    def `a:F[A]..n:F[N]`(f: String) = synVals.zip(synTypes).map { case (v, t) => s"$v: $f[$t]" }.mkString(", ")
   }
 
   trait Template {
