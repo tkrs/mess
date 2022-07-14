@@ -54,8 +54,8 @@ lazy val core = project
     }
   )
 
-lazy val examples = (project
-  .in(file("modules/examples")))
+lazy val examples = project
+  .in(file("modules/examples"))
   .settings(sharedSettings)
   .settings(publish / skip := true)
   .settings(
@@ -67,8 +67,8 @@ lazy val examples = (project
   )
   .dependsOn(core)
 
-lazy val benchmark = (project
-  .in(file("modules/benchmark")))
+lazy val benchmark = project
+  .in(file("modules/benchmark"))
   .settings(sharedSettings)
   .settings(publish / skip := true)
   .settings(
