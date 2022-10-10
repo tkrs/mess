@@ -24,3 +24,19 @@ jobs:
           flags: unittests
           fail_ci_if_error: true
           verbose: true
+  scalafmt:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: olafurpg/setup-scala@v13
+        with:
+          java-version: openjdk@1.11
+      - run: sbt scalafmtCheckAll
+  scalafix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: olafurpg/setup-scala@v13
+        with:
+          java-version: openjdk@1.11
+      - run: sbt "scalafixAll --check"
