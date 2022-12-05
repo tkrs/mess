@@ -2,7 +2,7 @@ import sbt._
 
 object Dependencies {
   val Ver = new {
-    val scala3      = "3.2.0"
+    val scala3      = "3.2.1"
     val `scala2.13` = "2.13.10"
     val `scala2.12` = "2.12.16"
 
