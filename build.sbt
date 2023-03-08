@@ -102,17 +102,18 @@ lazy val sharedSettings = Seq(
 lazy val crossVersionSharedSources =
   Seq(Compile, Test).map { sc =>
     (sc / unmanagedSourceDirectories) ++= {
-      (sc / unmanagedSourceDirectories).value.flatMap { dir: File =>
-        if (dir.getName != "scala") Seq(dir)
-        else
-          CrossVersion.partialVersion(scalaVersion.value) match {
-            case Some((3, n)) =>
-              Seq(new File(dir.getPath + "_3"))
-            case Some((2, n)) if n >= 13 =>
-              Seq(new File(dir.getPath + "_2"), new File(dir.getPath + "_2.13+"))
-            case s =>
-              Seq(new File(dir.getPath + "_2"), new File(dir.getPath + "_2.12-"))
-          }
+      (sc / unmanagedSourceDirectories).value.flatMap {
+        dir: File =>
+          if (dir.getName != "scala") Seq(dir)
+          else
+            CrossVersion.partialVersion(scalaVersion.value) match {
+              case Some((3, n)) =>
+                Seq(new File(dir.getPath + "_3"))
+              case Some((2, n)) if n >= 13 =>
+                Seq(new File(dir.getPath + "_2"), new File(dir.getPath + "_2.13+"))
+              case s =>
+                Seq(new File(dir.getPath + "_2"), new File(dir.getPath + "_2.12-"))
+            }
       }
     }
   }
