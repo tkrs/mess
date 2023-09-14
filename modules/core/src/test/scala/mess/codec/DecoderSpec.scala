@@ -4,6 +4,9 @@ import mess.Fmt
 import mess.MsgpackHelper
 import mess.codec.semiauto._
 
+import scala.collection.Seq
+import scala.collection.immutable
+
 class DecoderSpec extends MsgpackHelper {
   case class Bar(double: Double)
 
@@ -53,7 +56,7 @@ class DecoderSpec extends MsgpackHelper {
   test("Decoder[Array[Byte]]") {
     val m  = Fmt.fromBytes(Array(0x11, 0x1a).map(_.toByte))
     val xs = decode[Array[Byte]](m).toTry.get
-    assertEquals(xs.toSeq, Seq(0x11, 0x1a).map(_.toByte))
+    assertEquals(xs.toSeq, immutable.Seq(0x11, 0x1a).map(_.toByte))
   }
   test("Decoder[Char] failure") {
     val msg = Fmt.fromString("ab")
@@ -187,6 +190,16 @@ class DecoderSpec extends MsgpackHelper {
   test("Decoder[Seq[A]] failure") {
     val msg = Fmt.fromString("")
     assertEquals(decode[Seq[Int]](msg), Left(TypeMismatchError("C[A]", msg)))
+  }
+  check("Decoder[immutable.Seq[A]]",
+        Seq(
+          (immutable.Seq(0 to 14: _*), Fmt.fromValues((0 to 14).map(Fmt.fromInt): _*)),
+          (immutable.Seq.empty[Int], Fmt.unit)
+        )
+  )
+  test("Decoder[immutable.Seq[A]] failure") {
+    val msg = Fmt.fromString("")
+    assertEquals(decode[immutable.Seq[Int]](msg), Left(TypeMismatchError("C[A]", msg)))
   }
   check("Decoder[Tuple2[A]]",
         Seq(
