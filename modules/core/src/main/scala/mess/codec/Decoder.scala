@@ -7,6 +7,8 @@ import mess.Fmt
 import mess.internal.ScalaVersionSpecifics._
 
 import scala.annotation.tailrec
+import scala.collection.Seq
+import scala.collection.immutable
 import scala.collection.mutable
 
 trait Decoder[A] extends Serializable { self =>
@@ -128,7 +130,7 @@ private[codec] trait Decoder1 {
           case Left(e)  => Left(e)
         }
 
-  @inline private[this] def decodeContainer[C[_], A](implicit
+  @inline private def decodeContainer[C[_], A](implicit
     decodeA: Decoder[A],
     factoryA: Factory[A, C[A]]
   ): Decoder[C[A]] =
@@ -150,7 +152,8 @@ private[codec] trait Decoder1 {
         }
     }
 
-  implicit def decodeSeq[A: Decoder]: Decoder[Seq[A]] = decodeContainer[Seq, A]
+  implicit def decodeSeq[A: Decoder]: Decoder[Seq[A]]            = decodeContainer[Seq, A]
+  implicit def decodeISeq[A: Decoder]: Decoder[immutable.Seq[A]] = decodeContainer[immutable.Seq, A]
 
   implicit def decodeSet[A: Decoder]: Decoder[Set[A]] = decodeContainer[Set, A]
 
