@@ -5,6 +5,8 @@ import java.time.Instant
 import mess.Fmt
 
 import scala.annotation.tailrec
+import scala.collection.Seq
+import scala.collection.immutable
 import scala.collection.mutable
 
 trait Encoder[A] extends Serializable { self =>
@@ -72,6 +74,9 @@ private[codec] trait Encoder1 {
     else buildVector(rem, acc += A(rem.next()))
 
   implicit final def encodeSeq[A: Encoder]: Encoder.AsArray[Seq[A]] =
+    a => Fmt.MArray(buildVector(a.iterator, Vector.newBuilder))
+
+  implicit final def encodeISeq[A: Encoder]: Encoder.AsArray[immutable.Seq[A]] =
     a => Fmt.MArray(buildVector(a.iterator, Vector.newBuilder))
 
   implicit final def encodeSet[A: Encoder]: Encoder.AsArray[Set[A]] =

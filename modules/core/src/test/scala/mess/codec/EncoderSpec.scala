@@ -4,6 +4,9 @@ import mess.Fmt
 import mess.MsgpackHelper
 import org.msgpack.core.MessagePack
 
+import scala.collection.Seq
+import scala.collection.immutable
+
 class EncoderSpec extends MsgpackHelper {
   case class Bar(double: Double)
 
@@ -122,6 +125,13 @@ class EncoderSpec extends MsgpackHelper {
           (Seq(0 to 14: _*), Fmt.fromValues((0 to 14).map(a => Fmt.fromByte(a.toByte)): _*)),
           (Seq.empty[Int], Fmt.fromValues())
         )
+  )
+  check(
+    "Encoder[immutable.Seq[A]]",
+    Seq(
+      (immutable.Seq(0 to 14: _*), Fmt.fromValues((0 to 14).map(a => Fmt.fromByte(a.toByte)): _*)),
+      (immutable.Seq.empty[Int], Fmt.fromValues())
+    )
   )
   check("Encoder[List[A]]",
         Seq(
