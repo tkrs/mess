@@ -66,7 +66,7 @@ object Foo {
       9843720,
       97693437922040L,
       "abcdefghijklmnopqrstmvwxyz",
-      true,
+      yoda = true,
       0.2387430
     )
 }
