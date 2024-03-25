@@ -45,8 +45,8 @@ object Fmt {
     def apply(value: Boolean): MBool =
       if (value) True else False
 
-    case object True  extends MBool(true)
-    case object False extends MBool(false)
+    case object True  extends MBool(value = true)
+    case object False extends MBool(value = false)
   }
 
   sealed trait MNumber extends Fmt {
