@@ -31,7 +31,7 @@ lazy val mess = project
       )
     )
   )
-  .settings(Compile / console / scalacOptions --= warnCompilerOptions)
+  // .settings(Compile / console / scalacOptions --= warnCompilerOptions)
   .settings(Compile / console / scalacOptions += "-Yrepl-class-based")
   .aggregate(core, benchmark, examples)
   .dependsOn(core, benchmark, examples)
@@ -82,7 +82,7 @@ lazy val benchmark = project
   .dependsOn(core % "test->test")
 
 lazy val sharedSettings = Seq(
-  scalacOptions ++= compilerOptions ++ warnCompilerOptions ++ {
+  scalacOptions ++= compilerOptions ++ {
     CrossVersion.partialVersion(scalaVersion.value) match {
       case Some((3, _)) => Nil // Seq("-source:3.0-migration")
       case Some((2, n)) if n >= 13 =>
@@ -94,7 +94,7 @@ lazy val sharedSettings = Seq(
             "-Ywarn-numeric-widen"
         )
 
-      case _ => Seq("-Xfuture", "-Ypartial-unification", "-Yno-adapted-args")
+      case _ => Seq("-Xfuture", "-Xfatal-warnings", "-Ypartial-unification", "-Yno-adapted-args")
     }
   }
 )
@@ -124,8 +124,4 @@ lazy val compilerOptions = Seq(
   "-unchecked",
   "-language:higherKinds",
   "-feature"
-)
-
-lazy val warnCompilerOptions = Seq(
-  "-Xfatal-warnings"
 )
