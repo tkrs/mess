@@ -16,21 +16,21 @@ private[codec] trait MirrorDecoder:
     }
 
   inline def summonLabels[T <: Tuple]: Array[String]       = summonLabelsRec[T].toArray
-  inline def summonDecoders[T <: Tuple]: Array[Decoder[_]] = summonDecodersRec[T].toArray
+  inline def summonDecoders[T <: Tuple]: Array[Decoder[?]] = summonDecodersRec[T].toArray
 
   inline def summonLabelsRec[T <: Tuple]: List[String] =
     inline erasedValue[T] match
       case _: EmptyTuple => Nil
       case _: (t *: ts)  => constValue[t].asInstanceOf[String] :: summonLabelsRec[ts]
 
-  inline def summonDecodersRec[T <: Tuple]: List[Decoder[_]] =
+  inline def summonDecodersRec[T <: Tuple]: List[Decoder[?]] =
     inline erasedValue[T] match
       case _: EmptyTuple => Nil
       case _: (t *: ts)  => summonDecoder[t] :: summonDecodersRec[ts]
 
   def iterator[T](t: T) = t.asInstanceOf[Product].productIterator
 
-  def decodeSum[T](s: Mirror.SumOf[T], names: => Array[String], decoders: => Array[Decoder[_]]): Decoder[T] =
+  def decodeSum[T](s: Mirror.SumOf[T], names: => Array[String], decoders: => Array[Decoder[?]]): Decoder[T] =
     new Decoder[T]:
       def apply(m: Fmt): Either[DecodingFailure, T] =
         m match
@@ -58,7 +58,7 @@ private[codec] trait MirrorDecoder:
           case _ =>
             Left(TypeMismatchError("Sum", m))
 
-  def decodeProduct[T](p: Mirror.ProductOf[T], names: => Array[String], decoders: => Array[Decoder[_]]): Decoder[T] =
+  def decodeProduct[T](p: Mirror.ProductOf[T], names: => Array[String], decoders: => Array[Decoder[?]]): Decoder[T] =
     new Decoder[T]:
       def apply(m: Fmt): Either[DecodingFailure, T] =
         m match
