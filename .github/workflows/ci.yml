@@ -8,7 +8,7 @@ jobs:
   setup:
     runs-on: ubuntu-latest
     outputs:
-      scala-versions:  ${{ steps.set-scala-versions.outputs.versions }}
+      scala-versions: ${{ steps.set-scala-versions.outputs.versions }}
     steps:
       - uses: actions/checkout@v4
       - id: set-scala-versions
@@ -28,16 +28,16 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-java@v4
         with:
-          java-version: '11'
-          distribution: 'temurin'
-          cache: 'sbt'
+          java-version: "11"
+          distribution: "temurin"
+          cache: "sbt"
       - run: sbt ++${{ matrix.scala }} coverage test coverageReport
       - run: sbt ++${{ matrix.scala }} examples/run
-      - uses: codecov/codecov-action@v3
+      - uses: codecov/codecov-action@v4
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           flags: unittests
-          fail_ci_if_error: true
+          fail_ci_if_error: false
           verbose: true
   scalafmt:
     runs-on: ubuntu-latest
@@ -45,9 +45,9 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-java@v4
         with:
-          java-version: '11'
-          distribution: 'temurin'
-          cache: 'sbt'
+          java-version: "11"
+          distribution: "temurin"
+          cache: "sbt"
       - run: sbt scalafmtCheckAll
   scalafix:
     runs-on: ubuntu-latest
@@ -55,7 +55,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-java@v4
         with:
-          java-version: '11'
-          distribution: 'temurin'
-          cache: 'sbt'
+          java-version: "11"
+          distribution: "temurin"
+          cache: "sbt"
       - run: sbt "scalafixAll --check"
