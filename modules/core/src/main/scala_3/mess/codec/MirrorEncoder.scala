@@ -17,21 +17,21 @@ private[codec] trait MirrorEncoder:
     }
 
   inline def summonLabels[T <: Tuple]: Array[String]       = summonLabelsRec[T].toArray
-  inline def summonEncoders[T <: Tuple]: Array[Encoder[_]] = summonEncodersRec[T].toArray
+  inline def summonEncoders[T <: Tuple]: Array[Encoder[?]] = summonEncodersRec[T].toArray
 
   inline def summonLabelsRec[T <: Tuple]: List[String] =
     inline erasedValue[T] match
       case _: EmptyTuple => Nil
       case _: (t *: ts)  => constValue[t].asInstanceOf[String] :: summonLabelsRec[ts]
 
-  inline def summonEncodersRec[T <: Tuple]: List[Encoder[_]] =
+  inline def summonEncodersRec[T <: Tuple]: List[Encoder[?]] =
     inline erasedValue[T] match
       case _: EmptyTuple => Nil
       case _: (t *: ts)  => summonEncoder[t] :: summonEncodersRec[ts]
 
   def iterator[T](t: T) = t.asInstanceOf[Product].productIterator
 
-  def encoderSum[T](s: Mirror.SumOf[T], elems: => Array[Encoder[_]]): Encoder.AsMap[T] =
+  def encoderSum[T](s: Mirror.SumOf[T], elems: => Array[Encoder[?]]): Encoder.AsMap[T] =
     new Encoder.AsMap[T]:
       def applyToMap(v: T): Fmt.MMap =
         val ord    = s.ordinal(v)
@@ -41,7 +41,7 @@ private[codec] trait MirrorEncoder:
 
   def encoderProduct[T](p: Mirror.ProductOf[T],
                         names: => Array[String],
-                        encoders: => Array[Encoder[_]]
+                        encoders: => Array[Encoder[?]]
   ): Encoder.AsMap[T] =
     new Encoder.AsMap[T]:
       def applyToMap(v: T): Fmt.MMap =

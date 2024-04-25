@@ -205,7 +205,10 @@ object Fmt {
       Impl(value)
 
     def from(entries: (Fmt, Fmt)*): MMap =
-      Impl(immutable.Map(entries: _*))
+      fromSeq(entries)
+
+    def fromSeq(entries: Seq[(Fmt, Fmt)]): MMap =
+      Impl(entries.toMap)
 
     private[mess] def newBuilder: MMap =
       BuilderImpl(Map.newBuilder)
@@ -352,14 +355,14 @@ object Fmt {
     }
   }
 
-  private[this] def unpackArr(buffer: MessageUnpacker)(implicit factory: Factory[Fmt, Vector[Fmt]]): Vector[Fmt] = {
+  private def unpackArr(buffer: MessageUnpacker)(implicit factory: Factory[Fmt, Vector[Fmt]]): Vector[Fmt] = {
     @tailrec def loop(size: Int, acc: mutable.Builder[Fmt, Vector[Fmt]]): Vector[Fmt] =
       if (size == 0) acc.result()
       else loop(size - 1, acc += unpack(buffer))
     loop(buffer.unpackArrayHeader(), factory.newBuilder)
   }
 
-  private[this] def unpackMap(
+  private def unpackMap(
     buffer: MessageUnpacker
   )(implicit factory: Factory[(Fmt, Fmt), Map[Fmt, Fmt]]): Map[Fmt, Fmt] = {
     @tailrec def loop(size: Int, acc: mutable.Builder[(Fmt, Fmt), Map[Fmt, Fmt]]): Map[Fmt, Fmt] =
@@ -386,7 +389,7 @@ object Fmt {
     finally buffer.close()
   }
 
-  private[this] val bigintCriteria = BigInteger.valueOf(9223372036854775807L)
+  private val bigintCriteria = BigInteger.valueOf(9223372036854775807L)
 
   def unpack(buffer: MessageUnpacker): Fmt =
     if (!buffer.hasNext) Fmt.MUnit
@@ -457,7 +460,7 @@ object Fmt {
   def fromDouble(value: Double): Fmt                           = MDouble(value)
   def fromString(value: String): Fmt                           = MString(value)
   def fromMap(value: immutable.Map[Fmt, Fmt]): Fmt             = MMap(value)
-  def fromEntries(value: (Fmt, Fmt)*): Fmt                     = MMap.from(value: _*)
+  def fromEntries(value: (Fmt, Fmt)*): Fmt                     = MMap.fromSeq(value)
   def fromVector(value: Vector[Fmt]): Fmt                      = MArray(value)
   def fromLsit(value: List[Fmt]): Fmt                          = MArray(value.toVector)
   def fromSeq(value: Seq[Fmt]): Fmt                            = MArray(value.toVector)

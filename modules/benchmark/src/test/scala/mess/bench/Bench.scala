@@ -72,8 +72,8 @@ object Foo {
 }
 
 class GenericBench extends Bench {
-  private[this] val foo      = Foo.next()
-  private[this] val fooBytes = Bench.toBytes(foo)
+  private val foo      = Foo.next()
+  private val fooBytes = Bench.toBytes(foo)
 
   @Benchmark
   def decodeFoo(): Either[DecodingFailure, Foo] =
@@ -88,13 +88,13 @@ class ContainerBench extends Bench {
   @Param(Array("5", "10", "50", "100", "1000"))
   var size: Int = _
 
-  private[this] var map: Map[Long, Double] = _
-  private[this] var mapBytes: Array[Byte]  = _
-  private[this] var seq: Seq[Long]         = _
-  private[this] var seqBytes: Array[Byte]  = _
-  private[this] var list: List[Long]       = _
-  private[this] var vec: Vector[Long]      = _
-  private[this] var set: Set[Long]         = _
+  private var map: Map[Long, Double] = _
+  private var mapBytes: Array[Byte]  = _
+  private var seq: Seq[Long]         = _
+  private var seqBytes: Array[Byte]  = _
+  private var list: List[Long]       = _
+  private var vec: Vector[Long]      = _
+  private var set: Set[Long]         = _
 
   @Setup
   def setup(): Unit = {
