@@ -24,7 +24,6 @@ lazy val mess = project
         testFrameworks += new TestFramework("munit.Framework"),
         scalafmtOnCompile := true,
         scalafixOnCompile := true,
-        scalafixDependencies += OrganizeImports,
         semanticdbEnabled := true,
         semanticdbVersion := scalafixSemanticdb.revision,
         fork              := true
