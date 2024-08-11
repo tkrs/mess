@@ -19,7 +19,7 @@ lazy val mess = project
           )
         ),
         scalaVersion       := Ver.`scala2.13`,
-        crossScalaVersions := Seq(Ver.`scala2.12`, Ver.`scala2.13`, Ver.scala3),
+        crossScalaVersions := Seq(Ver.`scala2.13`, Ver.scala3),
         libraryDependencies ++= Seq(MunitScalacheck).map(_ % Test),
         testFrameworks += new TestFramework("munit.Framework"),
         scalafmtOnCompile := true,
