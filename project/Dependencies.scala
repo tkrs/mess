@@ -6,7 +6,7 @@ object Dependencies {
     val `scala2.13` = "2.13.16"
 
     val shapeless   = "2.3.12"
-    val msgpackJava = "0.9.8"
+    val msgpackJava = "0.9.9"
 
     val munit = "1.1.0"
   }
