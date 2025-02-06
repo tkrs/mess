@@ -106,12 +106,13 @@ class EncoderSpec extends MsgpackHelper {
       ((BigInt(1) << 64) - 1, Fmt.fromBigInt((BigInt(1) << 64) - 1))
     )
   )
-  check("Encoder[Double]",
-        Seq(
-          (0.0, Fmt.fromDouble(0.0)),
-          (Double.MaxValue, Fmt.fromDouble(Double.MaxValue)),
-          (Double.MinValue, Fmt.fromDouble(Double.MinValue))
-        )
+  check(
+    "Encoder[Double]",
+    Seq(
+      (0.0, Fmt.fromDouble(0.0)),
+      (Double.MaxValue, Fmt.fromDouble(Double.MaxValue)),
+      (Double.MinValue, Fmt.fromDouble(Double.MinValue))
+    )
   )
   check("Encoder[Float]",
         Seq(
