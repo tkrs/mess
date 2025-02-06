@@ -2,13 +2,13 @@ import sbt._
 
 object Dependencies {
   val Ver = new {
-    val scala3      = "3.6.2"
-    val `scala2.13` = "2.13.15"
+    val scala3      = "3.6.3"
+    val `scala2.13` = "2.13.16"
 
     val shapeless   = "2.3.12"
-    val msgpackJava = "0.9.8"
+    val msgpackJava = "0.9.9"
 
-    val munit = "1.0.0"
+    val munit = "1.1.0"
   }
 
   lazy val Shapeless       = "com.chuusai"   %% "shapeless"        % Ver.shapeless
