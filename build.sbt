@@ -18,8 +18,8 @@ lazy val mess = project
             url("https://github.com/tkrs")
           )
         ),
-        scalaVersion       := Ver.`scala2.13`,
-        crossScalaVersions := Seq(Ver.`scala2.13`, Ver.scala3),
+        scalaVersion       := Ver.scala2,
+        crossScalaVersions := Seq(Ver.scala2, Ver.scala3),
         libraryDependencies ++= Seq(MunitScalacheck).map(_ % Test),
         testFrameworks += new TestFramework("munit.Framework"),
         scalafmtOnCompile := true,
