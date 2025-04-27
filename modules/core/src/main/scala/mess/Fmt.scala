@@ -5,13 +5,13 @@ import java.nio.charset.Charset
 import java.nio.charset.StandardCharsets.UTF_8
 import java.time.Instant
 
-import mess.internal.ScalaVersionSpecifics.*
 import org.msgpack.core.MessageFormat as MF
 import org.msgpack.core.MessagePack
 import org.msgpack.core.MessagePacker
 import org.msgpack.core.MessageUnpacker
 
 import scala.annotation.tailrec
+import scala.collection.Factory
 import scala.collection.Iterator
 import scala.collection.immutable
 import scala.collection.mutable

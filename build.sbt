@@ -106,7 +106,7 @@ lazy val crossVersionSharedSources =
             case Some((3, n)) =>
               Seq(new File(dir.getPath + "_3"))
             case _ =>
-              Seq(new File(dir.getPath + "_2"), new File(dir.getPath + "_2.13+"))
+              Seq(new File(dir.getPath + "_2"))
           }
       }
   }

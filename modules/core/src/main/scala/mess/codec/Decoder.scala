@@ -4,9 +4,9 @@ import java.nio.charset.StandardCharsets.UTF_8
 import java.time.Instant
 
 import mess.Fmt
-import mess.internal.ScalaVersionSpecifics.*
 
 import scala.annotation.tailrec
+import scala.collection.Factory
 import scala.collection.Seq
 import scala.collection.immutable
 import scala.collection.mutable
