@@ -9,8 +9,6 @@ import mess.codec.semiauto._
 import org.msgpack.core.MessagePack
 import org.scalacheck.Arbitrary
 import org.scalacheck.Gen
-import org.scalacheck.Prop
-import org.scalacheck.Shrink
 
 class CodecChecker extends MsgpackHelper {
   import MsgpackHelper._
@@ -39,17 +37,6 @@ class CodecChecker extends MsgpackHelper {
     seconds <- Gen.choose(0L, System.currentTimeMillis() / 1000)
     nanos   <- Gen.choose(0L, 999000000L)
   } yield Instant.ofEpochSecond(seconds, nanos))
-
-  def roundTrip[A: Arbitrary: Shrink](implicit encode: Encoder[A], decode: Decoder[A]) =
-    Prop.forAll { (a: A) =>
-      val ast = encode(a)
-      ast.pack(packer)
-      val bytes    = packer.toByteArray
-      val unpacker = MessagePack.DEFAULT_UNPACKER_CONFIG.newUnpacker(bytes)
-      val actual   = decode(Fmt.unpack(unpacker)).toTry.get
-      packer.clear()
-      actual == a
-    }
 
   // format: off
   test("Boolean")(roundTrip[Boolean])
@@ -178,34 +165,5 @@ class CodecChecker extends MsgpackHelper {
       val value    = Decoder[Option[Hoge]].apply(Fmt.unpack(unpacker))
       assertEquals(value, Right(None))
     }
-  }
-
-  sealed trait Z
-
-  case class Y(int: Int, long: Long) extends Z
-
-  object Y {
-    implicit val decode: Decoder[Y] = derivedDecoder[Y]
-    implicit val encode: Encoder[Y] = derivedEncoder[Y]
-  }
-
-  case class X(string: String) extends Z
-
-  object X {
-    implicit val decode: Decoder[X] = derivedDecoder[X]
-    implicit val encode: Encoder[X] = derivedEncoder[X]
-  }
-
-  implicit val arbZ: Arbitrary[Z] = Arbitrary(
-    Gen.oneOf(
-      Arbitrary.arbitrary[String].map(X.apply),
-      Arbitrary.arbitrary[(Int, Long)].map((Y.apply _).tupled)
-    )
-  )
-
-  test("ADT") {
-    import mess.codec.auto._
-
-    roundTrip[Z]
   }
 }
