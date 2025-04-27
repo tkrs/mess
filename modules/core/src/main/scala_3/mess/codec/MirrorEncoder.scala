@@ -6,7 +6,7 @@ import scala.compiletime.constValue
 import scala.compiletime.erasedValue
 import scala.compiletime.summonFrom
 import scala.compiletime.summonInline
-import scala.deriving._
+import scala.deriving.*
 
 private[codec] trait MirrorEncoder:
 

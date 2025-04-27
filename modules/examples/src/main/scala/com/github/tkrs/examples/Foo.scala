@@ -2,7 +2,7 @@ package com.github.tkrs.examples
 
 import mess.codec.Decoder
 import mess.codec.Encoder
-import mess.codec.semiauto._
+import mess.codec.semiauto.*
 
 final case class Foo(age: Int, name: String)
 

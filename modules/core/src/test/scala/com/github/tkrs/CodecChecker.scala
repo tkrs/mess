@@ -2,10 +2,10 @@ package com.github.tkrs
 
 import java.time.Instant
 
-import mess._
+import mess.*
 import mess.codec.Decoder
 import mess.codec.Encoder
-import mess.codec.semiauto._
+import mess.codec.semiauto.*
 import org.msgpack.core.MessagePack
 import org.scalacheck.Arbitrary
 import org.scalacheck.Gen

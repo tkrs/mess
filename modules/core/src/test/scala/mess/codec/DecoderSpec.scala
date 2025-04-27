@@ -2,7 +2,7 @@ package mess.codec
 
 import mess.Fmt
 import mess.MsgpackHelper
-import mess.codec.semiauto._
+import mess.codec.semiauto.*
 
 import scala.collection.Seq
 import scala.collection.immutable

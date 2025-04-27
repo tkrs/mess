@@ -5,7 +5,7 @@ import mess.Fmt
 import scala.compiletime.constValue
 import scala.compiletime.erasedValue
 import scala.compiletime.summonFrom
-import scala.deriving._
+import scala.deriving.*
 
 private[codec] trait MirrorDecoder:
 

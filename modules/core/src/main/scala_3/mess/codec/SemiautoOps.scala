@@ -1,6 +1,6 @@
 package mess.codec
 
-import scala.deriving._
+import scala.deriving.*
 
 private[codec] trait SemiautoOps:
   inline def derivedEncoder[A](using A: Mirror.Of[A]): Encoder.AsMap[A] = Encoder.AsMap.derived[A]

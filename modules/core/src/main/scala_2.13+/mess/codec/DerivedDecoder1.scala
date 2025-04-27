@@ -1,7 +1,7 @@
 package mess.codec
 
-import shapeless._
-import shapeless.labelled._
+import shapeless.*
+import shapeless.labelled.*
 
 private[codec] trait DerivedDecoder1 extends DerivedDecoder2 { self: DerivedDecoderOps =>
   implicit final def decodeGen[A, R](implicit
