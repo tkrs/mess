@@ -7,7 +7,7 @@ import mess.codec.Decoder
 import mess.codec.DecodingFailure
 import mess.codec.Encoder
 import org.msgpack.core.MessagePack
-import org.openjdk.jmh.annotations._
+import org.openjdk.jmh.annotations.*
 
 @State(Scope.Thread)
 @BenchmarkMode(Array(Mode.Throughput))

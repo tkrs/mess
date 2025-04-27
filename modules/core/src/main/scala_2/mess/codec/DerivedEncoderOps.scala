@@ -1,8 +1,8 @@
 package mess.codec
 
 import mess.Fmt
-import shapeless._
-import shapeless.labelled._
+import shapeless.*
+import shapeless.labelled.*
 
 private[codec] trait DerivedEncoderOps {
 

@@ -5,11 +5,11 @@ import java.nio.charset.Charset
 import java.nio.charset.StandardCharsets.UTF_8
 import java.time.Instant
 
-import mess.internal.ScalaVersionSpecifics._
+import mess.internal.ScalaVersionSpecifics.*
+import org.msgpack.core.MessageFormat as MF
 import org.msgpack.core.MessagePack
 import org.msgpack.core.MessagePacker
 import org.msgpack.core.MessageUnpacker
-import org.msgpack.core.{MessageFormat => MF}
 
 import scala.annotation.tailrec
 import scala.collection.Iterator

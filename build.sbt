@@ -89,7 +89,8 @@ lazy val sharedSettings = Seq(
             "-Wunused:_",
             "-Ywarn-extra-implicit",
             "-Ywarn-dead-code",
-            "-Ywarn-numeric-widen"
+            "-Ywarn-numeric-widen",
+            "-Xsource:3"
         )
     }
   }
