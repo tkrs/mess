@@ -21,7 +21,6 @@ lazy val mess = project
         scalaVersion       := Ver.scala2,
         crossScalaVersions := Seq(Ver.scala2, Ver.scala3),
         libraryDependencies ++= Seq(MunitScalacheck).map(_ % Test),
-        testFrameworks += new TestFramework("munit.Framework"),
         scalafmtOnCompile := true,
         scalafixOnCompile := true,
         semanticdbEnabled := true,
@@ -83,17 +82,15 @@ lazy val benchmark = project
 lazy val sharedSettings = Seq(
   scalacOptions ++= compilerOptions ++ {
     CrossVersion.partialVersion(scalaVersion.value) match {
-      case Some((3, _)) => Nil // Seq("-source:3.0-migration")
-      case Some((2, n)) if n >= 13 =>
+      case Some((3, _)) => Seq("-Wunused:imports")
+      case _ =>
         Seq("-Xfatal-warnings",
             "-Xlint",
-            "-Ywarn-unused",
+            "-Wunused:_",
             "-Ywarn-extra-implicit",
             "-Ywarn-dead-code",
             "-Ywarn-numeric-widen"
         )
-
-      case _ => Seq("-Xfuture", "-Xfatal-warnings", "-Ypartial-unification", "-Yno-adapted-args")
     }
   }
 )
@@ -107,10 +104,8 @@ lazy val crossVersionSharedSources =
           CrossVersion.partialVersion(scalaVersion.value) match {
             case Some((3, n)) =>
               Seq(new File(dir.getPath + "_3"))
-            case Some((2, n)) if n >= 13 =>
+            case _ =>
               Seq(new File(dir.getPath + "_2"), new File(dir.getPath + "_2.13+"))
-            case s =>
-              Seq(new File(dir.getPath + "_2"), new File(dir.getPath + "_2.12-"))
           }
       }
   }
