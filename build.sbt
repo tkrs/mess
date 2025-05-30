@@ -12,7 +12,7 @@ lazy val mess = project
         organization := "com.github.tkrs",
         homepage     := Some(url("https://github.com/tkrs/mess")),
         licenses     := Seq("MIT License" -> url("http://www.opensource.org/licenses/mit-license.php")),
-        developers := List(
+        developers   := List(
           Developer(
             "tkrs",
             "Takeru Sato",
@@ -85,7 +85,7 @@ lazy val sharedSettings = Seq(
   scalacOptions ++= compilerOptions ++ {
     CrossVersion.partialVersion(scalaVersion.value) match {
       case Some((3, _)) => Seq("-Wunused:imports")
-      case _ =>
+      case _            =>
         Seq("-Xfatal-warnings",
             "-Xlint",
             "-Wunused:_",
