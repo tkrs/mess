@@ -229,7 +229,7 @@ object Fmt {
         value.foreach(f)
 
       def flatMap(f: ((Fmt, Fmt)) => MMap): MMap = {
-        val it = value.iterator
+        val it                           = value.iterator
         @tailrec def go(acc: MMap): MMap =
           if (!it.hasNext) acc else go(acc ++ f(it.next()))
         if (value.isEmpty) this else go(MMap(immutable.Map.empty))
@@ -273,7 +273,7 @@ object Fmt {
         value.foreach(f)
 
       def flatMap(f: ((Fmt, Fmt)) => MMap): MMap = {
-        val it = value.iterator
+        val it                           = value.iterator
         @tailrec def go(acc: MMap): MMap =
           if (!it.hasNext) acc else go(acc ++ f(it.next()))
         if (value.isEmpty) this else go(MMap(immutable.Map.empty))
@@ -331,7 +331,7 @@ object Fmt {
         value.foreach(f)
 
       def flatMap(f: Fmt => MArray): MArray = {
-        val it = value.iterator
+        val it                               = value.iterator
         @tailrec def go(acc: MArray): MArray =
           if (!it.hasNext) acc else go(acc ++ f(it.next()))
         if (value.isEmpty) this else go(MArray(Vector.empty))
