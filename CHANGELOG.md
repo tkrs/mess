@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.2](https://github.com/tkrs/mess/compare/v1.0.1...v1.0.2) (2025-06-15)
+
+
+### Miscellaneous Chores
+
+* release 1.0.2 ([#454](https://github.com/tkrs/mess/issues/454)) ([74c4dba](https://github.com/tkrs/mess/commit/74c4dba586d0ede40725d122bc3eee8cd4e06a6a))
+
 ## [1.0.1](https://github.com/tkrs/mess/compare/v1.0.0...v1.0.1) (2025-06-15)
 
 
