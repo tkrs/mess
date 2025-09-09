@@ -8,7 +8,7 @@ object Dependencies {
     val shapeless   = "2.3.13"
     val msgpackJava = "0.9.9"
 
-    val munit = "1.1.0"
+    val munit = "1.2.0"
   }
 
   lazy val Shapeless       = "com.chuusai"   %% "shapeless"        % Ver.shapeless
